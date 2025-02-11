@@ -7,7 +7,7 @@ const SectionContainer = ({ id, title, children, background }) => {
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => setIsVisible(entry.isIntersecting),
-      { threshold: 0.2 }
+      { threshold: 0.3 }
     );
     const section = document.getElementById(id);
     if (section) observer.observe(section);

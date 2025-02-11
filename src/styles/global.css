@@ -8,6 +8,10 @@
     box-sizing: border-box;
     scroll-behavior: smooth; /* Enables smooth scrolling */
   }
+
+  html {
+    scroll-behavior: smooth;
+  }
   
   body {
     font-family: "Arial", sans-serif;
@@ -53,14 +57,19 @@
   /* ============================= */
   
   .section-container {
-    min-height: 100vh; /* Ensures each section fills the screen */
+    min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
     text-align: center;
-    transition: transform 0.5s ease-out, opacity 0.5s ease-out;
+    transition: transform 0.8s ease-out, opacity 0.8s ease-out;
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(50px); /* Creates the floating effect */
+  }
+  
+  .section-container.visible {
+    opacity: 1;
+    transform: translateY(0);
   }
   
   .section-container.visible {

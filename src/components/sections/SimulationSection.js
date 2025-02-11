@@ -5,7 +5,7 @@ import Button from "../ui/CustomButton";
 
 const SimulationSection = () => {
   return (
-    <SectionContainer id="simulation" title="Simulation" background>
+    <SectionContainer id="simulation" title="Simulation" >
       <p>Learn how to run simulations efficiently.</p>
       {/* <ImageBlock src="/images/simulation.jpg" alt="Simulation" /> */}
         <Button text="Get Started" link="#simulation" />

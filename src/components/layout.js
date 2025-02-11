@@ -2,8 +2,9 @@ import * as React from "react";
 import { useStaticQuery, graphql } from "gatsby";
 import Header from "./Header";
 import Seo from "./seo"; // Import SEO component
+import { useEffect, useState } from "react";
 import "./layout.css"; // Import global styles
-import Footer from "./footer";
+
 const Layout = ({ children, seoProps }) => {
   // Fetch site metadata and header image for SEO
   const data = useStaticQuery(graphql`
@@ -25,6 +26,18 @@ const Layout = ({ children, seoProps }) => {
   // Extract fallback image for SEO (if available)
   const imageSrc = data.headerImage?.childImageSharp?.gatsbyImageData?.images?.fallback?.src;
 
+  // State to control background movement
+  const [scrollY, setScrollY] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrollY(window.scrollY * -0.2); // Negative to move in opposite direction
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   return (
     <>
       {/* SEO Component */}
@@ -35,16 +48,19 @@ const Layout = ({ children, seoProps }) => {
         keywords={seoProps?.keywords || "art, NFT, digital, Collection"}
       />
 
-      {/* Main Layout with Radial Gradient */}
-      <div className="gradient-bg">
+      {/* Moving Background */}
+      <div className="gradient-bg" style={{ transform: `translateY(${scrollY}px)` }}></div>
+
+      {/* Main Layout */}
+      <div className="content">
         {/* Header */}
         <Header siteTitle={data.site.siteMetadata?.title} />
 
         {/* Page Content */}
-        <main className="content">{children}</main>
+        <main>{children}</main>
 
         {/* Footer (Optional, Uncomment if needed) */}
-        <Footer />
+        {/* <Footer /> */}
       </div>
     </>
   );
