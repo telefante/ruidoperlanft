@@ -1,13 +1,12 @@
 import * as React from "react";
 import { useStaticQuery, graphql } from "gatsby";
-import Header from "./header";
-import Seo from "./seo"; // Import der Seo-Komponente
+import Header from "./Header";
+import Seo from "./seo"; // Import SEO component
+import Footer from "./Footer"; // Import Footer component
 import "./layout.css";
-import Footer from './footer'; // Import the new Footer component
-
 
 const Layout = ({ children, seoProps }) => {
-  // Fetch site metadata and image for SEO
+  // Fetch site metadata and header image for SEO
   const data = useStaticQuery(graphql`
     query SiteTitleAndImageQuery {
       site {
@@ -24,9 +23,8 @@ const Layout = ({ children, seoProps }) => {
     }
   `);
 
-  // Get the image source
-  const imageSrc =
-    data.headerImage.childImageSharp.gatsbyImageData.images.fallback.src;
+  // Extract fallback image for SEO (if available)
+  const imageSrc = data.headerImage?.childImageSharp?.gatsbyImageData?.images?.fallback?.src;
 
   return (
     <>
@@ -34,24 +32,26 @@ const Layout = ({ children, seoProps }) => {
       <Seo
         title={seoProps?.title || data.site.siteMetadata.title}
         description={seoProps?.description || data.site.siteMetadata.description}
-        // image={seoProps?.image || imageSrc}
-        keywords={seoProps?.keywords || "art, NFT , digital, Collection"}
+        image={seoProps?.image || imageSrc}
+        keywords={seoProps?.keywords || "art, NFT, digital, Collection"}
       />
+
       {/* Header */}
-      <Header siteTitle={data.site.siteMetadata?.title } />
-      
+      <Header siteTitle={data.site.siteMetadata?.title} />
+
       {/* Main Layout */}
       <div
         style={{
-          height: "100vh",
+          minHeight: "100vh",
           display: "flex",
           flexDirection: "column",
           margin: 0,
         }}
       >
         <main style={{ flex: 1 }}>{children}</main>
-           {/* Add the Footer component */}
-           <Footer />
+        
+        {/* Footer */}
+        <Footer />
       </div>
     </>
   );
