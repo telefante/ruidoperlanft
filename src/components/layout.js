@@ -1,51 +1,60 @@
-/**
- * Layout component that queries for data
- * with Gatsby's useStaticQuery component
- *
- * See: https://www.gatsbyjs.com/docs/how-to/querying-data/use-static-query/
- */
+import * as React from "react";
+import { useStaticQuery, graphql } from "gatsby";
+import Header from "./header";
+import Seo from "./seo"; // Import der Seo-Komponente
+import "./layout.css";
+import Footer from './footer'; // Import the new Footer component
 
-import * as React from "react"
-import { useStaticQuery, graphql } from "gatsby"
 
-import Header from "./header"
-import "./layout.css"
-
-const Layout = ({ children }) => {
+const Layout = ({ children, seoProps }) => {
+  // Fetch site metadata and image for SEO
   const data = useStaticQuery(graphql`
-    query SiteTitleQuery {
+    query SiteTitleAndImageQuery {
       site {
         siteMetadata {
           title
+          description
+        }
+      }
+      headerImage: file(relativePath: { eq: "og-image.jpg" }) {
+        childImageSharp {
+          gatsbyImageData(layout: CONSTRAINED, width: 1200)
         }
       }
     }
-  `)
+  `);
+
+  // Get the image source
+  const imageSrc =
+    data.headerImage.childImageSharp.gatsbyImageData.images.fallback.src;
 
   return (
     <>
-      <Header siteTitle={data.site.siteMetadata?.title || `Title`} />
+      {/* SEO Component */}
+      <Seo
+        title={seoProps?.title || data.site.siteMetadata.title}
+        description={seoProps?.description || data.site.siteMetadata.description}
+        // image={seoProps?.image || imageSrc}
+        keywords={seoProps?.keywords || "arte, performance, digital, elecciones"}
+      />
+      {/* Header */}
+      <Header siteTitle={data.site.siteMetadata?.title || "dondeestamiacta"} />
+      
+      {/* Main Layout */}
       <div
         style={{
-          margin: `0 auto`,
-          maxWidth: `var(--size-content)`,
-          padding: `var(--size-gutter)`,
+          height: "100vh",
+          display: "flex",
+          flexDirection: "column",
+          margin: 0,
         }}
       >
-        <main>{children}</main>
-        <footer
-          style={{
-            marginTop: `var(--space-5)`,
-            fontSize: `var(--font-sm)`,
-          }}
-        >
-          © {new Date().getFullYear()} &middot; Built with
-          {` `}
-          <a href="https://www.gatsbyjs.com">Gatsby</a>
-        </footer>
+        <main style={{ flex: 1 }}>{children}</main>
+           {/* Add the Footer component */}
+           <Footer />
       </div>
     </>
-  )
-}
+  );
+};
 
-export default Layout
+export default Layout;
