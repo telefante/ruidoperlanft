@@ -1,0 +1,13 @@
+.section-container {
+    padding: 80px 20px;
+    text-align: center;
+  }
+  
+  .section-content {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  
+  .bg-light {
+    background-color: #f9f9f9;
+  }

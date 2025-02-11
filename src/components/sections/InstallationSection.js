@@ -1,6 +1,6 @@
 import React from "react";
 import SectionContainer from "./SectionContainer";
-import Button from "../ui/Button";
+import Button from "../ui/CustomButton";
 
 const InstallationSection = () => {
   return (
