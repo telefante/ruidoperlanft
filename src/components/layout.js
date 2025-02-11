@@ -35,10 +35,10 @@ const Layout = ({ children, seoProps }) => {
         title={seoProps?.title || data.site.siteMetadata.title}
         description={seoProps?.description || data.site.siteMetadata.description}
         // image={seoProps?.image || imageSrc}
-        keywords={seoProps?.keywords || "arte, performance, digital, elecciones"}
+        keywords={seoProps?.keywords || "art, NFT , digital, Collection"}
       />
       {/* Header */}
-      <Header siteTitle={data.site.siteMetadata?.title || "dondeestamiacta"} />
+      <Header siteTitle={data.site.siteMetadata?.title } />
       
       {/* Main Layout */}
       <div
