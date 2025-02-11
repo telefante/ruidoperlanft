@@ -2,10 +2,8 @@ import * as React from "react";
 import { useStaticQuery, graphql } from "gatsby";
 import Header from "./Header";
 import Seo from "./seo"; // Import SEO component
-// import Footer from "./Footer"; 
-// Import Footer component
-import "./layout.css";
-
+import "./layout.css"; // Import global styles
+import Footer from "./footer";
 const Layout = ({ children, seoProps }) => {
   // Fetch site metadata and header image for SEO
   const data = useStaticQuery(graphql`
@@ -37,22 +35,16 @@ const Layout = ({ children, seoProps }) => {
         keywords={seoProps?.keywords || "art, NFT, digital, Collection"}
       />
 
-      {/* Header */}
-      <Header siteTitle={data.site.siteMetadata?.title} />
+      {/* Main Layout with Radial Gradient */}
+      <div className="gradient-bg">
+        {/* Header */}
+        <Header siteTitle={data.site.siteMetadata?.title} />
 
-      {/* Main Layout */}
-      <div
-        style={{
-          minHeight: "100vh",
-          display: "flex",
-          flexDirection: "column",
-          margin: 0,
-        }}
-      >
-        <main style={{ flex: 1 }}>{children}</main>
-        
-        {/* Footer */}
-        {/* <Footer /> */}
+        {/* Page Content */}
+        <main className="content">{children}</main>
+
+        {/* Footer (Optional, Uncomment if needed) */}
+        <Footer />
       </div>
     </>
   );
