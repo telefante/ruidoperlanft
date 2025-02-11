@@ -1,0 +1,28 @@
+.custom-navbar {
+    background: transparent;
+    transition: background 0.3s ease-in-out;
+  }
+  
+  .custom-navbar.scrolled {
+    background: rgba(0, 0, 0, 0.8); /* Dark background when scrolling */
+  }
+  
+  .nav-link-custom {
+    color: black !important; /* Ensures black text */
+    font-weight: bold;
+    margin: 0 10px;
+  }
+  
+  .nav-link-custom:hover {
+    color: #ff4081 !important; /* Optional hover effect */
+  }
+  
+  .brand-title {
+    color: black !important;
+    font-size: 1.5rem;
+    font-weight: bold;
+  }
+  
+  .brand-title:hover {
+    color: #ff4081 !important;
+  }
