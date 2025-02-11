@@ -9,3 +9,7 @@
 
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./src/styles/global.css"; // Custom global styles (optional)
+
+export const onClientEntry = () => {
+    console.log("Adobe Fonts loaded.");
+  };

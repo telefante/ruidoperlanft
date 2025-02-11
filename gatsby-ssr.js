@@ -7,6 +7,16 @@
 /**
  * @type {import('gatsby').GatsbySSR['onRenderBody']}
  */
-exports.onRenderBody = ({ setHtmlAttributes }) => {
+
+import React from "react";
+
+export const onRenderBody = ({ setHeadComponents }) => {
   setHtmlAttributes({ lang: `en` })
-}
+  setHeadComponents([
+    <link
+      key="adobe-fonts"
+      rel="stylesheet"
+      href="https://use.typekit.net/crd1sua.css"
+    />,
+  ]);
+};
