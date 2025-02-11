@@ -1,0 +1,134 @@
+/* ============================= */
+/* Global Reset & Typography */
+/* ============================= */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    scroll-behavior: smooth; /* Enables smooth scrolling */
+  }
+  
+  body {
+    font-family: "Arial", sans-serif;
+    color: #333;
+    background-color: #ffffff;
+  }
+  
+  /* ============================= */
+  /* Navbar Styling */
+  /* ============================= */
+  
+  .custom-navbar {
+    background: transparent !important;
+    transition: background 0.3s ease-in-out;
+  }
+  
+  .custom-navbar.scrolled {
+    background: rgba(0, 0, 0, 0.8) !important; /* Dark background when scrolling */
+  }
+  
+  .brand-title {
+    color: black !important;
+    font-size: 1.5rem;
+    font-weight: bold;
+  }
+  
+  .brand-title:hover {
+    color: #ff4081 !important;
+  }
+  
+  .nav-link-custom {
+    color: black !important;
+    font-weight: bold;
+    margin: 0 10px;
+  }
+  
+  .nav-link-custom:hover {
+    color: #ff4081 !important;
+  }
+  
+  /* ============================= */
+  /* Section Styling */
+  /* ============================= */
+  
+  .section-container {
+    min-height: 100vh; /* Ensures each section fills the screen */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    transition: transform 0.5s ease-out, opacity 0.5s ease-out;
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  
+  .section-container.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  
+  .section-container.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  
+  .section-content {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  
+  .bg-light {
+    background-color: #f9f9f9;
+  }
+  
+  /* ============================= */
+  /* Buttons */
+  /* ============================= */
+  
+  .btn-primary {
+    background-color: #ff4081 !important;
+    border: none !important;
+  }
+  
+  .btn-primary:hover {
+    background-color: #d81b60 !important;
+  }
+  
+  /* ============================= */
+  /* Footer */
+  /* ============================= */
+  
+  .footer {
+    background: #333;
+    color: white;
+    text-align: center;
+    padding: 20px;
+  }
+  
+  .footer a {
+    color: #ff4081;
+    text-decoration: none;
+  }
+  
+  .footer a:hover {
+    color: #ffffff;
+  }
+  
+  /* ============================= */
+  /* Responsive Design */
+  /* ============================= */
+  
+  @media (max-width: 768px) {
+    .section-container {
+      padding: 60px 10px;
+    }
+  
+    .brand-title {
+      font-size: 1.2rem;
+    }
+  
+    .nav-link-custom {
+      font-size: 14px;
+    }
+  }
