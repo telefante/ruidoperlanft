@@ -2,7 +2,7 @@ import * as React from "react";
 import { useStaticQuery, graphql } from "gatsby";
 import Header from "./Header";
 import Seo from "./seo"; // Import SEO component
-import Footer from "./Footer"; 
+// import Footer from "./Footer"; 
 // Import Footer component
 import "./layout.css";
 
@@ -52,7 +52,7 @@ const Layout = ({ children, seoProps }) => {
         <main style={{ flex: 1 }}>{children}</main>
         
         {/* Footer */}
-        <Footer />
+        {/* <Footer /> */}
       </div>
     </>
   );
