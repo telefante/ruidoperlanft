@@ -5,7 +5,7 @@ import Button from "../ui/Button";
 const InstallationSection = () => {
   return (
     <SectionContainer id="installation" title="Installation">
-      <p>Follow these steps to install the software:</p>
+      <p>Installation </p>
       <Button text="Get Started" link="#simulation" />
     </SectionContainer>
   );

@@ -1,15 +1,19 @@
 import React from "react";
-import Header from "../components/Header";
-import Footer from "../components/Footer";
+import Layout from "../components/Layout";
+import InstallationSection from "../components/sections/InstallationSection";
+import SimulationSection from "../components/sections/SimulationSection";
+import AssetsSection from "../components/sections/AssetsSection";
+import AboutSection from "../components/sections/AboutSection";
 
-const Layout = ({ children }) => {
+const IndexPage = () => {
   return (
-    <div>
-      <Header />
-      <main>{children}</main>
-      <Footer />
-    </div>
+    <Layout>
+      <InstallationSection />
+      <SimulationSection />
+      <AssetsSection />
+      <AboutSection />
+    </Layout>
   );
 };
 
-export default Layout;
+export default IndexPage;
