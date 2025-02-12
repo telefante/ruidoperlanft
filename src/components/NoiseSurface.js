@@ -114,12 +114,13 @@ const NoiseSurface = () => {
       <div ref={mountRef} style={{ width: "100%", height: "100%" }} />
 
       {/* Slider Controls */}
-      {/* <div
+       <div
         style={{
           position: "absolute",
           bottom: "20px",
-          left: "20px",
-          backgroundColor: "rgba(255, 255, 255, 0.8)",
+          left: "50%",
+          transform: "translateX(-50%)",
+          backgroundColor: "rgba(255, 255, 255, 0.8)", 
           padding: "10px",
           borderRadius: "5px",
         }}
@@ -152,7 +153,7 @@ const NoiseSurface = () => {
             />
           </label>
         </div>
-      </div> */}
+      </div> 
     </div>
   );
 };
