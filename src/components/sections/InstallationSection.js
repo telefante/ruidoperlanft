@@ -3,7 +3,6 @@ import { useStaticQuery, graphql } from "gatsby";
 import { GatsbyImage, getImage } from "gatsby-plugin-image";
 import { Row, Col, Carousel } from "react-bootstrap";
 import SectionContainer from "./SectionContainer";
-// import Button from "../ui/CustomButton";
 
 const InstallationSection = () => {
   const data = useStaticQuery(graphql`
