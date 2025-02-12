@@ -4,7 +4,7 @@ import Header from "./Header";
 import Seo from "./seo"; // Import SEO component
 import { useEffect, useState } from "react";
 import "./layout.css"; // Import global styles
-
+import Footer from "./Footer";
 const Layout = ({ children, seoProps }) => {
   // Fetch site metadata and header image for SEO
   const data = useStaticQuery(graphql`
@@ -60,7 +60,7 @@ const Layout = ({ children, seoProps }) => {
         <main>{children}</main>
 
         {/* Footer (Optional, Uncomment if needed) */}
-        {/* <Footer /> */}
+        <Footer />
       </div>
     </>
   );
