@@ -22,7 +22,7 @@
   --main-bg-light: hsl(183, 42%, var(--mod-light));
   --main-bg-medium: hsl(183, 42%, var(--mod-medium));
   --main-bg-dark: hsl(183, 42%, var(--mod-dark));
-  --primary-color: hsl(287, 100%, 49%);
+  --primary-color: hsl(288, 100%, 97%);
   --secondary-color: hsla(299, 55%, 81%, 0.828);
   --light-blue: #e1f7f5;
 
@@ -80,7 +80,7 @@ h1, h2, h3 {
   }
   
   
-  
+/*   
   /* ============================= */
   /* Navbar Styling */
   /* ============================= */
@@ -105,14 +105,18 @@ h1, h2, h3 {
   }
   
   .nav-link-custom {
-    color: black !important;
-    font-weight: bold;
-    margin: 0 10px;
+    font-family: var(--primary-font);
+    color: var(--primary-color);
+    font-weight: 700; 
+    font-style: italic; 
+    margin: 0 1rem;
+    position: relative;
+    transition: color 0.3s ease;
   }
   
   .nav-link-custom:hover {
     color: #ff4081 !important;
-  }
+  } */
   
   /* ============================= */
   /* Section Styling */
@@ -138,11 +142,7 @@ h1, h2, h3 {
     opacity: 1;
     transform: translateY(0);
   }
-  
-  .section-container.visible {
-    opacity: 1;
-    transform: translateY(0);
-  }
+ 
   
   .section-content {
     max-width: 900px;
