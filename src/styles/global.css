@@ -134,28 +134,30 @@ h1, h2, h3 {
     text-align: center;
     transition: transform 0.8s ease-out, opacity 0.8s ease-out;
     opacity: 0;
-    transform: translateY(50px); /* Creates the floating effect */
+    transform: translateY(50px);
+    width: 100%;
   }
   
   .section-container.visible {
     opacity: 1;
     transform: translateY(0);
-  }
-  
-  .section-container.visible {
-    opacity: 1;
-    transform: translateY(0);
-  }
- 
-  
-  .section-content {
-    max-width: 900px;
-    margin: 0 auto;
   }
   
   .bg-light {
     background-color: #f9f9f9;
   }
+  
+  .simulation-title {
+    text-align: left;
+  }
+  
+  @media (max-width: 768px) {
+    .simulation-title {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+  }
+  
   
   /* ============================= */
   /* Buttons */

@@ -109,12 +109,12 @@ const NoiseSurface = () => {
   }, []);
 
   return (
-    <div style={{ position: "relative", width: "100%", height: "100vh" }}>
+    <div style={{ position: "relative", width: "100%", height: "33vh" }}>
       {/* Three.js Canvas Container */}
       <div ref={mountRef} style={{ width: "100%", height: "100%" }} />
 
       {/* Slider Controls */}
-      <div
+      {/* <div
         style={{
           position: "absolute",
           bottom: "20px",
@@ -152,7 +152,7 @@ const NoiseSurface = () => {
             />
           </label>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 };

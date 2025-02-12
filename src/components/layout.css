@@ -1,4 +1,4 @@
-
+@import "bootstrap/dist/css/bootstrap.min.css";
 
 :root {
   --border-radius: 4px;
@@ -26,6 +26,10 @@
   --size-content: 54rem;
   --size-gutter: var(--space-5);
   --size-gap: var(--space-6);
+}
+
+main {
+ width: 100%;
 }
 html {
   -webkit-text-size-adjust: 100%;

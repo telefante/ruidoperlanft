@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
+import { Container } from "react-bootstrap";
 import "./sections.css";
 
-const SectionContainer = ({ id, title, children, background }) => {
+const SectionContainer = ({ id, title, children, background, isGridLayout }) => {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
@@ -16,10 +17,10 @@ const SectionContainer = ({ id, title, children, background }) => {
 
   return (
     <section id={id} className={`section-container ${background ? "bg-light" : ""} ${isVisible ? "visible" : ""}`}>
-      <div className="section-content">
-        {title && <h2>{title}</h2>}
+      <Container>
+        {!isGridLayout && title && <h2>{title}</h2>}
         {children}
-      </div>
+      </Container>
     </section>
   );
 };
