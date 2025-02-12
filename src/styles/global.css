@@ -57,6 +57,7 @@ h1, h2, h3 {
   font-family: var(--primary-font);
   font-weight: 700; /* Bold */
   font-style: italic; /* Italic */
+  color: var(--primary-color);
 }
 
 
@@ -129,7 +130,7 @@ h1, h2, h3 {
   
   .section-container {
     min-height: 100vh;
-    display: flex;
+    /* display: flex; */
     align-items: center;
     justify-content: center;
     text-align: center;
