@@ -14,7 +14,8 @@
   }
   
   .custom-navbar.scrolled {
-    background: rgba(0, 0, 0, 0.8); /* Dark background when scrolling */
+    /* background: rgba(100, 0, 0, 0.0); Dark background when scrolling */
+    background: transparent !important; 
   }
     
   .nav-link-custom:hover {

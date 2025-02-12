@@ -91,13 +91,17 @@ h1, h2, h3 {
   }
   
   .custom-navbar.scrolled {
-    background: rgba(0, 0, 0, 0.8) !important; /* Dark background when scrolling */
+   
+    background: transparent !important; 
   }
   
   .brand-title {
-    color: black !important;
-    font-size: 1.5rem;
-    font-weight: bold;
+    font-family: var(--primary-font);
+    color: var(--primary-color);
+    font-weight: 700; 
+    font-style: italic; 
+    font-size: 2.5rem;
+
   }
   
   .brand-title:hover {

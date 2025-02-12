@@ -38,7 +38,7 @@ const CustomNavbar = () => {
   return (
     <Navbar expand="lg" className={`custom-navbar fixed-top ${scrolled ? "scrolled" : ""}`}>
       <Container>
-        <Navbar.Brand href="#" className="brand-title">My Gatsby Site</Navbar.Brand>
+        <Navbar.Brand href="#" className="brand-title">Ruido Perla NFT Collection</Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="ms-auto">
