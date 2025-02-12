@@ -49,9 +49,17 @@ const InstallationSection = () => {
 
   return (
     <SectionContainer id="installation" title="Installation" isGridLayout={true}>
-      <Row className="justify-content-center">
-        <Col xs={12} md={10} lg={8}>
-          <Carousel 
+ 
+
+      <Row className="align-items-center">
+      <Col xs={12} md={3}>
+          <h2 className="simulation-title">Installation</h2>
+        </Col>
+
+      </Row>
+      <Row className="align-items-left">
+        <Col xs={12} md={12}>
+        <Carousel 
             interval={3000} 
             controls={true} 
             indicators={true}
@@ -75,6 +83,8 @@ const InstallationSection = () => {
           </Carousel>
         </Col>
       </Row>
+
+
     </SectionContainer>
   );
 };
