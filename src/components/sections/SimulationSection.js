@@ -2,6 +2,7 @@ import React from "react";
 import SectionContainer from "./SectionContainer";
 // import ImageBlock from "../ui/ImageBlock";
 import Button from "../ui/CustomButton";
+import NoiseSurface from "../NoiseSurface";
 
 const SimulationSection = () => {
   return (
@@ -9,6 +10,7 @@ const SimulationSection = () => {
       <p>Learn how to run simulations efficiently.</p>
       {/* <ImageBlock src="/images/simulation.jpg" alt="Simulation" /> */}
         <Button text="Get Started" link="#simulation" />
+        <NoiseSurface />
     </SectionContainer>
   );
 };

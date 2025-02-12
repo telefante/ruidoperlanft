@@ -1,8 +1,13 @@
 import React, { useRef, useEffect, useState } from "react";
 import * as THREE from "three";
-import SimplexNoise from "simplex-noise";
+import { createNoise3D } from "simplex-noise";
 
-const PeelingSurface = () => {
+const noise3D = createNoise3D();
+
+// Example usage:
+const noiseValue = noise3D(0.5, 0.5, 0.5);
+console.log(noiseValue);
+const NoiseSurface = () => {
   const mountRef = useRef(null);
 
   // Use state to store slider values.
@@ -54,7 +59,8 @@ const PeelingSurface = () => {
     scene.add(planeMesh);
 
     // Create a noise generator.
-    const simplex = new SimplexNoise();
+    // const simplex = new SimplexNoise();
+    const simplex = createNoise3D();
     const clock = new THREE.Clock();
 
     // Animation loop.
@@ -69,7 +75,8 @@ const PeelingSurface = () => {
         const y = positions[i + 1];
 
         // Compute a noise value. Multiplying x and y by the noise scale controls frequency.
-        const noise = simplex.noise3D(x * scaleRef.current, y * scaleRef.current, elapsed);
+        // const noise = simplex.noise3D(x * scaleRef.current, y * scaleRef.current, elapsed);
+        const noise = noise3D(x * scaleRef.current, y * scaleRef.current, elapsed);
         // Displace the z coordinate using the current amplitude.
         positions[i + 2] = noise * amplitudeRef.current;
       }
@@ -150,4 +157,4 @@ const PeelingSurface = () => {
   );
 };
 
-export default PeelingSurface;
+export default NoiseSurface;
