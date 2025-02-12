@@ -1,16 +1,16 @@
-import React from "react";
-import { useStaticQuery, graphql } from "gatsby";
-import { GatsbyImage, getImage } from "gatsby-plugin-image";
-import { Row, Col, Carousel } from "react-bootstrap";
-import SectionContainer from "./SectionContainer";
+import React from "react"
+import { useStaticQuery, graphql } from "gatsby"
+import { GatsbyImage, getImage } from "gatsby-plugin-image"
+import { Row, Col, Carousel } from "react-bootstrap"
+import SectionContainer from "./SectionContainer"
 
 const InstallationSection = () => {
   const data = useStaticQuery(graphql`
     query {
       allFile(
         filter: {
-          sourceInstanceName: {eq: "images"}
-          extension: {regex: "/(jpg|jpeg|png|gif)/"}
+          sourceInstanceName: { eq: "images" }
+          extension: { regex: "/(jpg|jpeg|png|gif)/" }
         }
       ) {
         edges {
@@ -30,38 +30,55 @@ const InstallationSection = () => {
         }
       }
     }
-  `);
-  
-  console.log("Image data:", data);
+  `)
+
+  console.log("Image data:", data)
 
   // Check if we have any images
   if (!data.allFile.edges.length) {
     return (
-      <SectionContainer id="installation" title="Installation" isGridLayout={true}>
+      <SectionContainer
+        id="installation"
+        title="Installation"
+        isGridLayout={true}
+      >
         <Row className="justify-content-center">
           <Col>
-            <p>No installation images found. Please add images to the static/images/ directory.</p>
+            <p>
+              No installation images found. Please add images to the
+              static/images/ directory.
+            </p>
           </Col>
         </Row>
       </SectionContainer>
-    );
+    )
   }
 
   return (
-    <SectionContainer id="installation" title="Installation" isGridLayout={true}>
- 
-
+    <SectionContainer
+      id="installation"
+      title="Installation"
+      isGridLayout={true}
+    >
       <Row className="align-items-center">
-      <Col xs={12} md={3}>
+        <Col xs={12} md={3}>
           <h2 className="simulation-title">Installation</h2>
+          <section>
+            <p>
+              Discover the digital installation of „Ruido Perla NFT,“ where
+              simulation and art converge in a globally accessible web portal.
+              Explore generative landscapes and poetic texts that complement the
+              NFT experience, offering an interactive dimension that invites
+              active user participation.
+            </p>
+          </section>
         </Col>
-
       </Row>
       <Row className="align-items-left">
         <Col xs={12} md={12}>
-        <Carousel 
-            interval={3000} 
-            controls={true} 
+          <Carousel
+            interval={3000}
+            controls={true}
             indicators={true}
             className="installation-carousel"
           >
@@ -83,10 +100,8 @@ const InstallationSection = () => {
           </Carousel>
         </Col>
       </Row>
-
-
     </SectionContainer>
-  );
-};
+  )
+}
 
-export default InstallationSection;
+export default InstallationSection
