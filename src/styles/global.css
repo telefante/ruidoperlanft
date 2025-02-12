@@ -23,7 +23,7 @@
   --main-bg-medium: hsl(183, 42%, var(--mod-medium));
   --main-bg-dark: hsl(183, 42%, var(--mod-dark));
   --primary-color: hsl(288, 100%, 97%);
-  --secondary-color: hsla(299, 55%, 81%, 0.828);
+  --secondary-color: hsla(299, 55%, 81%);
   --light-blue: #e1f7f5;
 
   /* Sizes and widths */
@@ -112,6 +112,7 @@ h1, h2, h3 {
     font-family: var(--primary-font);
     color: var(--primary-color);
     font-weight: 700; 
+    font-size: 1.5rem;
     font-style: italic; 
     margin: 0 1rem;
     position: relative;
