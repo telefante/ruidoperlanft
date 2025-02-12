@@ -1,18 +1,23 @@
 .custom-navbar {
-    background: transparent;
+    background: transparent !important;
     transition: background 0.3s ease-in-out;
+  }
+
+  .nav-link-custom {
+    font-family: var(--primary-font);
+    color: var(--primary-color);
+    font-weight: 700; 
+    font-style: italic; 
+    margin: 0 1rem;
+    position: relative;
+    transition: color 0.3s ease;
   }
   
   .custom-navbar.scrolled {
-    background: rgba(0, 0, 0, 0.8); /* Dark background when scrolling */
+    /* background: rgba(100, 0, 0, 0.0); Dark background when scrolling */
+    background: transparent !important; 
   }
-  
-  .nav-link-custom {
-    color: black !important; /* Ensures black text */
-    font-weight: bold;
-    margin: 0 10px;
-  }
-  
+    
   .nav-link-custom:hover {
     color: #ff4081 !important; /* Optional hover effect */
   }

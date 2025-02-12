@@ -1,7 +1,28 @@
-.section-container {
-    padding: 80px 20px;
+ /* ============================= */
+  /* Section Styling */
+  /* ============================= */
+  
+  .section-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     text-align: center;
+    transition: transform 0.8s ease-out, opacity 0.8s ease-out;
+    opacity: 0;
+    transform: translateY(50px); /* Creates the floating effect */
   }
+  
+  .section-container.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  
+  .section-container.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+ 
   
   .section-content {
     max-width: 900px;
@@ -11,3 +32,4 @@
   .bg-light {
     background-color: #f9f9f9;
   }
+  
