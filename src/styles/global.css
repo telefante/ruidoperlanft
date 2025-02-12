@@ -1,6 +1,72 @@
+
+@import url("https://use.typekit.net/crd1sua.css");
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&display=swap');
+
+:root {
+  /* Fonts */
+  --primary-font: "rift", sans-serif;
+  --secondary-font: "Oswald", serif;
+
+  /* Bootstrap Font Variables */
+  --bs-font-sans-serif: var(--primary-font), -apple-system, BlinkMacSystemFont, 
+    "Helvetica Neue", sans-serif, "Apple Color Emoji", "Segoe UI Symbol";
+  --bs-font-monospace: var(--secondary-font), SFMono-Regular, Menlo, Monaco;
+
+  /* Colors and Other Variables */
+  --gray-dark: #404040;
+  --purple: #533777;
+  --rich-black: hsl(210, 50%, 1%);
+  --mod-light: 90%;
+  --mod-medium: 50%;
+  --mod-dark: 20%;
+  --main-bg-light: hsl(183, 42%, var(--mod-light));
+  --main-bg-medium: hsl(183, 42%, var(--mod-medium));
+  --main-bg-dark: hsl(183, 42%, var(--mod-dark));
+  --primary-color: hsl(287, 100%, 49%);
+  --secondary-color: hsla(299, 55%, 81%, 0.828);
+  --light-blue: #e1f7f5;
+
+  /* Sizes and widths */
+  --content-w-wide: 80rem;
+  --content-w-regular: 60rem;
+  --content-w-narrow: 40rem;
+  --bs-primary: #ff0ab4;
+
+  --color-text: var(--gray-dark);
+  --font-family-text: var(--bs-font-sans-serif);
+  --font-family-text: var(--bs-font-monospace);
+}
+
+@custom-media --viewport-narrow-max (max-width: 40rem);
+@custom-media --viewport-narrow-min (min-width: 40rem);
+@custom-media --viewport-wide (min-width: 60rem);
+
+/* Body Text Style */
+body {
+  font-family: var(--secondary-font);
+  font-size: 2rem;
+  color: var(--color-text);
+  line-height: 1.5;
+  margin: 0;
+  padding: 0;
+  background-color: var(--main-bg-light);
+}
+
+/* Bold Italic for specific elements */
+h1, h2, h3 {
+  font-family: var(--primary-font);
+  font-weight: 700; /* Bold */
+  font-style: italic; /* Italic */
+}
+
+
+
+
 /* ============================= */
 /* Global Reset & Typography */
 /* ============================= */
+
+
 
 * {
     margin: 0;
@@ -13,11 +79,7 @@
     scroll-behavior: smooth;
   }
   
-  body {
-    font-family: "Arial", sans-serif;
-    color: #333;
-    background-color: #ffffff;
-  }
+  
   
   /* ============================= */
   /* Navbar Styling */
