@@ -106,9 +106,11 @@ const InstallationSection = () => {
       <Row className="align-items-center justify-content-center">
         <Col xs={6} md={6}>
           <StyledCarousel
-            interval={3000}
+            interval={1500}
             controls={true}
             indicators={false}
+            ride="carousel"
+            pause="hover"
             className="installation-carousel"
           >
             {data.allFile.edges.map(({ node }, index) => (
