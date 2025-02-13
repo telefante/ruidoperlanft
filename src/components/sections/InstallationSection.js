@@ -2,7 +2,36 @@ import React from "react"
 import { useStaticQuery, graphql } from "gatsby"
 import { GatsbyImage, getImage } from "gatsby-plugin-image"
 import { Row, Col, Carousel } from "react-bootstrap"
+import styled from "styled-components"
 import SectionContainer from "./SectionContainer"
+
+// Add styled components
+const StyledCarousel = styled(Carousel)`
+  .carousel-inner {
+    background: transparent;
+  }
+  
+  .carousel-control-prev,
+  .carousel-control-next {
+    background: transparent;
+  }
+  
+  .carousel-indicators {
+    background: transparent;
+  }
+  
+  .carousel-caption {
+    background: transparent;
+  }
+
+  .carousel-image-container {
+    height: 600px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: transparent;
+  }
+`
 
 const InstallationSection = () => {
   const data = useStaticQuery(graphql`
@@ -74,12 +103,12 @@ const InstallationSection = () => {
           </section>
         </Col>
       </Row>
-      <Row className="align-items-left">
-        <Col xs={12} md={12}>
-          <Carousel
+      <Row className="align-items-center justify-content-center">
+        <Col xs={6} md={6}>
+          <StyledCarousel
             interval={3000}
             controls={true}
-            indicators={true}
+            indicators={false}
             className="installation-carousel"
           >
             {data.allFile.edges.map(({ node }, index) => (
@@ -93,11 +122,11 @@ const InstallationSection = () => {
                 </div>
                 <Carousel.Caption>
                   <h3>Installation {index + 1}</h3>
-                  <p>{node.name}</p>
+                  {/* <p>{node.name}</p> */}
                 </Carousel.Caption>
               </Carousel.Item>
             ))}
-          </Carousel>
+          </StyledCarousel>
         </Col>
       </Row>
     </SectionContainer>
