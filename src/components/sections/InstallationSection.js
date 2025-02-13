@@ -62,6 +62,7 @@ const InstallationSection = () => {
       allFile(
         filter: {
           sourceInstanceName: { eq: "images" }
+          relativeDirectory: { eq: "installation" }
           extension: { regex: "/(jpg|jpeg|png|gif)/" }
         }
       ) {
