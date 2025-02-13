@@ -15,10 +15,6 @@ const StyledCarousel = styled(Carousel)`
   .carousel-indicators {
     bottom: -50px;
   }
-
-  .carousel-item {
-    padding: 2rem;
-  }
 `;
 
 const CarouselCard = styled.div`
@@ -27,8 +23,8 @@ const CarouselCard = styled.div`
   padding: 2rem;
   color: white;
   text-align: center;
-  max-width: 800px;
-  margin: 0 auto;
+  height: 100%;
+  margin: 1rem;
 
   h3 {
     margin-bottom: 1rem;
@@ -38,6 +34,7 @@ const CarouselCard = styled.div`
     margin-bottom: 1.5rem;
     border-radius: 4px;
     overflow: hidden;
+    max-height: 300px;
   }
 `;
 
@@ -55,8 +52,8 @@ const AssetsSection = () => {
             name
             childImageSharp {
               gatsbyImageData(
-                width: 800
-                height: 500
+                width: 400
+                height: 300
                 quality: 90
                 placeholder: BLURRED
                 formats: [AUTO, WEBP]
@@ -81,42 +78,57 @@ const AssetsSection = () => {
       title: "Landscapes",
       description: "Generated landscapes that form the foundation of our unique digital art pieces.",
     },
+    {
+      title: "Animations",
+      description: "Dynamic animations that showcase the fluidity of our digital creations.",
+    },
   ];
 
+  // Create pairs of assets
+  const pairs = [];
+  for (let i = 0; i < assets.length; i += 2) {
+    pairs.push(assets.slice(i, i + 2));
+  }
+
   return (
-    <SectionContainer id="assets" >
+    <SectionContainer id="assets">
       <Container>
-      <Row className="align-items-left">
-      <Col xs={12} md={3}>
-          <h2>Assets</h2>
-        </Col>
-
-      </Row>
-      <Row className="align-items-left">
-        <Col xs={12} md={12}>
-        <StyledCarousel interval={5000} indicators={true}>
-          {assets.map((asset, index) => {
-            const image = getImage(data.allFile.edges[index]?.node);
-            return (
-              <Carousel.Item key={index}>
-                <CarouselCard>
-                  <h3>{asset.title}</h3>
-                  {image && (
-                    <GatsbyImage
-                      image={image}
-                      alt={asset.title}
-                    />
-                  )}
-                  <p>{asset.description}</p>
-                </CarouselCard>
-              </Carousel.Item>
-            );
-          })}
-        </StyledCarousel>
-        </Col>
-      </Row>
-
-       
+        <Row className="align-items-left">
+          <Col xs={12} md={3}>
+            <h2>Assets</h2>
+          </Col>
+        </Row>
+        <Row className="align-items-left">
+          <Col xs={12}>
+            <StyledCarousel interval={5000} indicators={true}>
+              {pairs.map((pair, pairIndex) => (
+                <Carousel.Item key={pairIndex}>
+                  <Row>
+                    {pair.map((asset, index) => {
+                      const imageIndex = pairIndex * 2 + index;
+                      const image = getImage(data.allFile.edges[imageIndex]?.node);
+                      return (
+                        <Col md={6} key={index}>
+                          <CarouselCard>
+                            <h3>{asset.title}</h3>
+                            {image && (
+                              <GatsbyImage
+                                image={image}
+                                alt={asset.title}
+                                style={{ height: "100%", width: "100%" }}
+                              />
+                            )}
+                            <p>{asset.description}</p>
+                          </CarouselCard>
+                        </Col>
+                      );
+                    })}
+                  </Row>
+                </Carousel.Item>
+              ))}
+            </StyledCarousel>
+          </Col>
+        </Row>
       </Container>
     </SectionContainer>
   );
