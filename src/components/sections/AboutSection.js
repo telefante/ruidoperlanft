@@ -4,6 +4,7 @@ import { GatsbyImage, getImage } from "gatsby-plugin-image"
 import { useStaticQuery, graphql } from "gatsby"
 import styled from "styled-components"
 import SectionContainer from "./SectionContainer"
+import { Button } from "react-bootstrap"
 
 const OverlappingContainer = styled.div`
   position: relative;
@@ -24,7 +25,7 @@ const TextOverlay = styled.div`
 const ImageWrapper = styled.div`
   position: relative;
   z-index: 1;
-  
+
   .about-image-container {
     height: 600px;
     display: flex;
@@ -43,7 +44,7 @@ const StyledButton = styled(Link)`
   text-decoration: none;
   border-radius: 4px;
   transition: all 0.3s ease;
-  
+
   &:hover {
     background: rgba(255, 255, 255, 0.2);
     color: white;
@@ -55,7 +56,7 @@ const AboutSection = () => {
     query {
       file(
         sourceInstanceName: { eq: "images" }
-        name: { eq: "about" }  # Make sure you have an image named "about" in your images folder
+        name: { eq: "landscape_01" } # Make sure you have an image named "about" in your images folder
       ) {
         childImageSharp {
           gatsbyImageData(
@@ -73,20 +74,25 @@ const AboutSection = () => {
   const image = getImage(data.file)
 
   return (
-    <SectionContainer id="about" title="About">
+    <SectionContainer id="about" >
       <OverlappingContainer>
         <TextOverlay>
-          <h2 className="about-title">About</h2>
+        <h2 className="simulation-title">About</h2>
           <section>
             <p>
-              This project is focused on creating innovative digital experiences.
-              Through the fusion of technology and art, we explore new frontiers
-              in digital expression and interactive media.
+              Gain behind-the-scenes insight into the creative process of „Ruido
+              Perla NFT.“ Discover the inspiration, challenges, and integration
+              of simulation, art, and net-based interaction that bring this
+              unique NFT collection to life. Learn how poetry and generative
+              landscapes intertwine to explore the relationship between noise
+              and the pearl.
             </p>
-            <StyledButton to="/details">Learn More</StyledButton>
+            {/* <StyledButton to="/details">Enter</StyledButton>
+             */}
+             <Button variant="primary" size="lg" onClick={() => window.open("https://ruidoperla.com", "_blank")}>Enter</Button>
           </section>
         </TextOverlay>
-        
+
         <ImageWrapper>
           <div className="about-image-container">
             {image && (
