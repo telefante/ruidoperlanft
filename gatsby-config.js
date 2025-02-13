@@ -11,8 +11,9 @@ module.exports = {
   siteMetadata: {
     title: `Ruido Perla NFT Collection`,
     description: `Kick off your next, great Gatsby project with this default starter. This barebones starter ships with the main Gatsby configuration files you might need.`,
-    author: `@gatsbyjs`,
-    siteUrl: `https://gatsbystarterdefaultsource.gatsbyjs.io/`,
+    author: 'Luis Negrón van Grieekn',
+    authorUrl: 'https://luis.negronvangrieken.com',
+    siteUrl: `https://nft.negronvangrieken.com/ruidoperla`,
   },
   plugins: [
     `gatsby-plugin-image`,
