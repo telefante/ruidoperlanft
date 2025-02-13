@@ -35,7 +35,7 @@ const StyledCarousel = styled(Carousel)`
   }
 
   .gatsby-image-wrapper {
-    border: 2px solid rgba(255, 255, 255, 0.1);
+    border: 10px solid rgba(255, 255, 255, 0.5);
     border-radius: 4px;
     width: 450px !important;
     height: 450px !important;
