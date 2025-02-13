@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useStaticQuery, graphql } from "gatsby";
-import Header from "./Header";
+import Header from "./header";
 import Seo from "./seo"; // Import SEO component
 import { useEffect, useState } from "react";
 import "./layout.css"; // Import global styles
