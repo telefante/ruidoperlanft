@@ -17,6 +17,8 @@ module.exports = {
     siteUrl: `https://nft.negronvangrieken.com/ruidoperla`,
   },
   plugins: [
+   `gatsby-plugin-postcss`,
+
     `gatsby-plugin-image`,
     {
       resolve: `gatsby-source-filesystem`,

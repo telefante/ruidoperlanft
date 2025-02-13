@@ -1,4 +1,3 @@
-
 @import url("https://use.typekit.net/crd1sua.css");
 @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&display=swap');
 
@@ -60,14 +59,9 @@ h1, h2, h3 {
   color: var(--primary-color);
 }
 
-
-
-
 /* ============================= */
 /* Global Reset & Typography */
 /* ============================= */
-
-
 
 * {
     margin: 0;
@@ -81,54 +75,47 @@ h1, h2, h3 {
   }
   
   
-/*   
-  /* ============================= */
-  /* Navbar Styling */
-  /* ============================= */
+/* ============================= */
+/* Navbar Styling */
+/* ============================= */
   
-  .custom-navbar {
-    background: transparent !important;
-    transition: background 0.3s ease-in-out;
-  }
-  
-  .custom-navbar.scrolled {
-   
-    background: transparent !important; 
-  }
-  
-  .brand-title {
-    font-family: var(--primary-font);
-    color: var(--primary-color);
-    font-weight: 700; 
-    font-style: italic; 
-    font-size: 2.5rem;
+.custom-navbar {
+  background: transparent !important;
+  transition: background 0.3s ease-in-out;
+}
 
-  }
+.custom-navbar.scrolled {
+  background: transparent !important; 
+}
+
+.brand-title {
+  font-family: var(--primary-font);
+  color: var(--primary-color);
+  font-weight: 700; 
+  font-style: italic; 
+  font-size: 2.5rem;
+}
+
+.brand-title:hover {
+  color: #ff4081 !important;
+}
+
+.nav-link-custom {
+  font-family: var(--primary-font);
+  color: var(--primary-color);
+  font-weight: 700; 
+  font-size: 1.5rem;
+  font-style: italic; 
+  margin: 0 1rem;
+  position: relative;
+  transition: color 0.3s ease;
+}
+
+.nav-link-custom:hover {
+  color: #ff4081 !important;
+}
   
-  .brand-title:hover {
-    color: #ff4081 !important;
-  }
-  
-  .nav-link-custom {
-    font-family: var(--primary-font);
-    color: var(--primary-color);
-    font-weight: 700; 
-    font-size: 1.5rem;
-    font-style: italic; 
-    margin: 0 1rem;
-    position: relative;
-    transition: color 0.3s ease;
-  }
-  
-  .nav-link-custom:hover {
-    color: #ff4081 !important;
-  } */
-  
-  /* ============================= */
-  /* Section Styling */
-  /* ============================= */
-  
-  .section-container {
+.section-container {
     min-height: 100vh;
     /* display: flex; */
     align-items: center;
@@ -158,7 +145,7 @@ h1, h2, h3 {
       text-align: center;
       margin-bottom: 2rem;
     }
-  }
+  } 
   
   
   /* ============================= */
