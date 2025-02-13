@@ -14,7 +14,7 @@ module.exports = {
     keywords: `NFT collection, digital art, Ruido Perla, Luis Negrón van Grieekn, blockchain art, crypto art, pearl aesthetics, noise art, digital collectibles, unique NFTs, ethereum NFT, web3 art, contemporary digital art, generative art`, // SEO optimized keywords
     author: 'Luis Negrón van Grieekn',
     authorUrl: 'https://luis.negronvangrieken.com',
-    siteUrl: `https://nft.negronvangrieken.com/ruidoperla`,
+    siteUrl: `https://ruidoperlanft.netlify.app`,
   },
   plugins: [
    `gatsby-plugin-postcss`,
@@ -32,15 +32,27 @@ module.exports = {
     {
       resolve: `gatsby-plugin-manifest`,
       options: {
-        name: `gatsby-starter-default`,
-        short_name: `starter`,
+        name: `Ruido Perla NFT Collection`,
+        short_name: `Ruido Perla`,
         start_url: `/`,
-        background_color: `#663399`,
-        // This will impact how browsers show your PWA/website
-        // https://css-tricks.com/meta-theme-color-and-trickery/
-        // theme_color: `#663399`,
-        display: `minimal-ui`,
-        icon: `src/images/gatsby-icon.png`, // This path is relative to the root of the site.
+        background_color: `#e1f7f5`, // Using light blue from global.css
+        theme_color: `#533777`, // Using purple from global.css
+        display: `standalone`, // Changed to standalone for better PWA experience
+        icon: `static/images/favicon.png`, // Updated path to match source filesystem
+        icons: [
+          {
+            src: `static/images/favicon-192x192.png`,
+            sizes: `192x192`,
+            type: `image/png`,
+            purpose: `any maskable`
+          },
+          {
+            src: `static/images/favicon-512x512.png`, 
+            sizes: `512x512`,
+            type: `image/png`,
+            purpose: `any maskable`
+          }
+        ],
       },
     },
   ],
