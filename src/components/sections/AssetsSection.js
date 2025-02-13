@@ -2,8 +2,8 @@ import React from "react";
 import { useStaticQuery, graphql } from "gatsby";
 import { GatsbyImage, getImage } from "gatsby-plugin-image";
 import SectionContainer from "./SectionContainer";
-import CustomCard from "../ui/CustomCard";
-import { Container, Carousel } from "react-bootstrap";
+// import CustomCard from "../ui/CustomCard";
+import { Container, Carousel, Row, Col } from "react-bootstrap";
 import styled from "styled-components";
 
 const StyledCarousel = styled(Carousel)`
@@ -84,8 +84,16 @@ const AssetsSection = () => {
   ];
 
   return (
-    <SectionContainer id="assets" title="Assets">
+    <SectionContainer id="assets" >
       <Container>
+      <Row className="align-items-left">
+      <Col xs={12} md={3}>
+          <h2>Assets</h2>
+        </Col>
+
+      </Row>
+      <Row className="align-items-left">
+        <Col xs={12} md={12}>
         <StyledCarousel interval={5000} indicators={true}>
           {assets.map((asset, index) => {
             const image = getImage(data.allFile.edges[index]?.node);
@@ -105,6 +113,10 @@ const AssetsSection = () => {
             );
           })}
         </StyledCarousel>
+        </Col>
+      </Row>
+
+       
       </Container>
     </SectionContainer>
   );
