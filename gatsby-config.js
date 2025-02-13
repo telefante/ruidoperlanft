@@ -10,7 +10,8 @@
 module.exports = {
   siteMetadata: {
     title: `Ruido Perla NFT Collection`,
-    description: `Kick off your next, great Gatsby project with this default starter. This barebones starter ships with the main Gatsby configuration files you might need.`,
+    description: `Explore the Ruido Perla NFT Collection - a unique digital art series blending noise and pearl aesthetics. Discover exclusive digital collectibles created by Luis Negrón van Grieekn.`,
+    keywords: `NFT collection, digital art, Ruido Perla, Luis Negrón van Grieekn, blockchain art, crypto art, pearl aesthetics, noise art, digital collectibles, unique NFTs, ethereum NFT, web3 art, contemporary digital art, generative art`, // SEO optimized keywords
     author: 'Luis Negrón van Grieekn',
     authorUrl: 'https://luis.negronvangrieken.com',
     siteUrl: `https://nft.negronvangrieken.com/ruidoperla`,

@@ -13,6 +13,7 @@ const Layout = ({ children, seoProps }) => {
         siteMetadata {
           title
           description
+          keywords
         }
       }
       headerImage: file(relativePath: { eq: "og-image.jpg" }) {
@@ -45,7 +46,7 @@ const Layout = ({ children, seoProps }) => {
         title={seoProps?.title || data.site.siteMetadata.title}
         description={seoProps?.description || data.site.siteMetadata.description}
         image={seoProps?.image || imageSrc}
-        keywords={seoProps?.keywords || "art, NFT, digital, Collection"}
+        keywords={seoProps?.keywords || data.site.siteMetadata.keywords}
       />
 
       {/* Moving Background */}
