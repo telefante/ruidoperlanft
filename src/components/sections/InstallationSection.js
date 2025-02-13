@@ -25,16 +25,27 @@ const StyledCarousel = styled(Carousel)`
   }
 
   .carousel-image-container {
-    height: 600px;
+    height: 450px;
+    width: 450px;
     display: flex;
     align-items: center;
     justify-content: center;
     background-color: transparent;
+    margin: 0 auto;
+  }
+
+  .gatsby-image-wrapper {
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    width: 450px !important;
+    height: 450px !important;
+    img {
+      object-fit: cover !important;
+    }
   }
 `
 
-const OverlappingContainer = styled.div`
-  position: relative;
+const OverlappingContainer = styled.div`  position: relative;
   width: 100%;
   margin-top: 2rem;
 `
@@ -71,11 +82,15 @@ const InstallationSection = () => {
             relativePath
             childImageSharp {
               gatsbyImageData(
-                width: 800
-                height: 600
+                width: 450
+                height: 450
                 quality: 90
                 placeholder: BLURRED
                 formats: [AUTO, WEBP]
+                transformOptions: {
+                  fit: COVER
+                  cropFocus: CENTER
+                }
               )
             }
             name
@@ -158,3 +173,4 @@ const InstallationSection = () => {
 }
 
 export default InstallationSection
+
