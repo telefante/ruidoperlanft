@@ -33,6 +33,29 @@ const StyledCarousel = styled(Carousel)`
   }
 `
 
+const OverlappingContainer = styled.div`
+  position: relative;
+  width: 100%;
+  margin-top: 2rem;
+`
+
+const TextOverlay = styled.div`
+  position: absolute;
+  top: -12rem;
+  left: 0;
+  background:transparent;
+ 
+  padding: 2rem;
+  z-index: 2;
+  max-width: 500px;
+
+`
+
+const CarouselWrapper = styled.div`
+  position: relative;
+  z-index: 1;
+`
+
 const InstallationSection = () => {
   const data = useStaticQuery(graphql`
     query {
@@ -89,22 +112,21 @@ const InstallationSection = () => {
       title="Installation"
       isGridLayout={true}
     >
-      <Row className="align-items-center">
-        <Col xs={12} md={3}>
+      <OverlappingContainer>
+        <TextOverlay>
           <h2 className="simulation-title">Installation</h2>
           <section>
             <p>
-              Discover the digital installation of „Ruido Perla NFT,“ where
+              Discover the digital installation of „Ruido Perla NFT," where
               simulation and art converge in a globally accessible web portal.
               Explore generative landscapes and poetic texts that complement the
               NFT experience, offering an interactive dimension that invites
               active user participation.
             </p>
           </section>
-        </Col>
-      </Row>
-      <Row className="align-items-center justify-content-center">
-        <Col xs={6} md={6}>
+        </TextOverlay>
+        
+        <CarouselWrapper>
           <StyledCarousel
             interval={1500}
             controls={true}
@@ -124,13 +146,12 @@ const InstallationSection = () => {
                 </div>
                 <Carousel.Caption>
                   <h3>Installation {index + 1}</h3>
-                  {/* <p>{node.name}</p> */}
                 </Carousel.Caption>
               </Carousel.Item>
             ))}
           </StyledCarousel>
-        </Col>
-      </Row>
+        </CarouselWrapper>
+      </OverlappingContainer>
     </SectionContainer>
   )
 }
