@@ -92,17 +92,31 @@ const NoiseSurface = () => {
     // Create a plane geometry with many segments.
     const planeWidth = 200;
     const planeHeight = 200;
-    const segments = 100;
+    const segments = 33;
     const geometry = new THREE.PlaneGeometry(planeWidth, planeHeight, segments, segments);
 
-    // Use a wireframe material to clearly show the distortion.
-    const material = new THREE.MeshBasicMaterial({
-      color: 0x00ff00,
-      wireframe: true,
+    // Replace the existing material setup with these two materials
+    const solidMaterial = new THREE.MeshBasicMaterial({
+      color: 0x000000,
+      transparent: true,
+      opacity: 0.6,
+      side: THREE.DoubleSide
     });
 
-    const planeMesh = new THREE.Mesh(geometry, material);
-    scene.add(planeMesh);
+    const wireframeMaterial = new THREE.MeshBasicMaterial({
+      color: 0xffffff,
+      wireframe: true,
+      transparent: true,
+      opacity: 0.8
+    });
+
+    // Create two meshes using the same geometry
+    const solidMesh = new THREE.Mesh(geometry, solidMaterial);
+    const wireframeMesh = new THREE.Mesh(geometry, wireframeMaterial);
+    
+    // Add both meshes to the scene
+    scene.add(solidMesh);
+    scene.add(wireframeMesh);
 
     // Create a noise generator.
     // const simplex = new SimplexNoise();
@@ -114,23 +128,17 @@ const NoiseSurface = () => {
       requestAnimationFrame(animate);
       const elapsed = clock.getElapsedTime();
 
-      // Update vertex positions.
+      // Update vertex positions
       const positions = geometry.attributes.position.array;
       for (let i = 0; i < positions.length; i += 3) {
         const x = positions[i];
         const y = positions[i + 1];
-
-        // Compute a noise value. Multiplying x and y by the noise scale controls frequency.
-        // const noise = simplex.noise3D(x * scaleRef.current, y * scaleRef.current, elapsed);
         const noise = noise3D(x * scaleRef.current, y * scaleRef.current, elapsed);
-        // Displace the z coordinate using the current amplitude.
         positions[i + 2] = noise * amplitudeRef.current;
       }
       geometry.attributes.position.needsUpdate = true;
 
-      // Update controls
       controls.update();
-
       renderer.render(scene, camera);
     };
 
