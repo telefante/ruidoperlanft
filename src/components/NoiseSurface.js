@@ -170,20 +170,23 @@ const NoiseSurface = () => {
       <div ref={mountRef} style={{ width: "100%", height: "100%" }} />
 
       {/* Slider Controls */}
-       <div
+      <div
         style={{
           position: "absolute",
-          bottom: "20px",
+          bottom: "-100px",
           left: "50%",
           transform: "translateX(-50%)",
           backgroundColor: "rgba(255, 255, 255, 0.8)", 
           padding: "10px",
           borderRadius: "5px",
+          fontFamily: "var(--primary-font)",
+          fontSize: "14px",
+          letterSpacing: "0.5px"
         }}
       >
         <div style={{ marginBottom: "10px" }}>
-          <label>
-            Amplitude: {amplitude}
+          <label style={{ display: "flex", alignItems: "center" }}>
+            <span style={{ minWidth: "120px" }}>Amplitude: {amplitude}</span>
             <input
               type="range"
               min="0"
@@ -196,8 +199,8 @@ const NoiseSurface = () => {
           </label>
         </div>
         <div>
-          <label>
-            Noise Scale: {scale}
+          <label style={{ display: "flex", alignItems: "center" }}>
+            <span style={{ minWidth: "120px" }}>Noise Scale: {scale}</span>
             <input
               type="range"
               min="0.001"
