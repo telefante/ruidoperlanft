@@ -11,7 +11,7 @@
   }
   
   .custom-navbar.scrolled {
-    background-color: rgba(250, 142, 142, 0.95);
+    background-color: transparent !important;
   }
     
   .brand-title {
@@ -22,7 +22,7 @@
   /* Mobile styles */
   @media (max-width: 991px) {
     .navbar-collapse {
-      background-color: rgba(250, 142, 142, 0.95);
+      background-color: transparent !important;
       padding: 1rem;
       border-radius: 8px;
       margin-top: 0.5rem;
