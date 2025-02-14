@@ -1,25 +1,31 @@
 import React, { useRef, useEffect, useState } from "react";
 import * as THREE from "three";
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import { Perlin } from 'three-noise';
 import { createNoise3D } from "simplex-noise";
 
-const noise3D = createNoise3D();
-
-// Example usage:
-const noiseValue = noise3D(0.5, 0.5, 0.5);
-console.log(noiseValue);
 const NoiseSurface = () => {
   const mountRef = useRef(null);
 
-  // Use state to store slider values.
+  // Add state for noise type
+  const [usePerlin, setUsePerlin] = useState(true);
   const [amplitude, setAmplitude] = useState(12.5); // Controls displacement amplitude.
   const [scale, setScale] = useState(0.008); // Controls noise scale (frequency).
+  const [frequency, setFrequency] = useState(1);
+  const [octaves, setOctaves] = useState(1);
 
-  // Use refs to hold the current values so the animate loop always reads the latest values.
+  // Add ref for noise type
+  const usePerlinRef = useRef(usePerlin);
   const amplitudeRef = useRef(amplitude);
   const scaleRef = useRef(scale);
+  const frequencyRef = useRef(frequency);
+  const octavesRef = useRef(octaves);
 
-  // Update the refs whenever state changes.
+  // Update refs when state changes
+  useEffect(() => {
+    usePerlinRef.current = usePerlin;
+  }, [usePerlin]);
+
   useEffect(() => {
     amplitudeRef.current = amplitude;
   }, [amplitude]);
@@ -27,6 +33,14 @@ const NoiseSurface = () => {
   useEffect(() => {
     scaleRef.current = scale;
   }, [scale]);
+
+  useEffect(() => {
+    frequencyRef.current = frequency;
+  }, [frequency]);
+
+  useEffect(() => {
+    octavesRef.current = octaves;
+  }, [octaves]);
 
   useEffect(() => {
     if (!mountRef.current) return;
@@ -118,22 +132,34 @@ const NoiseSurface = () => {
     scene.add(solidMesh);
     scene.add(wireframeMesh);
 
-    // Create a noise generator.
-    // const simplex = new SimplexNoise();
+    // Setup both noise generators
+    const perlin = new Perlin({
+      frequency: frequencyRef.current,
+      octaves: octavesRef.current
+    });
     const simplex = createNoise3D();
     const clock = new THREE.Clock();
+    const noiseVector = new THREE.Vector3();
 
     // Animation loop.
     const animate = () => {
       requestAnimationFrame(animate);
       const elapsed = clock.getElapsedTime();
 
-      // Update vertex positions
+      // Update vertex positions using selected noise type
       const positions = geometry.attributes.position.array;
       for (let i = 0; i < positions.length; i += 3) {
         const x = positions[i];
         const y = positions[i + 1];
-        const noise = noise3D(x * scaleRef.current, y * scaleRef.current, elapsed);
+        
+        let noise;
+        if (usePerlinRef.current) {
+          noiseVector.set(x * scaleRef.current, y * scaleRef.current, elapsed);
+          noise = perlin.get3(noiseVector);
+        } else {
+          noise = simplex(x * scaleRef.current, y * scaleRef.current, elapsed);
+        }
+        
         positions[i + 2] = noise * amplitudeRef.current;
       }
       geometry.attributes.position.needsUpdate = true;
@@ -173,7 +199,7 @@ const NoiseSurface = () => {
       <div
         style={{
           position: "absolute",
-          bottom: "-100px",
+          bottom: "-180px", // Adjusted to make room for new controls
           left: "50%",
           transform: "translateX(-50%)",
           backgroundColor: "rgba(255, 255, 255, 0.8)", 
@@ -184,6 +210,53 @@ const NoiseSurface = () => {
           letterSpacing: "0.5px"
         }}
       >
+        {/* Add noise type toggle */}
+        <div style={{ marginBottom: "10px" }}>
+          <label style={{ display: "flex", alignItems: "center" }}>
+            <input
+              type="checkbox"
+              checked={usePerlin}
+              onChange={(e) => setUsePerlin(e.target.checked)}
+              style={{ marginRight: "10px" }}
+            />
+            Use Perlin Noise (uncheck for Simplex)
+          </label>
+        </div>
+
+        {/* Perlin-specific controls that only show when Perlin is selected */}
+        {usePerlin && (
+          <>
+            <div style={{ marginBottom: "10px" }}>
+              <label style={{ display: "flex", alignItems: "center" }}>
+                <span style={{ minWidth: "120px" }}>Frequency: {frequency}</span>
+                <input
+                  type="range"
+                  min="0.1"
+                  max="5"
+                  step="0.1"
+                  value={frequency}
+                  onChange={(e) => setFrequency(parseFloat(e.target.value))}
+                  style={{ marginLeft: "10px" }}
+                />
+              </label>
+            </div>
+            <div style={{ marginBottom: "10px" }}>
+              <label style={{ display: "flex", alignItems: "center" }}>
+                <span style={{ minWidth: "120px" }}>Octaves: {octaves}</span>
+                <input
+                  type="range"
+                  min="1"
+                  max="8"
+                  step="1"
+                  value={octaves}
+                  onChange={(e) => setOctaves(parseInt(e.target.value))}
+                  style={{ marginLeft: "10px" }}
+                />
+              </label>
+            </div>
+          </>
+        )}
+
         <div style={{ marginBottom: "10px" }}>
           <label style={{ display: "flex", alignItems: "center" }}>
             <span style={{ minWidth: "120px" }}>Amplitude: {amplitude}</span>
