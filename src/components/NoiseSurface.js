@@ -57,24 +57,6 @@ const NoiseSurface = () => {
     camera.position.set(-5.01, -140.33, 52.22);
     camera.lookAt(-4.68, -54.15, 1.49);
 
-    // Calculate lookAt point first
-    const initialDirection = new THREE.Vector3();
-    camera.getWorldDirection(initialDirection);
-    const initialLookAtPoint = new THREE.Vector3();
-    initialLookAtPoint.addVectors(camera.position, initialDirection.multiplyScalar(100));
-
-    // Log initial camera setup
-    console.log('Camera Setup Code:', `
-    const camera = new THREE.PerspectiveCamera(
-      75,                    // fov
-      ${(width / height).toFixed(2)},  // aspect
-      0.1,                   // near
-      1000                   // far
-    );
-    camera.position.set(${camera.position.x.toFixed(2)}, ${camera.position.y.toFixed(2)}, ${camera.position.z.toFixed(2)});
-    camera.lookAt(${initialLookAtPoint.x.toFixed(2)}, ${initialLookAtPoint.y.toFixed(2)}, ${initialLookAtPoint.z.toFixed(2)});
-    `);
-
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setSize(width, height);
     renderer.setClearColor(0x000000, 0); // Transparent background.
@@ -95,12 +77,6 @@ const NoiseSurface = () => {
       camera.getWorldDirection(direction);
       const lookAtPoint = new THREE.Vector3();
       lookAtPoint.addVectors(camera.position, direction.multiplyScalar(100));
-      
-      // Log the camera setup
-      console.log('Camera Setup Code:', `
-    camera.position.set(${camera.position.x.toFixed(2)}, ${camera.position.y.toFixed(2)}, ${camera.position.z.toFixed(2)});
-    camera.lookAt(${lookAtPoint.x.toFixed(2)}, ${lookAtPoint.y.toFixed(2)}, ${lookAtPoint.z.toFixed(2)});
-      `);
     });
 
     // Create a plane geometry with many segments.
@@ -133,10 +109,7 @@ const NoiseSurface = () => {
     scene.add(wireframeMesh);
 
     // Setup both noise generators
-    const perlin = new Perlin({
-      frequency: frequencyRef.current,
-      octaves: octavesRef.current
-    });
+    const perlin = new Perlin();  // Create basic Perlin instance without parameters
     const simplex = createNoise3D();
     const clock = new THREE.Clock();
     const noiseVector = new THREE.Vector3();
@@ -154,8 +127,24 @@ const NoiseSurface = () => {
         
         let noise;
         if (usePerlinRef.current) {
-          noiseVector.set(x * scaleRef.current, y * scaleRef.current, elapsed);
-          noise = perlin.get3(noiseVector);
+          // Apply frequency and octaves manually
+          let totalNoise = 0;
+          let amplitude = 1;
+          let frequency = frequencyRef.current;
+          
+          // Sum multiple octaves of noise
+          for(let o = 0; o < octavesRef.current; o++) {
+            noiseVector.set(
+              x * scaleRef.current * frequency, 
+              y * scaleRef.current * frequency, 
+              elapsed
+            );
+            totalNoise += perlin.get3(noiseVector) * amplitude;
+            amplitude *= 0.5;
+            frequency *= 2;
+          }
+          
+          noise = totalNoise;
         } else {
           noise = simplex(x * scaleRef.current, y * scaleRef.current, elapsed);
         }
@@ -231,9 +220,9 @@ const NoiseSurface = () => {
                 <span style={{ minWidth: "120px" }}>Frequency: {frequency}</span>
                 <input
                   type="range"
-                  min="0.1"
-                  max="5"
-                  step="0.1"
+                  min="0.5"
+                  max="10"
+                  step="0.5"
                   value={frequency}
                   onChange={(e) => setFrequency(parseFloat(e.target.value))}
                   style={{ marginLeft: "10px" }}
@@ -246,7 +235,7 @@ const NoiseSurface = () => {
                 <input
                   type="range"
                   min="1"
-                  max="8"
+                  max="4"
                   step="1"
                   value={octaves}
                   onChange={(e) => setOctaves(parseInt(e.target.value))}
