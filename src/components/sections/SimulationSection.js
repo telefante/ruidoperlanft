@@ -17,10 +17,10 @@ const SimulationSection = () => {
       {/* Full viewport width and height container */}
       <div style={{ 
         width: '100vw', 
-        height: '100vh',
+        height: '66vh',
         marginLeft: 'calc(-50vw + 50%)', 
         marginRight: 'calc(-50vw + 50%)',
-        marginBottom: '200px' // Add space for controls
+        marginBottom: '0px' // Add space for controls
       }}>
         <PerlinNoise />
       </div>
