@@ -6,14 +6,43 @@ import { createNoise3D } from "simplex-noise";
 import { useStaticQuery, graphql } from "gatsby";
 import html2canvas from 'html2canvas';
 
-// Add text overlay component
-const TextOverlay = () => {
-  const [currentLine, setCurrentLine] = useState('');
-  const [opacity, setOpacity] = useState(0);
-  const [lines, setLines] = useState([]);
-  const currentIndex = useRef(0);
+// Replace TextOverlay component with a Three.js text implementation
+const createTextSprite = (text) => {
+  const canvas = document.createElement('canvas');
+  const context = canvas.getContext('2d');
+  canvas.width = 1024;
+  canvas.height = 256;
+  
+  // Setup text style
+  context.font = '36px var(--primary-font), Arial';
+  context.fillStyle = 'white';
+  context.textAlign = 'center';
+  context.textBaseline = 'middle';
+  
+  // Add text shadow
+  context.shadowColor = 'rgba(0, 0, 0, 0.7)';
+  context.shadowBlur = 4;
+  context.shadowOffsetX = 2;
+  context.shadowOffsetY = 2;
+  
+  // Draw text
+  context.fillText(text, canvas.width/2, canvas.height/2);
+  
+  // Create sprite
+  const texture = new THREE.CanvasTexture(canvas);
+  const spriteMaterial = new THREE.SpriteMaterial({ 
+    map: texture,
+    transparent: true
+  });
+  const sprite = new THREE.Sprite(spriteMaterial);
+  sprite.scale.set(40, 10, 1);
+  sprite.position.set(0, 0, 10); // Adjust position as needed
+  
+  return sprite;
+};
 
-  // Fetch markdown content using GraphQL
+const PerlinNoise = () => {
+  // Move useStaticQuery to component level
   const data = useStaticQuery(graphql`
     query {
       markdownRemark(fileAbsolutePath: { regex: "/perlin-text.md/" }) {
@@ -22,68 +51,14 @@ const TextOverlay = () => {
     }
   `);
 
-  // Set up lines from markdown content
-  useEffect(() => {
-    if (data.markdownRemark) {
-      const textContent = data.markdownRemark.rawMarkdownBody;
-      setLines(textContent.split('\n').filter(line => line.trim()));
-    }
-  }, [data]);
-
-  // Handle text animation
-  useEffect(() => {
-    if (lines.length === 0) return;
-
-    const fadeIn = () => {
-      setCurrentLine(lines[currentIndex.current]);
-      setOpacity(1);
-    };
-
-    const fadeOut = () => {
-      setOpacity(0);
-    };
-
-    const updateIndex = () => {
-      currentIndex.current = (currentIndex.current + 1) % lines.length;
-    };
-
-    const interval = setInterval(() => {
-      fadeIn();
-      setTimeout(fadeOut, 4000);
-      setTimeout(updateIndex, 5000);
-    }, 5000);
-
-    return () => clearInterval(interval);
-  }, [lines]);
-
-  return (
-    <div
-      style={{
-        position: 'absolute',
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)',
-        color: 'white',
-        fontSize: '1.5rem',
-        fontFamily: 'var(--primary-font)',
-        textAlign: 'center',
-        pointerEvents: 'none',
-        transition: 'opacity 1s ease-in-out',
-        opacity: opacity,
-        textShadow: '2px 2px 4px rgba(0, 0, 0, 0.7)',
-        maxWidth: '80%',
-        zIndex: 1000,
-        padding: '20px'
-      }}
-    >
-      {currentLine}
-    </div>
-  );
-};
-
-const PerlinNoise = () => {
   const mountRef = useRef(null);
-  const containerRef = useRef(null);  // Add this ref for the entire container
+  const containerRef = useRef(null);
+  // Add refs for scene, camera, and renderer
+  const sceneRef = useRef(null);
+  const cameraRef = useRef(null);
+  const rendererRef = useRef(null);
+  const textSpriteRef = useRef(null);
+  const currentTextRef = useRef('');
 
   // Add state for noise type
   const [usePerlin, setUsePerlin] = useState(true);
@@ -140,10 +115,19 @@ const PerlinNoise = () => {
     camera.position.set(-0.47, -59.35, 23.96);
     camera.lookAt(0.26, 33.38, -13.48);
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    const renderer = new THREE.WebGLRenderer({ 
+      antialias: true, 
+      alpha: true,
+      preserveDrawingBuffer: true // Important for capture
+    });
     renderer.setSize(width, height);
     renderer.setClearColor(0x000000, 0); // Transparent background.
     mountRef.current.appendChild(renderer.domElement);
+
+    // Store references
+    sceneRef.current = scene;
+    cameraRef.current = camera;
+    rendererRef.current = renderer;
 
     // Add OrbitControls
     const controls = new OrbitControls(camera, renderer.domElement);
@@ -211,6 +195,31 @@ const PerlinNoise = () => {
     const clock = new THREE.Clock();
     const noiseVector = new THREE.Vector3();
 
+    // Create initial text sprite
+    const textSprite = createTextSprite('');
+    scene.add(textSprite);
+    textSpriteRef.current = textSprite;
+
+    // Use data from useStaticQuery here
+    const lines = data.markdownRemark.rawMarkdownBody.split('\n').filter(line => line.trim());
+    let currentIndex = 0;
+
+    const updateText = () => {
+      const newText = lines[currentIndex];
+      currentTextRef.current = newText;
+      
+      // Update sprite texture
+      const newSprite = createTextSprite(newText);
+      scene.remove(textSpriteRef.current);
+      scene.add(newSprite);
+      textSpriteRef.current = newSprite;
+      
+      currentIndex = (currentIndex + 1) % lines.length;
+    };
+
+    // Text animation interval
+    const textInterval = setInterval(updateText, 5000);
+
     // Animation loop.
     const animate = () => {
       requestAnimationFrame(animate);
@@ -251,6 +260,12 @@ const PerlinNoise = () => {
       geometry.attributes.position.needsUpdate = true;
 
       controls.update();
+
+      // Ensure text sprite always faces camera
+      if (textSpriteRef.current) {
+        textSpriteRef.current.lookAt(camera.position);
+      }
+      
       renderer.render(scene, camera);
     };
 
@@ -273,39 +288,27 @@ const PerlinNoise = () => {
       controls.removeEventListener('change', () => {});
       controls.dispose();
       renderer.dispose();
+      clearInterval(textInterval);
     };
-  }, []);
+  }, [data]); // Add data to dependencies
 
-  // Add capture function
-  const captureScene = async () => {
-    if (!containerRef.current) return;
-
-    try {
-      // Capture the entire container including 3D and text overlay
-      const canvas = await html2canvas(containerRef.current, {
-        useCORS: true,
-        backgroundColor: null,
-        scale: 2, // Higher quality
-      });
-
-      // Convert to image and trigger download
-      const image = canvas.toDataURL("image/png");
-      const link = document.createElement('a');
-      link.href = image;
-      link.download = `perlin-capture-${Date.now()}.png`;
-      link.click();
-    } catch (error) {
-      console.error('Error capturing scene:', error);
-    }
+  // Update capture function to only use renderer
+  const captureScene = () => {
+    if (!rendererRef.current || !sceneRef.current || !cameraRef.current) return;
+    
+    rendererRef.current.render(sceneRef.current, cameraRef.current);
+    const imageData = rendererRef.current.domElement.toDataURL("image/png");
+    
+    const link = document.createElement('a');
+    link.href = imageData;
+    link.download = `perlin-3d-${Date.now()}.png`;
+    link.click();
   };
 
   return (
     <div ref={containerRef} style={{ position: "relative", width: "100%", height: "100%" }}>
       {/* Three.js Canvas Container */}
       <div ref={mountRef} style={{ width: "100%", height: "100%" }} />
-
-      {/* Add the TextOverlay component */}
-      <TextOverlay />
 
       {/* Add Capture Button next to Camera Setup button */}
       <div style={{ position: 'absolute', top: '10px', right: '10px', display: 'flex', gap: '10px' }}>
