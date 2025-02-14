@@ -11,14 +11,38 @@ const TextOverlay = () => {
   const [lines, setLines] = useState([]);
   const currentIndex = useRef(0);
 
-  // Fetch the text file
+  // Define the text content directly instead of fetching
   useEffect(() => {
-    fetch('/src/data/pearlinnoise.txt')
-      .then(response => response.text())
-      .then(text => {
-        setLines(text.split('\n').filter(line => line.trim()));
-      })
-      .catch(error => console.error('Error loading text:', error));
+    const textContent = `Analogy, emulation
+similarities at the distance
+how do I assemble 
+with the non-Sense?
+Navigate the noise
+The perlin noise 
+Pearl 
+pearl
+pearl in 
+pearl in noise 
+What a beautiful coincidence 
+To find that pearl
+In the folds of the landscape
+Which are singing
+functions of the unknown
+showing their apparent disorder
+I am attracted to that space
+that produces ghosts
+creates memories
+speculative memories
+mysticism
+and attraction
+the unknown
+and the attraction
+contemplate
+and
+emigrate
+and simulate`;
+
+    setLines(textContent.split('\n').filter(line => line.trim()));
   }, []);
 
   // Handle text animation
@@ -40,9 +64,9 @@ const TextOverlay = () => {
 
     const interval = setInterval(() => {
       fadeIn();
-      setTimeout(fadeOut, 4000); // Start fade out after 4 seconds
-      setTimeout(updateIndex, 5000); // Update index after fade out
-    }, 5000); // Total cycle duration
+      setTimeout(fadeOut, 4000);
+      setTimeout(updateIndex, 5000);
+    }, 5000);
 
     return () => clearInterval(interval);
   }, [lines]);
@@ -55,14 +79,16 @@ const TextOverlay = () => {
         left: '50%',
         transform: 'translate(-50%, -50%)',
         color: 'white',
-        fontSize: '1.2rem',
+        fontSize: '1.5rem',
+        fontFamily: 'var(--primary-font)',
         textAlign: 'center',
         pointerEvents: 'none',
         transition: 'opacity 1s ease-in-out',
         opacity: opacity,
-        textShadow: '2px 2px 4px rgba(0, 0, 0, 0.5)',
+        textShadow: '2px 2px 4px rgba(0, 0, 0, 0.7)',
         maxWidth: '80%',
-        zIndex: 1000
+        zIndex: 1000,
+        padding: '20px'
       }}
     >
       {currentLine}
