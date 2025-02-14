@@ -3,6 +3,7 @@ import * as THREE from "three";
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { Perlin } from 'three-noise';
 import { createNoise3D } from "simplex-noise";
+import { useStaticQuery, graphql } from "gatsby";
 
 // Add text overlay component
 const TextOverlay = () => {
@@ -11,39 +12,22 @@ const TextOverlay = () => {
   const [lines, setLines] = useState([]);
   const currentIndex = useRef(0);
 
-  // Define the text content directly instead of fetching
-  useEffect(() => {
-    const textContent = `Analogy, emulation
-similarities at the distance
-how do I assemble 
-with the non-Sense?
-Navigate the noise
-The perlin noise 
-Pearl 
-pearl
-pearl in 
-pearl in noise 
-What a beautiful coincidence 
-To find that pearl
-In the folds of the landscape
-Which are singing
-functions of the unknown
-showing their apparent disorder
-I am attracted to that space
-that produces ghosts
-creates memories
-speculative memories
-mysticism
-and attraction
-the unknown
-and the attraction
-contemplate
-and
-emigrate
-and simulate`;
+  // Fetch markdown content using GraphQL
+  const data = useStaticQuery(graphql`
+    query {
+      markdownRemark(fileAbsolutePath: { regex: "/perlin-text.md/" }) {
+        rawMarkdownBody
+      }
+    }
+  `);
 
-    setLines(textContent.split('\n').filter(line => line.trim()));
-  }, []);
+  // Set up lines from markdown content
+  useEffect(() => {
+    if (data.markdownRemark) {
+      const textContent = data.markdownRemark.rawMarkdownBody;
+      setLines(textContent.split('\n').filter(line => line.trim()));
+    }
+  }, [data]);
 
   // Handle text animation
   useEffect(() => {
