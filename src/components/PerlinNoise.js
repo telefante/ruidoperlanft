@@ -10,35 +10,48 @@ import html2canvas from 'html2canvas';
 const createTextSprite = (text) => {
   const canvas = document.createElement('canvas');
   const context = canvas.getContext('2d');
-  canvas.width = 1024;
-  canvas.height = 256;
+  canvas.width = 2048;
+  canvas.height = 512;
   
-  // Setup text style
-  context.font = '36px var(--primary-font), Arial';
+  // Increase font size
+  context.font = 'bold 96px var(--primary-font), Arial'; // Increased from 72px to 96px
   context.fillStyle = 'white';
   context.textAlign = 'center';
   context.textBaseline = 'middle';
   
-  // Add text shadow
-  context.shadowColor = 'rgba(0, 0, 0, 0.7)';
-  context.shadowBlur = 4;
-  context.shadowOffsetX = 2;
-  context.shadowOffsetY = 2;
+  // Enhanced shadow for better visibility
+  context.shadowColor = 'rgba(0, 0, 0, 0.9)';
+  context.shadowBlur = 12;
+  context.shadowOffsetX = 6;
+  context.shadowOffsetY = 6;
   
-  // Draw text
   context.fillText(text, canvas.width/2, canvas.height/2);
   
-  // Create sprite
   const texture = new THREE.CanvasTexture(canvas);
   const spriteMaterial = new THREE.SpriteMaterial({ 
     map: texture,
-    transparent: true
+    transparent: true,
+    depthTest: false,
+    depthWrite: false
   });
-  const sprite = new THREE.Sprite(spriteMaterial);
-  sprite.scale.set(40, 10, 1);
-  sprite.position.set(0, 0, 10); // Adjust position as needed
   
+  const sprite = new THREE.Sprite(spriteMaterial);
   return sprite;
+};
+
+// Add this function to update sprite position
+const updateSpritePosition = (sprite, camera) => {
+  if (!sprite) return;
+  
+  // Position sprite closer to camera
+  const distance = 20; // Reduced from 50 to 20 to be closer
+  const vector = new THREE.Vector3(0, 0, -distance);
+  vector.applyQuaternion(camera.quaternion);
+  sprite.position.copy(camera.position).add(vector);
+  
+  // Increase scale significantly
+  const scale = distance * 0.5; // Increased from 0.15 to 0.5
+  sprite.scale.set(scale * 6, scale * 1.5, 1); // Adjusted scale ratios
 };
 
 const PerlinNoise = () => {
@@ -208,9 +221,12 @@ const PerlinNoise = () => {
       const newText = lines[currentIndex];
       currentTextRef.current = newText;
       
-      // Update sprite texture
+      // Update sprite
+      if (textSpriteRef.current) {
+        scene.remove(textSpriteRef.current);
+      }
       const newSprite = createTextSprite(newText);
-      scene.remove(textSpriteRef.current);
+      updateSpritePosition(newSprite, camera); // Position immediately
       scene.add(newSprite);
       textSpriteRef.current = newSprite;
       
@@ -259,13 +275,12 @@ const PerlinNoise = () => {
       }
       geometry.attributes.position.needsUpdate = true;
 
-      controls.update();
-
-      // Ensure text sprite always faces camera
+      // Update text sprite position
       if (textSpriteRef.current) {
-        textSpriteRef.current.lookAt(camera.position);
+        updateSpritePosition(textSpriteRef.current, camera);
       }
-      
+
+      controls.update();
       renderer.render(scene, camera);
     };
 
