@@ -7,18 +7,19 @@ import AboutSection from "../components/sections/AboutSection";
 
 
 // Debug: Log Components
-console.log("InstallationSection:", InstallationSection);
-console.log("SimulationSection:", SimulationSection);
-console.log("AssetsSection:", AssetsSection);
-console.log("AboutSection:", AboutSection);
+// console.log("InstallationSection:", InstallationSection);
+// console.log("SimulationSection:", SimulationSection);
+// console.log("AssetsSection:", AssetsSection);
+// console.log("AboutSection:", AboutSection);
 
 
 const IndexPage = () => {
   return (
     <Layout>
+      <SimulationSection />  
       <InstallationSection />
-      <SimulationSection />
       <AssetsSection />
+      <SimulationSection />  
       <AboutSection />
     </Layout>
   );
