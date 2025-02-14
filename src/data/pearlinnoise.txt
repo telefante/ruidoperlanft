@@ -26,14 +26,3 @@ contemplate
 and
 emigrate
 and simulate
-
-Perlin noise, a gradient noise developed by Ken Perlin in 1983
-Used to create natural-looking textures and animations
-Generates smooth, continuous pseudo-random patterns
-Essential in procedural generation of terrain, clouds, and motion
-Combines multiple frequencies to create complex, organic patterns
-Winner of Academy Award for Technical Achievement in 1997
-Fundamental algorithm in computer graphics and game development
-Creates coherent noise by interpolating between grid points
-Used in both 2D and 3D applications for realistic effects
-Revolutionized the field of procedural texture generation
