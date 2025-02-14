@@ -4,7 +4,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { Perlin } from 'three-noise';
 import { createNoise3D } from "simplex-noise";
 
-const NoiseSurface = () => {
+const PerlinNoise = () => {
   const mountRef = useRef(null);
 
   // Add state for noise type
@@ -20,6 +20,9 @@ const NoiseSurface = () => {
   const scaleRef = useRef(scale);
   const frequencyRef = useRef(frequency);
   const octavesRef = useRef(octaves);
+
+  // Add ref for camera setup
+  const cameraSetupRef = useRef({ position: {x: 0, y: 0, z: 0}, lookAt: {x: 0, y: 0, z: 0} });
 
   // Update refs when state changes
   useEffect(() => {
@@ -54,8 +57,10 @@ const NoiseSurface = () => {
     const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
     // camera.position.set(0, -100, 200);
     // camera.lookAt(0, 0, 0);
-    camera.position.set(-5.01, -140.33, 52.22);
-    camera.lookAt(-4.68, -54.15, 1.49);
+    // camera.position.set(-5.01, -140.33, 52.22);
+    // camera.lookAt(-4.68, -54.15, 1.49);
+    camera.position.set(-0.47, -59.35, 23.96);
+    camera.lookAt(0.26, 33.38, -13.48);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setSize(width, height);
@@ -77,6 +82,20 @@ const NoiseSurface = () => {
       camera.getWorldDirection(direction);
       const lookAtPoint = new THREE.Vector3();
       lookAtPoint.addVectors(camera.position, direction.multiplyScalar(100));
+      
+      // Store current camera setup in a ref for the copy button
+      cameraSetupRef.current = {
+        position: {
+          x: camera.position.x.toFixed(2),
+          y: camera.position.y.toFixed(2),
+          z: camera.position.z.toFixed(2)
+        },
+        lookAt: {
+          x: lookAtPoint.x.toFixed(2),
+          y: lookAtPoint.y.toFixed(2),
+          z: lookAtPoint.z.toFixed(2)
+        }
+      };
     });
 
     // Create a plane geometry with many segments.
@@ -180,9 +199,34 @@ const NoiseSurface = () => {
   }, []);
 
   return (
-    <div style={{ position: "relative", width: "100%", height: "33vh" }}>
+    <div style={{ position: "relative", width: "100%", height: "100%" }}>
       {/* Three.js Canvas Container */}
       <div ref={mountRef} style={{ width: "100%", height: "100%" }} />
+
+      {/* Add Copy Camera Position Button */}
+      <button
+        onClick={() => {
+          const cameraSetup = cameraSetupRef.current;
+          const text = `camera.position.set(${cameraSetup.position.x}, ${cameraSetup.position.y}, ${cameraSetup.position.z});
+camera.lookAt(${cameraSetup.lookAt.x}, ${cameraSetup.lookAt.y}, ${cameraSetup.lookAt.z});`;
+          navigator.clipboard.writeText(text);
+        }}
+        style={{
+          position: 'absolute',
+          top: '10px',
+          right: '10px',
+          padding: '8px 12px',
+          backgroundColor: 'rgba(255, 255, 255, 0.8)',
+          border: 'none',
+          borderRadius: '4px',
+          cursor: 'pointer',
+          fontFamily: 'var(--primary-font)',
+          fontSize: '14px',
+          zIndex: 1000
+        }}
+      >
+        Copy Camera Setup
+      </button>
 
       {/* Slider Controls */}
       <div
@@ -274,9 +318,17 @@ const NoiseSurface = () => {
             />
           </label>
         </div>
+
+        {/* Controls info */}
+        <div style={{ marginBottom: "10px", textAlign: "center" }}>
+          <p style={{ margin: "0 0 8px 0" }}>Controls:</p>
+          <p style={{ margin: "0", fontSize: "12px" }}>
+            Orbit: Left Mouse Button | Zoom: Mouse Wheel | Pan: Right Mouse Button
+          </p>
+        </div>
       </div> 
     </div>
   );
 };
 
-export default NoiseSurface;
+export default PerlinNoise;
