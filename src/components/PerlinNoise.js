@@ -10,48 +10,63 @@ import html2canvas from 'html2canvas';
 const createTextSprite = (text) => {
   const canvas = document.createElement('canvas');
   const context = canvas.getContext('2d');
-  canvas.width = 2048;
-  canvas.height = 512;
+  // Make canvas even larger
+  canvas.width = 4096;
+  canvas.height = 4096;
   
-  // Increase font size
-  context.font = 'bold 96px var(--primary-font), Arial'; // Increased from 72px to 96px
+  // Start with a smaller font size and measure
+  context.font = 'bold 200px var(--primary-font)';
+  const metrics = context.measureText(text);
+  
+  // Calculate font size to fill most of the canvas width
+  const targetWidth = canvas.width * 0.8; // Use 80% of canvas width
+  const scaleFactor = targetWidth / metrics.width;
+  const fontSize = Math.min(2000, Math.floor(200 * scaleFactor)); // Cap at 2000px to prevent issues
+  
+  // Apply calculated font size
+  context.font = `bold ${fontSize}px var(--primary-font)`;
   context.fillStyle = 'white';
   context.textAlign = 'center';
   context.textBaseline = 'middle';
   
-  // Enhanced shadow for better visibility
-  context.shadowColor = 'rgba(0, 0, 0, 0.9)';
-  context.shadowBlur = 12;
-  context.shadowOffsetX = 6;
-  context.shadowOffsetY = 6;
+  // Add a subtle background
+  context.fillStyle = 'rgba(0, 0, 0, 0.3)';
+  context.fillRect(0, 0, canvas.width, canvas.height);
   
+  // Draw text
+  context.fillStyle = 'white';
   context.fillText(text, canvas.width/2, canvas.height/2);
   
   const texture = new THREE.CanvasTexture(canvas);
+  texture.minFilter = THREE.LinearFilter;
+  texture.magFilter = THREE.LinearFilter;
+  texture.generateMipmaps = false;
+  
   const spriteMaterial = new THREE.SpriteMaterial({ 
     map: texture,
     transparent: true,
     depthTest: false,
-    depthWrite: false
+    depthWrite: false,
+    sizeAttenuation: false
   });
   
   const sprite = new THREE.Sprite(spriteMaterial);
   return sprite;
 };
 
-// Add this function to update sprite position
+// Update sprite position function
 const updateSpritePosition = (sprite, camera) => {
   if (!sprite) return;
   
-  // Position sprite closer to camera
-  const distance = 20; // Reduced from 50 to 20 to be closer
-  const vector = new THREE.Vector3(0, 0, -distance);
-  vector.applyQuaternion(camera.quaternion);
-  sprite.position.copy(camera.position).add(vector);
+  // Position in normalized device coordinates
+  sprite.position.set(0, 0, 1);
   
-  // Increase scale significantly
-  const scale = distance * 0.5; // Increased from 0.15 to 0.5
-  sprite.scale.set(scale * 6, scale * 1.5, 1); // Adjusted scale ratios
+  // Make sprite face the camera
+  sprite.material.depthTest = false;
+  sprite.material.depthWrite = false;
+  
+  // Make sprite even larger
+  sprite.scale.set(100, 100, 1); // Increased scale significantly
 };
 
 const PerlinNoise = () => {
@@ -72,6 +87,8 @@ const PerlinNoise = () => {
   const rendererRef = useRef(null);
   const textSpriteRef = useRef(null);
   const currentTextRef = useRef('');
+  const overlaySceneRef = useRef(null);
+  const overlayCameraRef = useRef(null);
 
   // Add state for noise type
   const [usePerlin, setUsePerlin] = useState(true);
@@ -79,6 +96,7 @@ const PerlinNoise = () => {
   const [scale, setScale] = useState(0.008); // Controls noise scale (frequency).
   const [frequency, setFrequency] = useState(1);
   const [octaves, setOctaves] = useState(1);
+  const [textOpacity, setTextOpacity] = useState(1);
 
   // Add ref for noise type
   const usePerlinRef = useRef(usePerlin);
@@ -114,33 +132,173 @@ const PerlinNoise = () => {
   useEffect(() => {
     if (!mountRef.current) return;
 
-    // Get container dimensions.
     const width = mountRef.current.clientWidth;
     const height = mountRef.current.clientHeight;
 
-    // Create scene, camera, and renderer.
+    // Main scene setup as before...
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
-    // camera.position.set(0, -100, 200);
-    // camera.lookAt(0, 0, 0);
-    // camera.position.set(-5.01, -140.33, 52.22);
-    // camera.lookAt(-4.68, -54.15, 1.49);
-    camera.position.set(-0.47, -59.35, 23.96);
-    camera.lookAt(0.26, 33.38, -13.48);
-
+    
+    // Create renderer
     const renderer = new THREE.WebGLRenderer({ 
       antialias: true, 
       alpha: true,
-      preserveDrawingBuffer: true // Important for capture
+      preserveDrawingBuffer: true
     });
     renderer.setSize(width, height);
-    renderer.setClearColor(0x000000, 0); // Transparent background.
+    renderer.setClearColor(0x000000, 0);
     mountRef.current.appendChild(renderer.domElement);
+    rendererRef.current = renderer;
+    
+    // Create overlay scene and camera
+    const overlayScene = new THREE.Scene();
+    const overlayCamera = new THREE.OrthographicCamera(
+      -width,
+      width,
+      height,
+      -height,
+      -100,
+      100
+    );
+    overlayCamera.position.z = 0;  // Camera at origin
+    
+    overlaySceneRef.current = overlayScene;
+    overlayCameraRef.current = overlayCamera;
+
+    // Create text overlay with sprite
+    const createTextPlane = (text) => {
+      const canvas = document.createElement('canvas');
+      const context = canvas.getContext('2d');
+      canvas.width = width * 16;     // Increased from 8 to 16
+      canvas.height = height * 16;    // Increased from 8 to 16
+
+      // Setup text style with much larger font
+      const fontSize = height * 8;    // Increased from 4 to 8
+      context.font = `bold ${fontSize}px var(--primary-font)`;
+      context.fillStyle = 'white';
+      context.textAlign = 'center';
+      context.textBaseline = 'middle';
+
+      // Draw text
+      context.fillText(text, canvas.width/2, canvas.height/2);
+
+      const texture = new THREE.CanvasTexture(canvas);
+      texture.minFilter = THREE.LinearFilter;
+      texture.magFilter = THREE.LinearFilter;
+
+      // Use SpriteMaterial instead of MeshBasicMaterial
+      const material = new THREE.SpriteMaterial({
+        map: texture,
+        transparent: true,
+        depthTest: false,
+        depthWrite: false,
+        sizeAttenuation: true  // Changed to true to allow manual scaling
+      });
+
+      // Create sprite instead of mesh
+      const sprite = new THREE.Sprite(material);
+      sprite.scale.set(width * 8, height * 8, 1);  // Much larger scale (4x previous)
+      sprite.position.set(0, 0, -5);  // Moved closer to camera
+      sprite.renderOrder = 999;
+      return sprite;
+    };
+
+    // Text animation
+    const lines = data.markdownRemark.rawMarkdownBody.split('\n').filter(line => line.trim());
+    let currentIndex = 0;
+
+    const updateText = () => {
+      setTextOpacity(0);
+      setTimeout(() => {
+        currentTextRef.current = lines[currentIndex];
+        setTextOpacity(1);
+        currentIndex = (currentIndex + 1) % lines.length;
+      }, 500);
+    };
+
+    const textInterval = setInterval(updateText, 5000);
+
+    // Animation loop
+    const animate = () => {
+      requestAnimationFrame(animate);
+      const elapsed = clock.getElapsedTime();
+
+      // Update vertex positions using selected noise type
+      const positions = geometry.attributes.position.array;
+      for (let i = 0; i < positions.length; i += 3) {
+        const x = positions[i];
+        const y = positions[i + 1];
+        
+        let noise;
+        if (usePerlinRef.current) {
+          // Apply frequency and octaves manually
+          let totalNoise = 0;
+          let amplitude = 1;
+          let frequency = frequencyRef.current;
+          
+          // Sum multiple octaves of noise
+          for(let o = 0; o < octavesRef.current; o++) {
+            noiseVector.set(
+              x * scaleRef.current * frequency, 
+              y * scaleRef.current * frequency, 
+              elapsed
+            );
+            totalNoise += perlin.get3(noiseVector) * amplitude;
+            amplitude *= 0.5;
+            frequency *= 2;
+          }
+          
+          noise = totalNoise;
+        } else {
+          noise = simplex(x * scaleRef.current, y * scaleRef.current, elapsed);
+        }
+        
+        positions[i + 2] = noise * amplitudeRef.current;
+      }
+      geometry.attributes.position.needsUpdate = true;
+
+      // Render main scene with perspective camera
+      rendererRef.current.render(scene, camera);
+      
+      // Render text overlay with orthographic camera
+      rendererRef.current.autoClear = false;
+      rendererRef.current.render(overlayScene, overlayCamera);
+      rendererRef.current.autoClear = true;
+
+      controls.update();
+    };
+
+    // Handle resize
+    const handleResize = () => {
+      const width = mountRef.current.clientWidth;
+      const height = mountRef.current.clientHeight;
+      
+      // Update main camera
+      camera.aspect = width / height;
+      camera.updateProjectionMatrix();
+      
+      // Update overlay camera
+      overlayCamera.left = -width;
+      overlayCamera.right = width;
+      overlayCamera.top = height;
+      overlayCamera.bottom = -height;
+      overlayCamera.updateProjectionMatrix();
+      
+      renderer.setSize(width, height);
+      
+      // Update text if it exists
+      if (textSpriteRef.current) {
+        const newText = currentTextRef.current;
+        overlayScene.remove(textSpriteRef.current);
+        const textPlane = createTextPlane(newText);
+        overlayScene.add(textPlane);
+        textSpriteRef.current = textPlane;
+      }
+    };
 
     // Store references
     sceneRef.current = scene;
     cameraRef.current = camera;
-    rendererRef.current = renderer;
 
     // Add OrbitControls
     const controls = new OrbitControls(camera, renderer.domElement);
@@ -213,111 +371,56 @@ const PerlinNoise = () => {
     scene.add(textSprite);
     textSpriteRef.current = textSprite;
 
-    // Use data from useStaticQuery here
-    const lines = data.markdownRemark.rawMarkdownBody.split('\n').filter(line => line.trim());
-    let currentIndex = 0;
-
-    const updateText = () => {
-      const newText = lines[currentIndex];
-      currentTextRef.current = newText;
-      
-      // Update sprite
-      if (textSpriteRef.current) {
-        scene.remove(textSpriteRef.current);
-      }
-      const newSprite = createTextSprite(newText);
-      updateSpritePosition(newSprite, camera); // Position immediately
-      scene.add(newSprite);
-      textSpriteRef.current = newSprite;
-      
-      currentIndex = (currentIndex + 1) % lines.length;
-    };
-
-    // Text animation interval
-    const textInterval = setInterval(updateText, 5000);
-
-    // Animation loop.
-    const animate = () => {
-      requestAnimationFrame(animate);
-      const elapsed = clock.getElapsedTime();
-
-      // Update vertex positions using selected noise type
-      const positions = geometry.attributes.position.array;
-      for (let i = 0; i < positions.length; i += 3) {
-        const x = positions[i];
-        const y = positions[i + 1];
-        
-        let noise;
-        if (usePerlinRef.current) {
-          // Apply frequency and octaves manually
-          let totalNoise = 0;
-          let amplitude = 1;
-          let frequency = frequencyRef.current;
-          
-          // Sum multiple octaves of noise
-          for(let o = 0; o < octavesRef.current; o++) {
-            noiseVector.set(
-              x * scaleRef.current * frequency, 
-              y * scaleRef.current * frequency, 
-              elapsed
-            );
-            totalNoise += perlin.get3(noiseVector) * amplitude;
-            amplitude *= 0.5;
-            frequency *= 2;
-          }
-          
-          noise = totalNoise;
-        } else {
-          noise = simplex(x * scaleRef.current, y * scaleRef.current, elapsed);
-        }
-        
-        positions[i + 2] = noise * amplitudeRef.current;
-      }
-      geometry.attributes.position.needsUpdate = true;
-
-      // Update text sprite position
-      if (textSpriteRef.current) {
-        updateSpritePosition(textSpriteRef.current, camera);
-      }
-
-      controls.update();
-      renderer.render(scene, camera);
-    };
-
     animate();
 
     // Handle window resizing.
-    const handleResize = () => {
-      const width = mountRef.current.clientWidth;
-      const height = mountRef.current.clientHeight;
-      renderer.setSize(width, height);
-      camera.aspect = width / height;
-      camera.updateProjectionMatrix();
-    };
     window.addEventListener("resize", handleResize);
 
     // Cleanup on component unmount.
     return () => {
       window.removeEventListener("resize", handleResize);
-      mountRef.current.removeChild(renderer.domElement);
+      if (mountRef.current && rendererRef.current) {
+        mountRef.current.removeChild(rendererRef.current.domElement);
+      }
       controls.removeEventListener('change', () => {});
       controls.dispose();
-      renderer.dispose();
+      if (rendererRef.current) {
+        rendererRef.current.dispose();
+      }
       clearInterval(textInterval);
+      if (overlayScene) {
+        overlayScene.clear();
+      }
     };
   }, [data]); // Add data to dependencies
 
-  // Update capture function to only use renderer
-  const captureScene = () => {
-    if (!rendererRef.current || !sceneRef.current || !cameraRef.current) return;
-    
-    rendererRef.current.render(sceneRef.current, cameraRef.current);
-    const imageData = rendererRef.current.domElement.toDataURL("image/png");
-    
-    const link = document.createElement('a');
-    link.href = imageData;
-    link.download = `perlin-3d-${Date.now()}.png`;
-    link.click();
+  // Update capture function to include both scenes and CSS overlay
+  const captureScene = async () => {
+    if (!containerRef.current) return;
+
+    try {
+      // Capture the entire container including 3D and CSS overlay
+      const canvas = await html2canvas(containerRef.current, {
+        useCORS: true,
+        backgroundColor: null,
+        scale: 2, // Higher quality
+        logging: false,
+        ignoreElements: (element) => {
+          // Ignore control buttons and sliders
+          return element.classList.contains('controls') || 
+                 element.tagName === 'BUTTON';
+        }
+      });
+
+      // Convert to image and trigger download
+      const imageData = canvas.toDataURL('image/png');
+      const link = document.createElement('a');
+      link.href = imageData;
+      link.download = `perlin-capture-${Date.now()}.png`;
+      link.click();
+    } catch (error) {
+      console.error('Error capturing scene:', error);
+    }
   };
 
   return (
@@ -325,8 +428,27 @@ const PerlinNoise = () => {
       {/* Three.js Canvas Container */}
       <div ref={mountRef} style={{ width: "100%", height: "100%" }} />
 
+      {/* Text Overlay */}
+      <div style={{
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        color: 'white',
+        fontSize: '8vw', // Dynamic font size based on viewport width
+        fontFamily: 'var(--primary-font)',
+        textAlign: 'center',
+        pointerEvents: 'none',
+        zIndex: 1000,
+        textShadow: '2px 2px 4px rgba(0,0,0,0.5)',
+        opacity: textOpacity, // Add state for fade effect
+        transition: 'opacity 0.5s ease-in-out'
+      }}>
+        {currentTextRef.current}
+      </div>
+
       {/* Add Capture Button next to Camera Setup button */}
-      <div style={{ position: 'absolute', top: '10px', right: '10px', display: 'flex', gap: '10px' }}>
+      <div className="controls" style={{ position: 'absolute', top: '10px', right: '10px', display: 'flex', gap: '10px' }}>
         <button
           onClick={captureScene}
           style={{
@@ -368,9 +490,10 @@ camera.lookAt(${cameraSetup.lookAt.x}, ${cameraSetup.lookAt.y}, ${cameraSetup.lo
 
       {/* Slider Controls */}
       <div
+        className="controls"
         style={{
           position: "absolute",
-          bottom: "-180px", // Adjusted to make room for new controls
+          bottom: "-180px",
           left: "50%",
           transform: "translateX(-50%)",
           backgroundColor: "rgba(255, 255, 255, 0.8)", 
