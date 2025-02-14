@@ -4,6 +4,72 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { Perlin } from 'three-noise';
 import { createNoise3D } from "simplex-noise";
 
+// Add text overlay component
+const TextOverlay = () => {
+  const [currentLine, setCurrentLine] = useState('');
+  const [opacity, setOpacity] = useState(0);
+  const [lines, setLines] = useState([]);
+  const currentIndex = useRef(0);
+
+  // Fetch the text file
+  useEffect(() => {
+    fetch('/src/data/pearlinnoise.txt')
+      .then(response => response.text())
+      .then(text => {
+        setLines(text.split('\n').filter(line => line.trim()));
+      })
+      .catch(error => console.error('Error loading text:', error));
+  }, []);
+
+  // Handle text animation
+  useEffect(() => {
+    if (lines.length === 0) return;
+
+    const fadeIn = () => {
+      setCurrentLine(lines[currentIndex.current]);
+      setOpacity(1);
+    };
+
+    const fadeOut = () => {
+      setOpacity(0);
+    };
+
+    const updateIndex = () => {
+      currentIndex.current = (currentIndex.current + 1) % lines.length;
+    };
+
+    const interval = setInterval(() => {
+      fadeIn();
+      setTimeout(fadeOut, 4000); // Start fade out after 4 seconds
+      setTimeout(updateIndex, 5000); // Update index after fade out
+    }, 5000); // Total cycle duration
+
+    return () => clearInterval(interval);
+  }, [lines]);
+
+  return (
+    <div
+      style={{
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        color: 'white',
+        fontSize: '1.2rem',
+        textAlign: 'center',
+        pointerEvents: 'none',
+        transition: 'opacity 1s ease-in-out',
+        opacity: opacity,
+        textShadow: '2px 2px 4px rgba(0, 0, 0, 0.5)',
+        maxWidth: '80%',
+        zIndex: 1000
+      }}
+    >
+      {currentLine}
+    </div>
+  );
+};
+
 const PerlinNoise = () => {
   const mountRef = useRef(null);
 
@@ -202,6 +268,9 @@ const PerlinNoise = () => {
     <div style={{ position: "relative", width: "100%", height: "100%" }}>
       {/* Three.js Canvas Container */}
       <div ref={mountRef} style={{ width: "100%", height: "100%" }} />
+
+      {/* Add the TextOverlay component */}
+      <TextOverlay />
 
       {/* Add Copy Camera Position Button */}
       <button
