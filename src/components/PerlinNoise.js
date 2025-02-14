@@ -254,12 +254,15 @@ const PerlinNoise = () => {
         color: 'white',
         fontSize: '8vw',
         fontFamily: 'var(--primary-font)',
+        fontStyle: 'italic',
+        fontWeight: 'bold',
         textAlign: 'center',
         pointerEvents: 'none',
         zIndex: 1000,
         textShadow: '2px 2px 4px rgba(0,0,0,0.5)',
         opacity: textOpacity,
-        transition: 'opacity 0.5s ease-in-out'
+        transition: 'opacity 0.5s ease-in-out',
+        letterSpacing: '0.05em'
       }}>
         {currentTextRef.current}
       </div>
