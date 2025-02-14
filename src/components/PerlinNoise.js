@@ -4,6 +4,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { Perlin } from 'three-noise';
 import { createNoise3D } from "simplex-noise";
 import { useStaticQuery, graphql } from "gatsby";
+import html2canvas from 'html2canvas';
 
 // Add text overlay component
 const TextOverlay = () => {
@@ -82,6 +83,7 @@ const TextOverlay = () => {
 
 const PerlinNoise = () => {
   const mountRef = useRef(null);
+  const containerRef = useRef(null);  // Add this ref for the entire container
 
   // Add state for noise type
   const [usePerlin, setUsePerlin] = useState(true);
@@ -274,38 +276,77 @@ const PerlinNoise = () => {
     };
   }, []);
 
+  // Add capture function
+  const captureScene = async () => {
+    if (!containerRef.current) return;
+
+    try {
+      // Capture the entire container including 3D and text overlay
+      const canvas = await html2canvas(containerRef.current, {
+        useCORS: true,
+        backgroundColor: null,
+        scale: 2, // Higher quality
+      });
+
+      // Convert to image and trigger download
+      const image = canvas.toDataURL("image/png");
+      const link = document.createElement('a');
+      link.href = image;
+      link.download = `perlin-capture-${Date.now()}.png`;
+      link.click();
+    } catch (error) {
+      console.error('Error capturing scene:', error);
+    }
+  };
+
   return (
-    <div style={{ position: "relative", width: "100%", height: "100%" }}>
+    <div ref={containerRef} style={{ position: "relative", width: "100%", height: "100%" }}>
       {/* Three.js Canvas Container */}
       <div ref={mountRef} style={{ width: "100%", height: "100%" }} />
 
       {/* Add the TextOverlay component */}
       <TextOverlay />
 
-      {/* Add Copy Camera Position Button */}
-      <button
-        onClick={() => {
-          const cameraSetup = cameraSetupRef.current;
-          const text = `camera.position.set(${cameraSetup.position.x}, ${cameraSetup.position.y}, ${cameraSetup.position.z});
+      {/* Add Capture Button next to Camera Setup button */}
+      <div style={{ position: 'absolute', top: '10px', right: '10px', display: 'flex', gap: '10px' }}>
+        <button
+          onClick={captureScene}
+          style={{
+            padding: '8px 12px',
+            backgroundColor: 'rgba(255, 255, 255, 0.8)',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer',
+            fontFamily: 'var(--primary-font)',
+            fontSize: '14px',
+            zIndex: 1000
+          }}
+        >
+          Capture Scene
+        </button>
+
+        {/* Existing Camera Setup button */}
+        <button
+          onClick={() => {
+            const cameraSetup = cameraSetupRef.current;
+            const text = `camera.position.set(${cameraSetup.position.x}, ${cameraSetup.position.y}, ${cameraSetup.position.z});
 camera.lookAt(${cameraSetup.lookAt.x}, ${cameraSetup.lookAt.y}, ${cameraSetup.lookAt.z});`;
-          navigator.clipboard.writeText(text);
-        }}
-        style={{
-          position: 'absolute',
-          top: '10px',
-          right: '10px',
-          padding: '8px 12px',
-          backgroundColor: 'rgba(255, 255, 255, 0.8)',
-          border: 'none',
-          borderRadius: '4px',
-          cursor: 'pointer',
-          fontFamily: 'var(--primary-font)',
-          fontSize: '14px',
-          zIndex: 1000
-        }}
-      >
-        Copy Camera Setup
-      </button>
+            navigator.clipboard.writeText(text);
+          }}
+          style={{
+            padding: '8px 12px',
+            backgroundColor: 'rgba(255, 255, 255, 0.8)',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer',
+            fontFamily: 'var(--primary-font)',
+            fontSize: '14px',
+            zIndex: 1000
+          }}
+        >
+          Copy Camera Setup
+        </button>
+      </div>
 
       {/* Slider Controls */}
       <div
