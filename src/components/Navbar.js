@@ -41,7 +41,7 @@ const CustomNavbar = () => {
     const section = document.getElementById(sectionId);
     if (section) {
       window.scrollTo({
-        top: section.offsetTop - 150,
+        top: window.innerWidth <= 768 ? section.offsetTop - 350 : section.offsetTop - 150,
         behavior: "smooth",
       });
     }
