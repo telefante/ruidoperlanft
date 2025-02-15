@@ -56,7 +56,7 @@ const AboutSection = () => {
     query {
       file(
         sourceInstanceName: { eq: "images" }
-        name: { eq: "landscape_01" } # Make sure you have an image named "about" in your images folder
+        name: { eq: "favicon" } 
       ) {
         childImageSharp {
           gatsbyImageData(

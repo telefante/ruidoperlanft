@@ -1,7 +1,7 @@
-import React from "react"
+import React, { useState } from "react"
 import { useStaticQuery, graphql } from "gatsby"
 import { GatsbyImage, getImage } from "gatsby-plugin-image"
-import { Row, Col, Carousel } from "react-bootstrap"
+import { Row, Col, Carousel, Modal, Button } from "react-bootstrap"
 import styled from "styled-components"
 import SectionContainer from "./SectionContainer"
 
@@ -10,16 +10,16 @@ const StyledCarousel = styled(Carousel)`
   .carousel-inner {
     background: transparent;
   }
-  
+
   .carousel-control-prev,
   .carousel-control-next {
     background: transparent;
   }
-  
+
   .carousel-indicators {
     background: transparent;
   }
-  
+
   .carousel-caption {
     background: transparent;
   }
@@ -45,7 +45,8 @@ const StyledCarousel = styled(Carousel)`
   }
 `
 
-const OverlappingContainer = styled.div`  position: relative;
+const OverlappingContainer = styled.div`
+  position: relative;
   width: 100%;
   margin-top: 2rem;
 `
@@ -54,12 +55,11 @@ const TextOverlay = styled.div`
   position: absolute;
   top: -12rem;
   left: 0;
-  background:transparent;
- 
+  background: transparent;
+
   padding: 2rem;
   z-index: 2;
   max-width: 500px;
-
 `
 
 const CarouselWrapper = styled.div`
@@ -68,6 +68,8 @@ const CarouselWrapper = styled.div`
 `
 
 const InstallationSection = () => {
+  const [showModal, setShowModal] = useState(false);
+  
   const data = useStaticQuery(graphql`
     query {
       allFile(
@@ -87,10 +89,7 @@ const InstallationSection = () => {
                 quality: 90
                 placeholder: BLURRED
                 formats: [AUTO, WEBP]
-                transformOptions: {
-                  fit: COVER
-                  cropFocus: CENTER
-                }
+                transformOptions: { fit: COVER, cropFocus: CENTER }
               )
             }
             name
@@ -130,18 +129,57 @@ const InstallationSection = () => {
     >
       <OverlappingContainer>
         <TextOverlay>
-          <h2 className="simulation-title">Installation</h2>
-          <section>
+          <h2 className="simulation-title">Philosophy</h2>
+          <section style={{ 
+            textAlign: 'justify', 
+            lineHeight: '1.1',
+            letterSpacing: '0.02em',
+            hyphens: 'auto'
+          }}>
             <p>
-              Discover the digital installation of „Ruido Perla NFT," where
-              simulation and art converge in a globally accessible web portal.
-              Explore generative landscapes and poetic texts that complement the
-              NFT experience, offering an interactive dimension that invites
-              active user participation.
+              Ruido Perla explores the poetics of the unpredictable, where
+              the digital and physical merge in a dialogue between randomness
+              and structure. Its name comes from the Perlin noise algorithm, a
+              system that generates chaotic landscapes inspired by nature, and
+              from the pearl, a rare and accidental discovery.
             </p>
+            <Button 
+              variant="outline-light"
+              className="mt-3"
+              onClick={() => setShowModal(true)}
+            >
+              Read More
+            </Button>
           </section>
+
+          <Modal
+            show={showModal}
+            onHide={() => setShowModal(false)}
+            size="lg"
+            centered
+          >
+            <Modal.Header closeButton>
+              <Modal.Title style={{ fontFamily: 'var(--primary-font)' }}>Motivation for Ruido Perla</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+              <p style={{ color: 'black' }}>
+                Ruido Perla explores the poetics of the unpredictable, where
+                the digital and physical merge in a dialogue between randomness
+                and structure. Its name comes from the Perlin noise algorithm, a
+                system that generates chaotic landscapes inspired by nature, and
+                from the pearl, a rare and accidental discovery. Here, noise is
+                not chaos but a method of creation. This process intensifies in
+                the connection between virtual algorithmic motion and
+                the mechanized movement of seeds and shamanic maracas, creating
+                tension between the programmed and the organic. In its NFT
+                form, Ruido Perla becomes a platform for digital exploration,
+                capturing unique moments of this interplay between code, matter,
+                and sound.
+              </p>
+            </Modal.Body>
+          </Modal>
         </TextOverlay>
-        
+
         <CarouselWrapper>
           <StyledCarousel
             interval={1500}
@@ -173,4 +211,3 @@ const InstallationSection = () => {
 }
 
 export default InstallationSection
-

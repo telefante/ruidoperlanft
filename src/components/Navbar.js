@@ -3,7 +3,7 @@ import { Navbar, Nav, Container } from "react-bootstrap";
 import "./navbar.css";
 
 const sections = [
-  { name: "explore", path: "simulation" },
+  { name: "explore", path: "introduction" },
   { name: "philosophy", path: "installation" },
   { name: "assets", path: "assets" },
   { name: "simulation", path: "simulation" },

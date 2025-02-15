@@ -6,7 +6,18 @@ import { createNoise3D } from "simplex-noise";
 import html2canvas from 'html2canvas';
 import { useStaticQuery, graphql } from 'gatsby';
 
-const PerlinNoise = () => {
+const PerlinNoise = ({ 
+  showControls = true, 
+  enableOrbit = true,
+  initialParams = {
+    amplitude: 12.5,
+    scale: 0.008,
+    frequency: 1,
+    octaves: 1,
+    usePerlin: true
+  },
+  cameraParams = null
+}) => {
   const data = useStaticQuery(graphql`
     query {
       markdownRemark(fileAbsolutePath: { regex: "/perlin-text.md/" }) {
@@ -22,11 +33,11 @@ const PerlinNoise = () => {
   const rendererRef = useRef(null);
   const currentTextRef = useRef('');
 
-  const [usePerlin, setUsePerlin] = useState(true);
-  const [amplitude, setAmplitude] = useState(12.5);
-  const [scale, setScale] = useState(0.008);
-  const [frequency, setFrequency] = useState(1);
-  const [octaves, setOctaves] = useState(1);
+  const [usePerlin, setUsePerlin] = useState(initialParams.usePerlin);
+  const [amplitude, setAmplitude] = useState(initialParams.amplitude);
+  const [scale, setScale] = useState(initialParams.scale);
+  const [frequency, setFrequency] = useState(initialParams.frequency);
+  const [octaves, setOctaves] = useState(initialParams.octaves);
   const [textOpacity, setTextOpacity] = useState(1);
 
   const usePerlinRef = useRef(usePerlin);
@@ -36,7 +47,7 @@ const PerlinNoise = () => {
   const octavesRef = useRef(octaves);
 
   const cameraSetupRef = useRef({ position: {x: 0, y: 0, z: 0}, lookAt: {x: 0, y: 0, z: 0} });
-
+  
   useEffect(() => {
     usePerlinRef.current = usePerlin;
   }, [usePerlin]);
@@ -66,6 +77,15 @@ const PerlinNoise = () => {
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
     
+    if (cameraParams) {
+      const { position, lookAt } = cameraParams;
+      camera.position.set(position.x, position.y, position.z);
+      camera.lookAt(lookAt.x, lookAt.y, lookAt.z);
+    } else {
+      camera.position.set(0, 100, 200);
+      camera.lookAt(0, 0, 0);
+    }
+
     const renderer = new THREE.WebGLRenderer({ 
       antialias: true, 
       alpha: true,
@@ -150,29 +170,29 @@ const PerlinNoise = () => {
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
-    controls.enableZoom = true;
+    controls.enableZoom = enableOrbit;
+    controls.enableRotate = enableOrbit;
+    controls.enablePan = enableOrbit;
     controls.minDistance = 50;
     controls.maxDistance = 400;
 
-    controls.addEventListener('change', () => {
-      const direction = new THREE.Vector3();
-      camera.getWorldDirection(direction);
-      const lookAtPoint = new THREE.Vector3();
-      lookAtPoint.addVectors(camera.position, direction.multiplyScalar(100));
-      
-      cameraSetupRef.current = {
-        position: {
-          x: camera.position.x.toFixed(2),
-          y: camera.position.y.toFixed(2),
-          z: camera.position.z.toFixed(2)
-        },
-        lookAt: {
-          x: lookAtPoint.x.toFixed(2),
-          y: lookAtPoint.y.toFixed(2),
-          z: lookAtPoint.z.toFixed(2)
-        }
-      };
-    });
+    const direction = new THREE.Vector3();
+    camera.getWorldDirection(direction);
+    const lookAtPoint = new THREE.Vector3();
+    lookAtPoint.addVectors(camera.position, direction.multiplyScalar(100));
+    
+    cameraSetupRef.current = {
+      position: {
+        x: camera.position.x.toFixed(2),
+        y: camera.position.y.toFixed(2),
+        z: camera.position.z.toFixed(2)
+      },
+      lookAt: {
+        x: lookAtPoint.x.toFixed(2),
+        y: lookAtPoint.y.toFixed(2),
+        z: lookAtPoint.z.toFixed(2)
+      }
+    };
 
     const planeWidth = 200;
     const planeHeight = 200;
@@ -180,17 +200,17 @@ const PerlinNoise = () => {
     const geometry = new THREE.PlaneGeometry(planeWidth, planeHeight, segments, segments);
 
     const solidMaterial = new THREE.MeshBasicMaterial({
-      color: 0x000000,
+      color: initialParams.colors?.solid?.color || 0x000000,
       transparent: true,
-      opacity: 0.6,
+      opacity: initialParams.colors?.solid?.opacity || 0.6,
       side: THREE.DoubleSide
     });
 
     const wireframeMaterial = new THREE.MeshBasicMaterial({
-      color: 0xffffff,
+      color: initialParams.colors?.wireframe?.color || 0xffffff,
       wireframe: true,
       transparent: true,
-      opacity: 0.8
+      opacity: initialParams.colors?.wireframe?.opacity || 0.8
     });
 
     const solidMesh = new THREE.Mesh(geometry, solidMaterial);
@@ -215,7 +235,7 @@ const PerlinNoise = () => {
       }
       clearInterval(textInterval);
     };
-  }, [data]);
+  }, [data, enableOrbit, cameraParams]);
 
   const captureScene = async () => {
     if (!containerRef.current) return;
@@ -267,141 +287,145 @@ const PerlinNoise = () => {
         {currentTextRef.current}
       </div>
 
-      <div className="controls" style={{ position: 'absolute', top: '10px', right: '10px', display: 'flex', gap: '10px' }}>
-        <button
-          onClick={captureScene}
-          style={{
-            padding: '8px 12px',
-            backgroundColor: 'rgba(255, 255, 255, 0.8)',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: 'pointer',
-            fontFamily: 'var(--primary-font)',
-            fontSize: '14px',
-            zIndex: 1000
-          }}
-        >
-          Capture Scene
-        </button>
+      {showControls && (
+        <>
+          <div className="controls" style={{ position: 'absolute', top: '10px', right: '10px', display: 'flex', gap: '10px' }}>
+            <button
+              onClick={captureScene}
+              style={{
+                padding: '8px 12px',
+                backgroundColor: 'rgba(255, 255, 255, 0.8)',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                fontFamily: 'var(--primary-font)',
+                fontSize: '14px',
+                zIndex: 1000
+              }}
+            >
+              Capture Scene
+            </button>
 
-        <button
-          onClick={() => {
-            const cameraSetup = cameraSetupRef.current;
-            const text = `camera.position.set(${cameraSetup.position.x}, ${cameraSetup.position.y}, ${cameraSetup.position.z});
+            <button
+              onClick={() => {
+                const cameraSetup = cameraSetupRef.current;
+                const text = `camera.position.set(${cameraSetup.position.x}, ${cameraSetup.position.y}, ${cameraSetup.position.z});
 camera.lookAt(${cameraSetup.lookAt.x}, ${cameraSetup.lookAt.y}, ${cameraSetup.lookAt.z});`;
-            navigator.clipboard.writeText(text);
-          }}
-          style={{
-            padding: '8px 12px',
-            backgroundColor: 'rgba(255, 255, 255, 0.8)',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: 'pointer',
-            fontFamily: 'var(--primary-font)',
-            fontSize: '14px',
-            zIndex: 1000
-          }}
-        >
-          Copy Camera Setup
-        </button>
-      </div>
+                navigator.clipboard.writeText(text);
+              }}
+              style={{
+                padding: '8px 12px',
+                backgroundColor: 'rgba(255, 255, 255, 0.8)',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                fontFamily: 'var(--primary-font)',
+                fontSize: '14px',
+                zIndex: 1000
+              }}
+            >
+              Copy Camera Setup
+            </button>
+          </div>
 
-      <div
-        className="controls"
-        style={{
-          position: "absolute",
-          bottom: "-180px",
-          left: "50%",
-          transform: "translateX(-50%)",
-          backgroundColor: "rgba(255, 255, 255, 0.8)", 
-          padding: "10px",
-          borderRadius: "5px",
-          fontFamily: "var(--primary-font)",
-          fontSize: "14px",
-          letterSpacing: "0.5px"
-        }}
-      >
-        <div style={{ marginBottom: "10px" }}>
-          <label style={{ display: "flex", alignItems: "center" }}>
-            <input
-              type="checkbox"
-              checked={usePerlin}
-              onChange={(e) => setUsePerlin(e.target.checked)}
-              style={{ marginRight: "10px" }}
-            />
-            Use Perlin Noise (uncheck for Simplex)
-          </label>
-        </div>
-
-        {usePerlin && (
-          <>
+          <div
+            className="controls"
+            style={{
+              position: "absolute",
+              bottom: "-180px",
+              left: "50%",
+              transform: "translateX(-50%)",
+              backgroundColor: "rgba(255, 255, 255, 0.8)", 
+              padding: "10px",
+              borderRadius: "5px",
+              fontFamily: "var(--primary-font)",
+              fontSize: "14px",
+              letterSpacing: "0.5px"
+            }}
+          >
             <div style={{ marginBottom: "10px" }}>
               <label style={{ display: "flex", alignItems: "center" }}>
-                <span style={{ minWidth: "120px" }}>Frequency: {frequency}</span>
+                <input
+                  type="checkbox"
+                  checked={usePerlin}
+                  onChange={(e) => setUsePerlin(e.target.checked)}
+                  style={{ marginRight: "10px" }}
+                />
+                Use Perlin Noise (uncheck for Simplex)
+              </label>
+            </div>
+
+            {usePerlin && (
+              <>
+                <div style={{ marginBottom: "10px" }}>
+                  <label style={{ display: "flex", alignItems: "center" }}>
+                    <span style={{ minWidth: "120px" }}>Frequency: {frequency}</span>
+                    <input
+                      type="range"
+                      min="0.5"
+                      max="10"
+                      step="0.5"
+                      value={frequency}
+                      onChange={(e) => setFrequency(parseFloat(e.target.value))}
+                      style={{ marginLeft: "10px" }}
+                    />
+                  </label>
+                </div>
+                <div style={{ marginBottom: "10px" }}>
+                  <label style={{ display: "flex", alignItems: "center" }}>
+                    <span style={{ minWidth: "120px" }}>Octaves: {octaves}</span>
+                    <input
+                      type="range"
+                      min="1"
+                      max="4"
+                      step="1"
+                      value={octaves}
+                      onChange={(e) => setOctaves(parseInt(e.target.value))}
+                      style={{ marginLeft: "10px" }}
+                    />
+                  </label>
+                </div>
+              </>
+            )}
+
+            <div style={{ marginBottom: "10px" }}>
+              <label style={{ display: "flex", alignItems: "center" }}>
+                <span style={{ minWidth: "120px" }}>Amplitude: {amplitude}</span>
                 <input
                   type="range"
-                  min="0.5"
-                  max="10"
-                  step="0.5"
-                  value={frequency}
-                  onChange={(e) => setFrequency(parseFloat(e.target.value))}
+                  min="0"
+                  max="30"
+                  step="0.1"
+                  value={amplitude}
+                  onChange={(e) => setAmplitude(parseFloat(e.target.value))}
                   style={{ marginLeft: "10px" }}
                 />
               </label>
             </div>
-            <div style={{ marginBottom: "10px" }}>
+            <div>
               <label style={{ display: "flex", alignItems: "center" }}>
-                <span style={{ minWidth: "120px" }}>Octaves: {octaves}</span>
+                <span style={{ minWidth: "120px" }}>Noise Scale: {scale}</span>
                 <input
                   type="range"
-                  min="1"
-                  max="4"
-                  step="1"
-                  value={octaves}
-                  onChange={(e) => setOctaves(parseInt(e.target.value))}
+                  min="0.001"
+                  max="0.1"
+                  step="0.001"
+                  value={scale}
+                  onChange={(e) => setScale(parseFloat(e.target.value))}
                   style={{ marginLeft: "10px" }}
                 />
               </label>
             </div>
-          </>
-        )}
 
-        <div style={{ marginBottom: "10px" }}>
-          <label style={{ display: "flex", alignItems: "center" }}>
-            <span style={{ minWidth: "120px" }}>Amplitude: {amplitude}</span>
-            <input
-              type="range"
-              min="0"
-              max="30"
-              step="0.1"
-              value={amplitude}
-              onChange={(e) => setAmplitude(parseFloat(e.target.value))}
-              style={{ marginLeft: "10px" }}
-            />
-          </label>
-        </div>
-        <div>
-          <label style={{ display: "flex", alignItems: "center" }}>
-            <span style={{ minWidth: "120px" }}>Noise Scale: {scale}</span>
-            <input
-              type="range"
-              min="0.001"
-              max="0.1"
-              step="0.001"
-              value={scale}
-              onChange={(e) => setScale(parseFloat(e.target.value))}
-              style={{ marginLeft: "10px" }}
-            />
-          </label>
-        </div>
-
-        <div style={{ marginBottom: "10px", textAlign: "center" }}>
-          <p style={{ margin: "0 0 8px 0" }}>Controls:</p>
-          <p style={{ margin: "0", fontSize: "12px" }}>
-            Orbit: Left Mouse Button | Zoom: Mouse Wheel | Pan: Right Mouse Button
-          </p>
-        </div>
-      </div> 
+            <div style={{ marginBottom: "10px", textAlign: "center" }}>
+              <p style={{ margin: "0 0 8px 0" }}>Controls:</p>
+              <p style={{ margin: "0", fontSize: "12px" }}>
+                Orbit: Left Mouse Button | Zoom: Mouse Wheel | Pan: Right Mouse Button
+              </p>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 };
