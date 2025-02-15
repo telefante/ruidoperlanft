@@ -6,7 +6,17 @@ import { createNoise3D } from "simplex-noise";
 import html2canvas from 'html2canvas';
 import { useStaticQuery, graphql } from 'gatsby';
 
-const PerlinNoise = ({ showControls = true }) => {
+const PerlinNoise = ({ 
+  showControls = true, 
+  enableOrbit = true,
+  initialParams = {
+    amplitude: 12.5,
+    scale: 0.008,
+    frequency: 1,
+    octaves: 1,
+    usePerlin: true
+  }
+}) => {
   const data = useStaticQuery(graphql`
     query {
       markdownRemark(fileAbsolutePath: { regex: "/perlin-text.md/" }) {
@@ -22,11 +32,11 @@ const PerlinNoise = ({ showControls = true }) => {
   const rendererRef = useRef(null);
   const currentTextRef = useRef('');
 
-  const [usePerlin, setUsePerlin] = useState(true);
-  const [amplitude, setAmplitude] = useState(12.5);
-  const [scale, setScale] = useState(0.008);
-  const [frequency, setFrequency] = useState(1);
-  const [octaves, setOctaves] = useState(1);
+  const [usePerlin, setUsePerlin] = useState(initialParams.usePerlin);
+  const [amplitude, setAmplitude] = useState(initialParams.amplitude);
+  const [scale, setScale] = useState(initialParams.scale);
+  const [frequency, setFrequency] = useState(initialParams.frequency);
+  const [octaves, setOctaves] = useState(initialParams.octaves);
   const [textOpacity, setTextOpacity] = useState(1);
 
   const usePerlinRef = useRef(usePerlin);
@@ -150,7 +160,9 @@ const PerlinNoise = ({ showControls = true }) => {
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
-    controls.enableZoom = true;
+    controls.enableZoom = enableOrbit;
+    controls.enableRotate = enableOrbit;
+    controls.enablePan = enableOrbit;
     controls.minDistance = 50;
     controls.maxDistance = 400;
 
@@ -215,7 +227,7 @@ const PerlinNoise = ({ showControls = true }) => {
       }
       clearInterval(textInterval);
     };
-  }, [data]);
+  }, [data, enableOrbit]);
 
   const captureScene = async () => {
     if (!containerRef.current) return;
