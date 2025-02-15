@@ -1,5 +1,5 @@
 import React from "react";
-import { Row, Col } from "react-bootstrap";
+// import { Row, Col } from "react-bootstrap";
 import SectionContainer from "./SectionContainer";
 import PerlinNoise from "../PerlinNoise";
 
@@ -15,7 +15,7 @@ const SimulationSection = () => {
         marginRight: 'calc(-50vw + 50%)',
         marginBottom: '0px' // Add space for controls
       }}>
-        <PerlinNoise />
+        <PerlinNoise showControls={false} />
       </div>
     </SectionContainer>
   );

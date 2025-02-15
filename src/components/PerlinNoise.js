@@ -6,7 +6,7 @@ import { createNoise3D } from "simplex-noise";
 import html2canvas from 'html2canvas';
 import { useStaticQuery, graphql } from 'gatsby';
 
-const PerlinNoise = () => {
+const PerlinNoise = ({ showControls = true }) => {
   const data = useStaticQuery(graphql`
     query {
       markdownRemark(fileAbsolutePath: { regex: "/perlin-text.md/" }) {
@@ -267,141 +267,145 @@ const PerlinNoise = () => {
         {currentTextRef.current}
       </div>
 
-      <div className="controls" style={{ position: 'absolute', top: '10px', right: '10px', display: 'flex', gap: '10px' }}>
-        <button
-          onClick={captureScene}
-          style={{
-            padding: '8px 12px',
-            backgroundColor: 'rgba(255, 255, 255, 0.8)',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: 'pointer',
-            fontFamily: 'var(--primary-font)',
-            fontSize: '14px',
-            zIndex: 1000
-          }}
-        >
-          Capture Scene
-        </button>
+      {showControls && (
+        <>
+          <div className="controls" style={{ position: 'absolute', top: '10px', right: '10px', display: 'flex', gap: '10px' }}>
+            <button
+              onClick={captureScene}
+              style={{
+                padding: '8px 12px',
+                backgroundColor: 'rgba(255, 255, 255, 0.8)',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                fontFamily: 'var(--primary-font)',
+                fontSize: '14px',
+                zIndex: 1000
+              }}
+            >
+              Capture Scene
+            </button>
 
-        <button
-          onClick={() => {
-            const cameraSetup = cameraSetupRef.current;
-            const text = `camera.position.set(${cameraSetup.position.x}, ${cameraSetup.position.y}, ${cameraSetup.position.z});
+            <button
+              onClick={() => {
+                const cameraSetup = cameraSetupRef.current;
+                const text = `camera.position.set(${cameraSetup.position.x}, ${cameraSetup.position.y}, ${cameraSetup.position.z});
 camera.lookAt(${cameraSetup.lookAt.x}, ${cameraSetup.lookAt.y}, ${cameraSetup.lookAt.z});`;
-            navigator.clipboard.writeText(text);
-          }}
-          style={{
-            padding: '8px 12px',
-            backgroundColor: 'rgba(255, 255, 255, 0.8)',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: 'pointer',
-            fontFamily: 'var(--primary-font)',
-            fontSize: '14px',
-            zIndex: 1000
-          }}
-        >
-          Copy Camera Setup
-        </button>
-      </div>
+                navigator.clipboard.writeText(text);
+              }}
+              style={{
+                padding: '8px 12px',
+                backgroundColor: 'rgba(255, 255, 255, 0.8)',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                fontFamily: 'var(--primary-font)',
+                fontSize: '14px',
+                zIndex: 1000
+              }}
+            >
+              Copy Camera Setup
+            </button>
+          </div>
 
-      <div
-        className="controls"
-        style={{
-          position: "absolute",
-          bottom: "-180px",
-          left: "50%",
-          transform: "translateX(-50%)",
-          backgroundColor: "rgba(255, 255, 255, 0.8)", 
-          padding: "10px",
-          borderRadius: "5px",
-          fontFamily: "var(--primary-font)",
-          fontSize: "14px",
-          letterSpacing: "0.5px"
-        }}
-      >
-        <div style={{ marginBottom: "10px" }}>
-          <label style={{ display: "flex", alignItems: "center" }}>
-            <input
-              type="checkbox"
-              checked={usePerlin}
-              onChange={(e) => setUsePerlin(e.target.checked)}
-              style={{ marginRight: "10px" }}
-            />
-            Use Perlin Noise (uncheck for Simplex)
-          </label>
-        </div>
-
-        {usePerlin && (
-          <>
+          <div
+            className="controls"
+            style={{
+              position: "absolute",
+              bottom: "-180px",
+              left: "50%",
+              transform: "translateX(-50%)",
+              backgroundColor: "rgba(255, 255, 255, 0.8)", 
+              padding: "10px",
+              borderRadius: "5px",
+              fontFamily: "var(--primary-font)",
+              fontSize: "14px",
+              letterSpacing: "0.5px"
+            }}
+          >
             <div style={{ marginBottom: "10px" }}>
               <label style={{ display: "flex", alignItems: "center" }}>
-                <span style={{ minWidth: "120px" }}>Frequency: {frequency}</span>
+                <input
+                  type="checkbox"
+                  checked={usePerlin}
+                  onChange={(e) => setUsePerlin(e.target.checked)}
+                  style={{ marginRight: "10px" }}
+                />
+                Use Perlin Noise (uncheck for Simplex)
+              </label>
+            </div>
+
+            {usePerlin && (
+              <>
+                <div style={{ marginBottom: "10px" }}>
+                  <label style={{ display: "flex", alignItems: "center" }}>
+                    <span style={{ minWidth: "120px" }}>Frequency: {frequency}</span>
+                    <input
+                      type="range"
+                      min="0.5"
+                      max="10"
+                      step="0.5"
+                      value={frequency}
+                      onChange={(e) => setFrequency(parseFloat(e.target.value))}
+                      style={{ marginLeft: "10px" }}
+                    />
+                  </label>
+                </div>
+                <div style={{ marginBottom: "10px" }}>
+                  <label style={{ display: "flex", alignItems: "center" }}>
+                    <span style={{ minWidth: "120px" }}>Octaves: {octaves}</span>
+                    <input
+                      type="range"
+                      min="1"
+                      max="4"
+                      step="1"
+                      value={octaves}
+                      onChange={(e) => setOctaves(parseInt(e.target.value))}
+                      style={{ marginLeft: "10px" }}
+                    />
+                  </label>
+                </div>
+              </>
+            )}
+
+            <div style={{ marginBottom: "10px" }}>
+              <label style={{ display: "flex", alignItems: "center" }}>
+                <span style={{ minWidth: "120px" }}>Amplitude: {amplitude}</span>
                 <input
                   type="range"
-                  min="0.5"
-                  max="10"
-                  step="0.5"
-                  value={frequency}
-                  onChange={(e) => setFrequency(parseFloat(e.target.value))}
+                  min="0"
+                  max="30"
+                  step="0.1"
+                  value={amplitude}
+                  onChange={(e) => setAmplitude(parseFloat(e.target.value))}
                   style={{ marginLeft: "10px" }}
                 />
               </label>
             </div>
-            <div style={{ marginBottom: "10px" }}>
+            <div>
               <label style={{ display: "flex", alignItems: "center" }}>
-                <span style={{ minWidth: "120px" }}>Octaves: {octaves}</span>
+                <span style={{ minWidth: "120px" }}>Noise Scale: {scale}</span>
                 <input
                   type="range"
-                  min="1"
-                  max="4"
-                  step="1"
-                  value={octaves}
-                  onChange={(e) => setOctaves(parseInt(e.target.value))}
+                  min="0.001"
+                  max="0.1"
+                  step="0.001"
+                  value={scale}
+                  onChange={(e) => setScale(parseFloat(e.target.value))}
                   style={{ marginLeft: "10px" }}
                 />
               </label>
             </div>
-          </>
-        )}
 
-        <div style={{ marginBottom: "10px" }}>
-          <label style={{ display: "flex", alignItems: "center" }}>
-            <span style={{ minWidth: "120px" }}>Amplitude: {amplitude}</span>
-            <input
-              type="range"
-              min="0"
-              max="30"
-              step="0.1"
-              value={amplitude}
-              onChange={(e) => setAmplitude(parseFloat(e.target.value))}
-              style={{ marginLeft: "10px" }}
-            />
-          </label>
-        </div>
-        <div>
-          <label style={{ display: "flex", alignItems: "center" }}>
-            <span style={{ minWidth: "120px" }}>Noise Scale: {scale}</span>
-            <input
-              type="range"
-              min="0.001"
-              max="0.1"
-              step="0.001"
-              value={scale}
-              onChange={(e) => setScale(parseFloat(e.target.value))}
-              style={{ marginLeft: "10px" }}
-            />
-          </label>
-        </div>
-
-        <div style={{ marginBottom: "10px", textAlign: "center" }}>
-          <p style={{ margin: "0 0 8px 0" }}>Controls:</p>
-          <p style={{ margin: "0", fontSize: "12px" }}>
-            Orbit: Left Mouse Button | Zoom: Mouse Wheel | Pan: Right Mouse Button
-          </p>
-        </div>
-      </div> 
+            <div style={{ marginBottom: "10px", textAlign: "center" }}>
+              <p style={{ margin: "0 0 8px 0" }}>Controls:</p>
+              <p style={{ margin: "0", fontSize: "12px" }}>
+                Orbit: Left Mouse Button | Zoom: Mouse Wheel | Pan: Right Mouse Button
+              </p>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 };

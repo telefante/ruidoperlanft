@@ -1,5 +1,6 @@
 import React from "react";
 import Layout from "../components/layout";
+import IntroductionSection from "../components/sections/IntroductionSection";
 import InstallationSection from "../components/sections/InstallationSection";
 import SimulationSection from "../components/sections/SimulationSection";
 import AssetsSection from "../components/sections/AssetsSection";
@@ -16,7 +17,7 @@ import AboutSection from "../components/sections/AboutSection";
 const IndexPage = () => {
   return (
     <Layout>
-      <SimulationSection />  
+      <IntroductionSection />
       <InstallationSection />
       <AssetsSection />
       <SimulationSection />  
