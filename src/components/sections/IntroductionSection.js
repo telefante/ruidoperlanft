@@ -3,7 +3,7 @@ import React from "react";
 import SectionContainer from "./SectionContainer";
 import PerlinNoise from "../PerlinNoise";
 
-const SimulationSection = () => {
+const IntroductionSection = () => {
   // Define surface parameters for introduction
   const surfaceParams = {
     amplitude: 15,
@@ -60,4 +60,4 @@ const SimulationSection = () => {
   );
 };
 
-export default SimulationSection;
+export default IntroductionSection;

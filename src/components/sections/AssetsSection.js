@@ -66,10 +66,6 @@ const AssetsSection = () => {
   `);
 
   const assets = [
-    // {
-    //   title: "3D Models",
-    //   description: "Explore our collection of carefully crafted 3D models that bring the Ruido Perla world to life.",
-    // },
     {
       title: "Textures",
       description: "",
@@ -84,12 +80,6 @@ const AssetsSection = () => {
     },
   ];
 
-  // Create pairs of assets
-  const pairs = [];
-  for (let i = 0; i < assets.length; i += 2) {
-    pairs.push(assets.slice(i, i + 2));
-  }
-
   return (
     <SectionContainer id="assets">
       <Container>
@@ -101,31 +91,28 @@ const AssetsSection = () => {
         <Row className="align-items-left">
           <Col xs={12}>
             <StyledCarousel interval={5000} indicators={true}>
-              {pairs.map((pair, pairIndex) => (
-                <Carousel.Item key={pairIndex}>
-                  <Row>
-                    {pair.map((asset, index) => {
-                      const imageIndex = pairIndex * 2 + index;
-                      const image = getImage(data.allFile.edges[imageIndex]?.node);
-                      return (
-                        <Col md={6} key={index}>
-                          <CarouselCard>
-                            <h3>{asset.title}</h3>
-                            {image && (
-                              <GatsbyImage
-                                image={image}
-                                alt={asset.title}
-                                style={{ height: "100%", width: "100%" }}
-                              />
-                            )}
-                            <p>{asset.description}</p>
-                          </CarouselCard>
-                        </Col>
-                      );
-                    })}
-                  </Row>
-                </Carousel.Item>
-              ))}
+              {assets.map((asset, index) => {
+                const image = getImage(data.allFile.edges[index]?.node);
+                return (
+                  <Carousel.Item key={index}>
+                    <Row className="justify-content-center">
+                      <Col md={8}>
+                        <CarouselCard>
+                          <h3>{asset.title}</h3>
+                          {image && (
+                            <GatsbyImage
+                              image={image}
+                              alt={asset.title}
+                              style={{ height: "100%", width: "100%" }}
+                            />
+                          )}
+                          <p>{asset.description}</p>
+                        </CarouselCard>
+                      </Col>
+                    </Row>
+                  </Carousel.Item>
+                );
+              })}
             </StyledCarousel>
           </Col>
         </Row>
