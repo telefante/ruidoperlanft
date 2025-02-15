@@ -13,6 +13,23 @@ const SimulationSection = () => {
     usePerlin: true
   };
 
+  
+  // Define camera initialization parameters
+  // const cameraParams = {
+  //         position: { x: 0.00, y: 100.00, z: 200.00 },
+  //         lookAt: { x: 0.00, y: 55.28, z: 110.56 }
+
+  // };
+
+    // Define camera initialization parameters
+    const cameraParams = {
+      position: { x: -0.00, y: 190.13, z: 0.00 },
+      lookAt: { x: -0.00, y: 90.13, z: 0.00 }
+    };
+
+   
+   
+
   return (
     <SectionContainer id="introduction" isGridLayout={false}>
        <section>
@@ -36,6 +53,7 @@ const SimulationSection = () => {
           showControls={false}
           enableOrbit={false}
           initialParams={surfaceParams}
+          cameraParams={cameraParams}
         />
       </div>
     </SectionContainer>

@@ -47,7 +47,7 @@ const PerlinNoise = ({
   const octavesRef = useRef(octaves);
 
   const cameraSetupRef = useRef({ position: {x: 0, y: 0, z: 0}, lookAt: {x: 0, y: 0, z: 0} });
-
+  
   useEffect(() => {
     usePerlinRef.current = usePerlin;
   }, [usePerlin]);
