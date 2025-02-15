@@ -200,17 +200,17 @@ const PerlinNoise = ({
     const geometry = new THREE.PlaneGeometry(planeWidth, planeHeight, segments, segments);
 
     const solidMaterial = new THREE.MeshBasicMaterial({
-      color: 0x000000,
+      color: initialParams.colors?.solid?.color || 0x000000,
       transparent: true,
-      opacity: 0.6,
+      opacity: initialParams.colors?.solid?.opacity || 0.6,
       side: THREE.DoubleSide
     });
 
     const wireframeMaterial = new THREE.MeshBasicMaterial({
-      color: 0xffffff,
+      color: initialParams.colors?.wireframe?.color || 0xffffff,
       wireframe: true,
       transparent: true,
-      opacity: 0.8
+      opacity: initialParams.colors?.wireframe?.opacity || 0.8
     });
 
     const solidMesh = new THREE.Mesh(geometry, solidMaterial);

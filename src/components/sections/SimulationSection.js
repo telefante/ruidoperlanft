@@ -11,7 +11,17 @@ const SimulationSection = () => {
     scale: 0.015,       // Slightly larger scale for more visible patterns
     frequency: 1.5,     // Moderate frequency for smooth animation
     octaves: 3,         // More octaves for complex detail
-    usePerlin: true     // Using Perlin noise for smoother transitions
+    usePerlin: true,    // Using Perlin noise for smoother transitions
+    colors: {
+      solid: {
+        color: 0x00ff00,    // Neon green for solid mesh
+        opacity: 0.6        // Semi-transparent
+      },
+      wireframe: {
+        color: 0xffffff,    // White for wireframe
+        opacity: 0.8        // More visible wireframe
+      }
+    }
   };
 
   // Define camera initialization parameters
