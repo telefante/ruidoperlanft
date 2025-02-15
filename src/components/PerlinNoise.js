@@ -170,11 +170,44 @@ const PerlinNoise = ({
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
-    controls.enableZoom = enableOrbit;
-    controls.enableRotate = enableOrbit;
-    controls.enablePan = enableOrbit;
+    controls.enabled = false;
     controls.minDistance = 50;
     controls.maxDistance = 400;
+
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2();
+    
+    const onPointerMove = (event) => {
+      const rect = renderer.domElement.getBoundingClientRect();
+      
+      mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+      mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+      
+      raycaster.setFromCamera(mouse, camera);
+      
+      const intersects = raycaster.intersectObjects([solidMesh, wireframeMesh]);
+      
+      if (enableOrbit) {
+        controls.enabled = intersects.length > 0;
+        renderer.domElement.style.cursor = intersects.length > 0 ? 'grab' : 'default';
+      }
+    };
+
+    const onPointerDown = () => {
+      if (controls.enabled) {
+        renderer.domElement.style.cursor = 'grabbing';
+      }
+    };
+
+    const onPointerUp = () => {
+      if (controls.enabled) {
+        renderer.domElement.style.cursor = 'grab';
+      }
+    };
+
+    renderer.domElement.addEventListener('pointermove', onPointerMove);
+    renderer.domElement.addEventListener('pointerdown', onPointerDown);
+    renderer.domElement.addEventListener('pointerup', onPointerUp);
 
     const direction = new THREE.Vector3();
     camera.getWorldDirection(direction);
@@ -234,6 +267,9 @@ const PerlinNoise = ({
         rendererRef.current.dispose();
       }
       clearInterval(textInterval);
+      renderer.domElement.removeEventListener('pointermove', onPointerMove);
+      renderer.domElement.removeEventListener('pointerdown', onPointerDown);
+      renderer.domElement.removeEventListener('pointerup', onPointerUp);
     };
   }, [data, enableOrbit, cameraParams]);
 
@@ -289,45 +325,6 @@ const PerlinNoise = ({
 
       {showControls && (
         <>
-          <div className="controls" style={{ position: 'absolute', top: '10px', right: '10px', display: 'flex', gap: '10px' }}>
-            <button
-              onClick={captureScene}
-              style={{
-                padding: '8px 12px',
-                backgroundColor: 'rgba(255, 255, 255, 0.8)',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer',
-                fontFamily: 'var(--primary-font)',
-                fontSize: '14px',
-                zIndex: 1000
-              }}
-            >
-              Capture Scene
-            </button>
-
-            {/* <button
-              onClick={() => {
-                const cameraSetup = cameraSetupRef.current;
-                const text = `camera.position.set(${cameraSetup.position.x}, ${cameraSetup.position.y}, ${cameraSetup.position.z});
-camera.lookAt(${cameraSetup.lookAt.x}, ${cameraSetup.lookAt.y}, ${cameraSetup.lookAt.z});`;
-                navigator.clipboard.writeText(text);
-              }}
-              style={{
-                padding: '8px 12px',
-                backgroundColor: 'rgba(255, 255, 255, 0.8)',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer',
-                fontFamily: 'var(--primary-font)',
-                fontSize: '14px',
-                zIndex: 1000
-              }}
-            >
-              Copy Camera Setup
-            </button> */}
-          </div>
-
           <div
             className="controls"
             style={{
@@ -340,7 +337,10 @@ camera.lookAt(${cameraSetup.lookAt.x}, ${cameraSetup.lookAt.y}, ${cameraSetup.lo
               borderRadius: "5px",
               fontFamily: "var(--primary-font)",
               fontSize: "14px",
-              letterSpacing: "0.5px"
+              letterSpacing: "0.5px",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center"
             }}
           >
             <div style={{ marginBottom: "10px" }}>
@@ -418,11 +418,24 @@ camera.lookAt(${cameraSetup.lookAt.x}, ${cameraSetup.lookAt.y}, ${cameraSetup.lo
             </div>
 
             <div style={{ marginBottom: "10px", textAlign: "center" }}>
-              <p style={{ margin: "0 0 8px 0" }}>Controls:</p>
-              <p style={{ margin: "0", fontSize: "12px" }}>
+              <p style={{ margin: "0 0 8px 0", color: "black" }}>Controls:</p>
+              <p style={{ margin: "0", fontSize: "12px", color: "black" }}>
                 Orbit: Left Mouse Button | Zoom: Mouse Wheel | Pan: Right Mouse Button
               </p>
             </div>
+
+            <button
+              onClick={captureScene}
+              className="btn btn-danger"
+              style={{
+                marginTop: "15px",
+                fontFamily: "var(--primary-font)",
+                fontSize: "14px",
+                zIndex: 1000
+              }}
+            >
+              Capture Scene
+            </button>
           </div>
         </>
       )}
