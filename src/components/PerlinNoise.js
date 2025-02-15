@@ -170,11 +170,44 @@ const PerlinNoise = ({
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
-    controls.enableZoom = enableOrbit;
-    controls.enableRotate = enableOrbit;
-    controls.enablePan = enableOrbit;
+    controls.enabled = false;
     controls.minDistance = 50;
     controls.maxDistance = 400;
+
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2();
+    
+    const onPointerMove = (event) => {
+      const rect = renderer.domElement.getBoundingClientRect();
+      
+      mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+      mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+      
+      raycaster.setFromCamera(mouse, camera);
+      
+      const intersects = raycaster.intersectObjects([solidMesh, wireframeMesh]);
+      
+      if (enableOrbit) {
+        controls.enabled = intersects.length > 0;
+        renderer.domElement.style.cursor = intersects.length > 0 ? 'grab' : 'default';
+      }
+    };
+
+    const onPointerDown = () => {
+      if (controls.enabled) {
+        renderer.domElement.style.cursor = 'grabbing';
+      }
+    };
+
+    const onPointerUp = () => {
+      if (controls.enabled) {
+        renderer.domElement.style.cursor = 'grab';
+      }
+    };
+
+    renderer.domElement.addEventListener('pointermove', onPointerMove);
+    renderer.domElement.addEventListener('pointerdown', onPointerDown);
+    renderer.domElement.addEventListener('pointerup', onPointerUp);
 
     const direction = new THREE.Vector3();
     camera.getWorldDirection(direction);
@@ -234,6 +267,9 @@ const PerlinNoise = ({
         rendererRef.current.dispose();
       }
       clearInterval(textInterval);
+      renderer.domElement.removeEventListener('pointermove', onPointerMove);
+      renderer.domElement.removeEventListener('pointerdown', onPointerDown);
+      renderer.domElement.removeEventListener('pointerup', onPointerUp);
     };
   }, [data, enableOrbit, cameraParams]);
 
