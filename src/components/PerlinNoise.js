@@ -306,7 +306,7 @@ const PerlinNoise = ({
               Capture Scene
             </button>
 
-            <button
+            {/* <button
               onClick={() => {
                 const cameraSetup = cameraSetupRef.current;
                 const text = `camera.position.set(${cameraSetup.position.x}, ${cameraSetup.position.y}, ${cameraSetup.position.z});
@@ -325,7 +325,7 @@ camera.lookAt(${cameraSetup.lookAt.x}, ${cameraSetup.lookAt.y}, ${cameraSetup.lo
               }}
             >
               Copy Camera Setup
-            </button>
+            </button> */}
           </div>
 
           <div

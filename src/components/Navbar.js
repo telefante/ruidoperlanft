@@ -1,6 +1,28 @@
 import React, { useState, useEffect } from "react";
 import { Navbar, Nav, Container } from "react-bootstrap";
+import styled from "styled-components";
 import "./navbar.css";
+
+// Add styled component for mobile nav items
+const StyledNavbarCollapse = styled(Navbar.Collapse)`
+  @media (max-width: 991px) {
+    background: rgba(0, 0, 0);
+    margin: 0 -12px;  // Compensate for container padding
+    padding: 1rem;
+    border-radius: 0 0 8px 8px;
+
+    .nav-link-custom {
+      padding: 0.75rem 1rem !important;
+      color: white !important;
+      text-align: center;
+      transition: background-color 0.3s ease;
+
+      &:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+      }
+    }
+  }
+`;
 
 const sections = [
   { name: "explore", path: "introduction" },
@@ -58,7 +80,7 @@ const CustomNavbar = () => {
       <Container>
         <Navbar.Brand href="#" className="brand-title">Ruido Perla NFT Collection</Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
-        <Navbar.Collapse id="basic-navbar-nav">
+        <StyledNavbarCollapse id="basic-navbar-nav">
           <Nav className="ms-auto">
             {sections.map((section, index) => (
               <Nav.Link
@@ -71,7 +93,7 @@ const CustomNavbar = () => {
               </Nav.Link>
             ))}
           </Nav>
-        </Navbar.Collapse>
+        </StyledNavbarCollapse>
       </Container>
     </Navbar>
   );
