@@ -325,45 +325,6 @@ const PerlinNoise = ({
 
       {showControls && (
         <>
-          <div className="controls" style={{ position: 'absolute', top: '10px', right: '10px', display: 'flex', gap: '10px' }}>
-            <button
-              onClick={captureScene}
-              style={{
-                padding: '8px 12px',
-                backgroundColor: 'rgba(255, 255, 255, 0.8)',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer',
-                fontFamily: 'var(--primary-font)',
-                fontSize: '14px',
-                zIndex: 1000
-              }}
-            >
-              Capture Scene
-            </button>
-
-            {/* <button
-              onClick={() => {
-                const cameraSetup = cameraSetupRef.current;
-                const text = `camera.position.set(${cameraSetup.position.x}, ${cameraSetup.position.y}, ${cameraSetup.position.z});
-camera.lookAt(${cameraSetup.lookAt.x}, ${cameraSetup.lookAt.y}, ${cameraSetup.lookAt.z});`;
-                navigator.clipboard.writeText(text);
-              }}
-              style={{
-                padding: '8px 12px',
-                backgroundColor: 'rgba(255, 255, 255, 0.8)',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer',
-                fontFamily: 'var(--primary-font)',
-                fontSize: '14px',
-                zIndex: 1000
-              }}
-            >
-              Copy Camera Setup
-            </button> */}
-          </div>
-
           <div
             className="controls"
             style={{
@@ -376,7 +337,10 @@ camera.lookAt(${cameraSetup.lookAt.x}, ${cameraSetup.lookAt.y}, ${cameraSetup.lo
               borderRadius: "5px",
               fontFamily: "var(--primary-font)",
               fontSize: "14px",
-              letterSpacing: "0.5px"
+              letterSpacing: "0.5px",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center"
             }}
           >
             <div style={{ marginBottom: "10px" }}>
@@ -459,6 +423,19 @@ camera.lookAt(${cameraSetup.lookAt.x}, ${cameraSetup.lookAt.y}, ${cameraSetup.lo
                 Orbit: Left Mouse Button | Zoom: Mouse Wheel | Pan: Right Mouse Button
               </p>
             </div>
+
+            <button
+              onClick={captureScene}
+              className="btn btn-danger"
+              style={{
+                marginTop: "15px",
+                fontFamily: "var(--primary-font)",
+                fontSize: "14px",
+                zIndex: 1000
+              }}
+            >
+              Capture Scene
+            </button>
           </div>
         </>
       )}
