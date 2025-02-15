@@ -454,8 +454,8 @@ camera.lookAt(${cameraSetup.lookAt.x}, ${cameraSetup.lookAt.y}, ${cameraSetup.lo
             </div>
 
             <div style={{ marginBottom: "10px", textAlign: "center" }}>
-              <p style={{ margin: "0 0 8px 0" }}>Controls:</p>
-              <p style={{ margin: "0", fontSize: "12px" }}>
+              <p style={{ margin: "0 0 8px 0", color: "black" }}>Controls:</p>
+              <p style={{ margin: "0", fontSize: "12px", color: "black" }}>
                 Orbit: Left Mouse Button | Zoom: Mouse Wheel | Pan: Right Mouse Button
               </p>
             </div>
