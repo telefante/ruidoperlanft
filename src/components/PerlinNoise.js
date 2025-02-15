@@ -15,7 +15,8 @@ const PerlinNoise = ({
     frequency: 1,
     octaves: 1,
     usePerlin: true
-  }
+  },
+  cameraParams = null
 }) => {
   const data = useStaticQuery(graphql`
     query {
@@ -76,6 +77,15 @@ const PerlinNoise = ({
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
     
+    if (cameraParams) {
+      const { position, lookAt } = cameraParams;
+      camera.position.set(position.x, position.y, position.z);
+      camera.lookAt(lookAt.x, lookAt.y, lookAt.z);
+    } else {
+      camera.position.set(0, 100, 200);
+      camera.lookAt(0, 0, 0);
+    }
+
     const renderer = new THREE.WebGLRenderer({ 
       antialias: true, 
       alpha: true,
@@ -166,25 +176,23 @@ const PerlinNoise = ({
     controls.minDistance = 50;
     controls.maxDistance = 400;
 
-    controls.addEventListener('change', () => {
-      const direction = new THREE.Vector3();
-      camera.getWorldDirection(direction);
-      const lookAtPoint = new THREE.Vector3();
-      lookAtPoint.addVectors(camera.position, direction.multiplyScalar(100));
-      
-      cameraSetupRef.current = {
-        position: {
-          x: camera.position.x.toFixed(2),
-          y: camera.position.y.toFixed(2),
-          z: camera.position.z.toFixed(2)
-        },
-        lookAt: {
-          x: lookAtPoint.x.toFixed(2),
-          y: lookAtPoint.y.toFixed(2),
-          z: lookAtPoint.z.toFixed(2)
-        }
-      };
-    });
+    const direction = new THREE.Vector3();
+    camera.getWorldDirection(direction);
+    const lookAtPoint = new THREE.Vector3();
+    lookAtPoint.addVectors(camera.position, direction.multiplyScalar(100));
+    
+    cameraSetupRef.current = {
+      position: {
+        x: camera.position.x.toFixed(2),
+        y: camera.position.y.toFixed(2),
+        z: camera.position.z.toFixed(2)
+      },
+      lookAt: {
+        x: lookAtPoint.x.toFixed(2),
+        y: lookAtPoint.y.toFixed(2),
+        z: lookAtPoint.z.toFixed(2)
+      }
+    };
 
     const planeWidth = 200;
     const planeHeight = 200;
@@ -227,7 +235,7 @@ const PerlinNoise = ({
       }
       clearInterval(textInterval);
     };
-  }, [data, enableOrbit]);
+  }, [data, enableOrbit, cameraParams]);
 
   const captureScene = async () => {
     if (!containerRef.current) return;

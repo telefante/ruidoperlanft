@@ -66,13 +66,13 @@ const AssetsSection = () => {
   `);
 
   const assets = [
-    {
-      title: "3D Models",
-      description: "Explore our collection of carefully crafted 3D models that bring the Ruido Perla world to life.",
-    },
+    // {
+    //   title: "3D Models",
+    //   description: "Explore our collection of carefully crafted 3D models that bring the Ruido Perla world to life.",
+    // },
     {
       title: "Textures",
-      description: "High-quality textures designed to enhance the visual experience of the NFT collection.",
+      description: "",
     },
     {
       title: "Landscapes",
