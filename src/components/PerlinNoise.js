@@ -443,14 +443,14 @@ const PerlinNoise = ({
         </>
       )}
 
-      <Modal show={showModal} onHide={handleClose}>
+      <Modal show={showModal} onHide={handleClose} size="lg" >
         <Modal.Header closeButton>
-          <Modal.Title>Captured Scene</Modal.Title>
+          <Modal.Title style={{ color: 'black' }}>Freezing Now!</Modal.Title>
         </Modal.Header>
-        <Modal.Body>
+        <Modal.Body style={{ backgroundColor: 'black' }}>
           {capturedImage && <img src={capturedImage} alt="Captured Scene" style={{ width: '100%' }} />}
         </Modal.Body>
-        <Modal.Footer>
+        <Modal.Footer style={{ backgroundColor: 'black' }}>
           <Button variant="secondary" onClick={handleClose}>
             Close
           </Button>
