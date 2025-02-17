@@ -4,7 +4,7 @@ import SectionContainer from "./SectionContainer";
 
 import PerlinNoise from "../PerlinNoise";
 
-const SimulationSection = () => {
+const SimulationSection = ({ account, connectWallet, disconnectWallet }) => {
   // Define surface parameters for simulation
   const surfaceParams = {
     amplitude: 20,      // Larger amplitude for more dramatic waves
@@ -30,6 +30,22 @@ const SimulationSection = () => {
     lookAt: { x: -0.00, y: 90.13, z: 0.00 }
   };
 
+  // Define the connectWallet function if not passed as a prop
+  const handleConnectWallet = async () => {
+    // Logic to connect to the wallet
+    if (window.ethereum) {
+      try {
+        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+        console.log("Connected account:", accounts[0]);
+        // You can set the account state here if needed
+      } catch (error) {
+        console.error("Error connecting to wallet:", error);
+      }
+    } else {
+      alert("Please install a wallet extension like MetaMask.");
+    }
+  };
+
   return (
     <SectionContainer id="simulation" isGridLayout={false}>
       <Row className="align-items-center mb-4">
@@ -51,6 +67,9 @@ const SimulationSection = () => {
           enableOrbit={true}
           initialParams={surfaceParams}
           cameraParams={cameraParams}
+          account={account}
+          connectWallet={handleConnectWallet}
+          disconnectWallet={disconnectWallet}
         />
       </div>
     </SectionContainer>

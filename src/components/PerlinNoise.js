@@ -5,6 +5,9 @@ import { Perlin } from 'three-noise';
 import { createNoise3D } from "simplex-noise";
 import html2canvas from 'html2canvas';
 import { useStaticQuery, graphql } from 'gatsby';
+import { Modal, Button } from 'react-bootstrap';
+import { mintImage } from './MintImage'; // Ensure this path is correct
+// import { mintImage } from '../images/og-image.jpg'; // Adjust the path as necessary
 
 const PerlinNoise = ({ 
   showControls = true, 
@@ -16,7 +19,10 @@ const PerlinNoise = ({
     octaves: 1,
     usePerlin: true
   },
-  cameraParams = null
+  cameraParams = null,
+  account,
+  connectWallet,
+  disconnectWallet
 }) => {
   const data = useStaticQuery(graphql`
     query {
@@ -39,6 +45,8 @@ const PerlinNoise = ({
   const [frequency, setFrequency] = useState(initialParams.frequency);
   const [octaves, setOctaves] = useState(initialParams.octaves);
   const [textOpacity, setTextOpacity] = useState(1);
+  const [capturedImage, setCapturedImage] = useState(null);
+  const [showModal, setShowModal] = useState(false);
 
   const usePerlinRef = useRef(usePerlin);
   const amplitudeRef = useRef(amplitude);
@@ -289,14 +297,14 @@ const PerlinNoise = ({
       });
 
       const imageData = canvas.toDataURL('image/png');
-      const link = document.createElement('a');
-      link.href = imageData;
-      link.download = `perlin-capture-${Date.now()}.png`;
-      link.click();
+      setCapturedImage(imageData);
+      setShowModal(true);
     } catch (error) {
       console.error('Error capturing scene:', error);
     }
   };
+
+  const handleClose = () => setShowModal(false);
 
   return (
     <div ref={containerRef} style={{ position: "relative", width: "100%", height: "100%" }}>
@@ -438,8 +446,46 @@ const PerlinNoise = ({
             </button>
           </div>
         </>
-        
       )}
+
+      <Modal show={showModal} onHide={handleClose} size="lg" >
+        <Modal.Header closeButton>
+          <Modal.Title style={{ color: 'black' }}>Freezing Now!</Modal.Title>
+        </Modal.Header>
+        <Modal.Body style={{ backgroundColor: 'black' }}>
+          {capturedImage && <img src={capturedImage} alt="Captured Scene" style={{ width: '100%' }} />}
+          <Button 
+            variant="primary" 
+            onClick={async () => {
+              try {
+                const wallet = await connectWallet(); // Function to connect to the wallet
+                const imageData = capturedImage; // The image data to be minted
+                const contractAddress = "your_tezos_contract_address"; // Replace with your contract address
+                
+                // Call the mint function on your Tezos contract
+                await mintImage(wallet, contractAddress, imageData); // Use capturedImage as imageData
+                alert("Image minted successfully!");
+              } catch (error) {
+                console.error("Error minting image:", error);
+                alert("Failed to mint image: " + error.message); // Provide more context in the alert
+              }
+            }}
+            style={{
+              marginTop: "15px",
+              fontFamily: "var(--primary-font)",
+              fontSize: "14px",
+              zIndex: 1000
+            }}
+          >
+            Mint Image
+          </Button>
+        </Modal.Body>
+        <Modal.Footer style={{ backgroundColor: 'black' }}>
+          <Button variant="secondary" onClick={handleClose}>
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 };
