@@ -4,11 +4,11 @@ import React from 'react';
 // import BurgerMenu from "./BurgerMenu";
 import CustomNavbar from "./Navbar";
 
-const Header = () => {
+const Header = ({ account, connectWallet, disconnectWallet }) => {
   return (
     <header>
   {/* <BurgerMenu/> */}
-  <CustomNavbar/>
+  <CustomNavbar account={account} connectWallet={connectWallet} disconnectWallet={disconnectWallet} />
     </header>
   );
 };
