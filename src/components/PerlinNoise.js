@@ -6,6 +6,7 @@ import { createNoise3D } from "simplex-noise";
 import html2canvas from 'html2canvas';
 import { useStaticQuery, graphql } from 'gatsby';
 import { Modal, Button } from 'react-bootstrap';
+import { mintImage } from '../images/og-image.jpg'; // Adjust the path as necessary
 
 const PerlinNoise = ({ 
   showControls = true, 
@@ -17,7 +18,10 @@ const PerlinNoise = ({
     octaves: 1,
     usePerlin: true
   },
-  cameraParams = null
+  cameraParams = null,
+  account,
+  connectWallet,
+  disconnectWallet
 }) => {
   const data = useStaticQuery(graphql`
     query {
@@ -449,37 +453,42 @@ const PerlinNoise = ({
         </Modal.Header>
         <Modal.Body style={{ backgroundColor: 'black' }}>
           {capturedImage && <img src={capturedImage} alt="Captured Scene" style={{ width: '100%' }} />}
+          <Button 
+            variant="primary" 
+            onClick={async () => {
+              try {
+                const wallet = await connectWallet(); // Function to connect to the wallet
+                const imageData = capturedImage; // The image data to be minted
+                const contractAddress = "your_tezos_contract_address"; // Replace with your contract address
+
+                // Debugging logs
+                console.log("Wallet:", wallet);
+                console.log("Contract Address:", contractAddress);
+                console.log("Image Data:", imageData);
+
+                // Call the mint function on your Tezos contract
+                await mintImage(wallet, contractAddress, imageData); // Use capturedImage as imageData
+                alert("Image minted successfully!");
+              } catch (error) {
+                console.error("Error minting image:", error);
+                alert("Failed to mint image: " + error.message); // Provide more context in the alert
+              }
+            }}
+            style={{
+              marginTop: "15px",
+              fontFamily: "var(--primary-font)",
+              fontSize: "14px",
+              zIndex: 1000
+            }}
+          >
+            Mint Image
+          </Button>
         </Modal.Body>
         <Modal.Footer style={{ backgroundColor: 'black' }}>
           <Button variant="secondary" onClick={handleClose}>
             Close
           </Button>
-        <Button 
-          variant="primary" 
-          onClick={async () => {
-            // Assuming you have a function to connect to the wallet and mint the image
-            try {
-              const wallet = await connectWallet(); // Function to connect to the wallet
-              const imageData = capturedImage; // The image data to be minted
-              const contractAddress = "your_tezos_contract_address"; // Replace with your contract address
-              
-              // Call the mint function on your Tezos contract
-              await mintImage(wallet, contractAddress, imageData);
-              alert("Image minted successfully!");
-            } catch (error) {
-              console.error("Error minting image:", error);
-              alert("Failed to mint image. Please try again.");
-            }
-          }}
-          style={{
-            marginTop: "15px",
-            fontFamily: "var(--primary-font)",
-            fontSize: "14px",
-            zIndex: 1000
-          }}
-        >
-          Mint Image
-        </Button>
+         
         </Modal.Footer>
       </Modal>
     </div>

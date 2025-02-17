@@ -57,6 +57,10 @@ const Layout = ({ children, seoProps }) => {
     }
   };
 
+  const disconnectWallet = () => {
+    setAccount(null);
+  };
+
   return (
     <>
       {/* SEO Component */}
@@ -73,18 +77,13 @@ const Layout = ({ children, seoProps }) => {
       {/* Main Layout */}
       <div className="content">
         {/* Header */}
-        <Header siteTitle={data.site.siteMetadata?.title} />
+        <Header account={account} connectWallet={connectWallet} disconnectWallet={disconnectWallet} />
 
         {/* Page Content */}
         <main>{children}</main>
 
         {/* Footer (Optional, Uncomment if needed) */}
         <Footer />
-
-        {/* Connect Wallet Button */}
-        <button onClick={connectWallet}>
-          {account ? `Connected: ${account}` : "Connect Wallet"}
-        </button>
       </div>
     </>
   );
