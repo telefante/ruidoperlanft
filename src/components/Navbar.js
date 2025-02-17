@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Navbar, Nav, Container } from "react-bootstrap";
+import { Navbar, Nav, Container, Button } from "react-bootstrap";
 import styled from "styled-components";
 import Web3 from "web3";
 import "./navbar.css";
@@ -100,6 +100,16 @@ const CustomNavbar = () => {
     >
       <Container>
         <Navbar.Brand href="#" className="brand-title">Ruido Perla NFT Collection</Navbar.Brand>
+        <div className="d-flex align-items-center">
+              <button onClick={account ? disconnectWallet : connectWallet} className="nav-link-custom">
+                {account ? "Sync" : "Unsync"}
+              </button>
+              {account && (
+                <span style={{ fontSize: '0.75rem', marginLeft: '0.5rem' }}>
+                  {account}
+                </span>
+              )}
+            </div>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <StyledNavbarCollapse id="basic-navbar-nav">
           <Nav className="ms-auto">
@@ -113,9 +123,7 @@ const CustomNavbar = () => {
                 {section.name}
               </Nav.Link>
             ))}
-            <button onClick={account ? disconnectWallet : connectWallet} className="nav-link-custom">
-              {account ? "Sync" : "Unsync"}
-            </button>
+          
           </Nav>
         </StyledNavbarCollapse>
       </Container>
