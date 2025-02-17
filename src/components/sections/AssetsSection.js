@@ -75,8 +75,8 @@ const AssetsSection = () => {
       description: "Generated landscapes that form the foundation of our unique digital art pieces.",
     },
     {
-      title: "Animations",
-      description: "Dynamic animations that showcase the fluidity of our digital creations.",
+      title: "Videos ",
+      description: "Experimental videos that showcase the installation in physical space.",
     },
   ];
 
