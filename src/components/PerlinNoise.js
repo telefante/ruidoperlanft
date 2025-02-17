@@ -5,6 +5,7 @@ import { Perlin } from 'three-noise';
 import { createNoise3D } from "simplex-noise";
 import html2canvas from 'html2canvas';
 import { useStaticQuery, graphql } from 'gatsby';
+import { Modal, Button } from 'react-bootstrap';
 
 const PerlinNoise = ({ 
   showControls = true, 
@@ -39,6 +40,8 @@ const PerlinNoise = ({
   const [frequency, setFrequency] = useState(initialParams.frequency);
   const [octaves, setOctaves] = useState(initialParams.octaves);
   const [textOpacity, setTextOpacity] = useState(1);
+  const [capturedImage, setCapturedImage] = useState(null);
+  const [showModal, setShowModal] = useState(false);
 
   const usePerlinRef = useRef(usePerlin);
   const amplitudeRef = useRef(amplitude);
@@ -289,14 +292,14 @@ const PerlinNoise = ({
       });
 
       const imageData = canvas.toDataURL('image/png');
-      const link = document.createElement('a');
-      link.href = imageData;
-      link.download = `perlin-capture-${Date.now()}.png`;
-      link.click();
+      setCapturedImage(imageData);
+      setShowModal(true);
     } catch (error) {
       console.error('Error capturing scene:', error);
     }
   };
+
+  const handleClose = () => setShowModal(false);
 
   return (
     <div ref={containerRef} style={{ position: "relative", width: "100%", height: "100%" }}>
@@ -438,8 +441,21 @@ const PerlinNoise = ({
             </button>
           </div>
         </>
-        
       )}
+
+      <Modal show={showModal} onHide={handleClose}>
+        <Modal.Header closeButton>
+          <Modal.Title>Captured Scene</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {capturedImage && <img src={capturedImage} alt="Captured Scene" style={{ width: '100%' }} />}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleClose}>
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 };
