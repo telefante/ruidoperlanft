@@ -454,6 +454,32 @@ const PerlinNoise = ({
           <Button variant="secondary" onClick={handleClose}>
             Close
           </Button>
+        <Button 
+          variant="primary" 
+          onClick={async () => {
+            // Assuming you have a function to connect to the wallet and mint the image
+            try {
+              const wallet = await connectWallet(); // Function to connect to the wallet
+              const imageData = capturedImage; // The image data to be minted
+              const contractAddress = "your_tezos_contract_address"; // Replace with your contract address
+              
+              // Call the mint function on your Tezos contract
+              await mintImage(wallet, contractAddress, imageData);
+              alert("Image minted successfully!");
+            } catch (error) {
+              console.error("Error minting image:", error);
+              alert("Failed to mint image. Please try again.");
+            }
+          }}
+          style={{
+            marginTop: "15px",
+            fontFamily: "var(--primary-font)",
+            fontSize: "14px",
+            zIndex: 1000
+          }}
+        >
+          Mint Image
+        </Button>
         </Modal.Footer>
       </Modal>
     </div>
