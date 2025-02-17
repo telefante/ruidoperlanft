@@ -5,6 +5,8 @@ import Seo from "./seo"; // Import SEO component
 import { useEffect, useState } from "react";
 import "./layout.css"; // Import global styles
 import Footer from "./Footer";
+import Web3 from "web3"; // Import Web3
+
 const Layout = ({ children, seoProps }) => {
   // Fetch site metadata and header image for SEO
   const data = useStaticQuery(graphql`
@@ -29,6 +31,7 @@ const Layout = ({ children, seoProps }) => {
 
   // State to control background movement
   const [scrollY, setScrollY] = useState(0);
+  const [account, setAccount] = useState(null); // State to store wallet account
 
   useEffect(() => {
     const handleScroll = () => {
@@ -38,6 +41,21 @@ const Layout = ({ children, seoProps }) => {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  const connectWallet = async () => {
+    if (window.ethereum) {
+      const web3 = new Web3(window.ethereum);
+      try {
+        await window.ethereum.request({ method: "eth_requestAccounts" });
+        const accounts = await web3.eth.getAccounts();
+        setAccount(accounts[0]); // Set the first account
+      } catch (error) {
+        console.error("User denied account access", error);
+      }
+    } else {
+      console.log("Please install MetaMask!");
+    }
+  };
 
   return (
     <>
@@ -62,6 +80,11 @@ const Layout = ({ children, seoProps }) => {
 
         {/* Footer (Optional, Uncomment if needed) */}
         <Footer />
+
+        {/* Connect Wallet Button */}
+        <button onClick={connectWallet}>
+          {account ? `Connected: ${account}` : "Connect Wallet"}
+        </button>
       </div>
     </>
   );
