@@ -33,7 +33,6 @@ const SimulationSection = ({ account, connectWallet, disconnectWallet }) => {
   // Define the connectWallet function if not passed as a prop
   const handleConnectWallet = async () => {
     // Logic to connect to the wallet
-    // For example, using a wallet provider like MetaMask
     if (window.ethereum) {
       try {
         const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });

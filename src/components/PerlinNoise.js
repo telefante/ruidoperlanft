@@ -6,7 +6,8 @@ import { createNoise3D } from "simplex-noise";
 import html2canvas from 'html2canvas';
 import { useStaticQuery, graphql } from 'gatsby';
 import { Modal, Button } from 'react-bootstrap';
-import { mintImage } from '../images/og-image.jpg'; // Adjust the path as necessary
+import { mintImage } from './MintImage'; // Ensure this path is correct
+// import { mintImage } from '../images/og-image.jpg'; // Adjust the path as necessary
 
 const PerlinNoise = ({ 
   showControls = true, 
@@ -460,12 +461,7 @@ const PerlinNoise = ({
                 const wallet = await connectWallet(); // Function to connect to the wallet
                 const imageData = capturedImage; // The image data to be minted
                 const contractAddress = "your_tezos_contract_address"; // Replace with your contract address
-
-                // Debugging logs
-                console.log("Wallet:", wallet);
-                console.log("Contract Address:", contractAddress);
-                console.log("Image Data:", imageData);
-
+                
                 // Call the mint function on your Tezos contract
                 await mintImage(wallet, contractAddress, imageData); // Use capturedImage as imageData
                 alert("Image minted successfully!");
@@ -488,7 +484,6 @@ const PerlinNoise = ({
           <Button variant="secondary" onClick={handleClose}>
             Close
           </Button>
-         
         </Modal.Footer>
       </Modal>
     </div>
