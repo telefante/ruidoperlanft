@@ -5,7 +5,7 @@ import { Perlin } from "three-noise"
 import { createNoise3D } from "simplex-noise"
 import html2canvas from "html2canvas"
 import { useStaticQuery, graphql } from "gatsby"
-import { Modal, Button, Stack, Form, InputGroup, Container } from "react-bootstrap"
+import { Modal, Button, Row, Form, InputGroup, Container } from "react-bootstrap"
 import { mintImage } from "./MintImage" // Ensure this path is correct
 // import { mintImage } from '../images/og-image.jpg'; // Adjust the path as necessary
 // import './PerlinNoise.css' // Import custom CSS for controls
@@ -349,21 +349,24 @@ const PerlinNoise = ({
     >
       <div ref={mountRef} style={{ width: "100%", height: "100%" }} />
   <Container>
+    <Row>
       <Button variant="danger"
         onClick={toggleControls}
         className="minimize-button"
         style={{
           position: "absolute",
           top: "10px",
-          left: "70px",
+          left: "20px",
           zIndex: 1000,
           cursor: "pointer",
           fontSize: "0.8rem",
-          fontFamily: "var(--primary-font)"
+          fontFamily: "var(--primary-font)",
+          width: isMobile ? '90%' : '20%', // Set maxWidth based on mobile detection
         }}
       >
         {controlsVisible ? "Minimize Controls" : "Show Controls"}
       </Button>
+      </Row>
 
       <div
         style={{
