@@ -16,7 +16,7 @@ const SectionContainer = ({ id, title, children, background, isGridLayout }) => 
   }, [id]);
 
   return (
-    <section id={id} className={`section-container ${background ? "bg-light" : ""} ${isVisible ? "visible" : ""}`}>
+    <section id={id} className={`section-container ${background ? "bg-light" : ""} ${isVisible ? "visible" : ""} mb-5`}>
       <Container>
         {!isGridLayout && title && <h2>{title}</h2>}
         {children}

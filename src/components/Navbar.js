@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Navbar, Nav, Container } from "react-bootstrap";
 import styled from "styled-components";
-import Web3 from "web3";
+// import Web3 from "web3";
 import "./navbar.css";
 
 // Add styled component for mobile nav items
