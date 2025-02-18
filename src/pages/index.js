@@ -5,6 +5,7 @@ import InstallationSection from "../components/sections/InstallationSection";
 import SimulationSection from "../components/sections/SimulationSection";
 import AssetsSection from "../components/sections/AssetsSection";
 import AboutSection from "../components/sections/AboutSection";
+import TezosNFTCarousel from "../components/TezosNFTCarousel";
 
 
 // Debug: Log Components
@@ -22,6 +23,7 @@ const IndexPage = () => {
       <AssetsSection />
       <SimulationSection />  
       <AboutSection />
+      <TezosNFTCarousel />
     </Layout>
   );
 };
