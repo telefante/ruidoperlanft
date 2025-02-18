@@ -61,6 +61,8 @@ const PerlinNoise = ({
     lookAt: { x: 0, y: 0, z: 0 },
   })
 
+  const controlsRef = useRef(null)
+
   useEffect(() => {
     usePerlinRef.current = usePerlin
   }, [usePerlin])
@@ -368,19 +370,27 @@ const PerlinNoise = ({
         {currentTextRef.current}
       </div>
 
-      {controlsVisible && showControls && (
-        <Container className="controls" style={{ 
-          position: 'absolute', 
-          top: '50px', // Adjust as needed
-          left: '20px', // Adjust as needed
-          width: '20%', 
-          zIndex: 1000, // Ensure controls are on top
-          backgroundColor: 'rgba(255, 255, 255, 0.8)', // Optional: background for better visibility
-          padding: '1rem', // Optional: padding for aesthetics
-          borderRadius: '8px', // Optional: rounded corners
-          fontSize: '0.8rem',
-          fontFamily: 'var(--primary-font)'
-        }}>
+      {showControls && (
+        <Container
+          ref={controlsRef}
+          className="controls"
+          style={{
+            position: 'absolute',
+            top: '50px',
+            left: '20px',
+            width: '20%',
+            zIndex: 1000,
+            backgroundColor: 'rgba(255, 255, 255, 0.8)',
+            padding: '1rem',
+            borderRadius: '8px',
+            fontSize: '0.8rem',
+            fontFamily: 'var(--primary-font)',
+            opacity: controlsVisible ? 1 : 0,
+            transform: controlsVisible ? 'scale(1)' : 'scale(0.8)',
+            transition: 'opacity 0.5s ease, transform 0.5s ease',
+            pointerEvents: controlsVisible ? 'auto' : 'none',
+          }}
+        >
           <Form>
             <Form.Group controlId="usePerlin">
               <Form.Check 
@@ -471,10 +481,8 @@ const PerlinNoise = ({
           >
             Mint this ?
           </Modal.Title>
-          
         </Modal.Header>
         <Modal.Body style={{ backgroundColor: "black" }}>
-       
           {capturedImage && (
             <img
               src={capturedImage}
