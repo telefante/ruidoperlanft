@@ -306,8 +306,8 @@ const PerlinNoise = ({
         scale: 2,
         logging: false,
         ignoreElements: (element) => {
-          // Exclude the entire controls container
-          return element.classList.contains("controls"); // Ensure this matches the class of your controls container
+          // Exclude the entire controls container and the Minimize Controls button
+          return element.classList.contains("controls") || element.classList.contains("minimize-button"); // Ensure this matches the class of your Minimize Controls button
         },
       });
   
@@ -334,6 +334,7 @@ const PerlinNoise = ({
 
       <Button variant="danger"
         onClick={toggleControls}
+        className="minimize-button"
         style={{
           position: "absolute",
           top: "10px",
