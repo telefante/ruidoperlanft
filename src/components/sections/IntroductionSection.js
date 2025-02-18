@@ -10,7 +10,8 @@ const IntroductionSection = () => {
     scale: 0.01,
     frequency: 2,
     octaves: 2,
-    usePerlin: true
+    usePerlin: true,
+    showControls: false
   };
 
   
