@@ -5,6 +5,7 @@ import { useStaticQuery, graphql } from "gatsby"
 import styled from "styled-components"
 import SectionContainer from "./SectionContainer"
 import { Button, Carousel } from "react-bootstrap"
+import Video from './Video'
 
 const OverlappingContainer = styled.div`
   position: relative;
@@ -83,6 +84,7 @@ const AboutSection = () => {
   return (
     <SectionContainer id="about" >
       <OverlappingContainer>
+        <Video url="path/to/your/video.mp4" />
         <TextOverlay>
         <h2 className="simulation-title">community</h2>
           <section>
