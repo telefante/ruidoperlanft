@@ -48,6 +48,7 @@ const PerlinNoise = ({
   const [textOpacity, setTextOpacity] = useState(1)
   const [capturedImage, setCapturedImage] = useState(null)
   const [showModal, setShowModal] = useState(false)
+  const [controlsVisible, setControlsVisible] = useState(true)
 
   const usePerlinRef = useRef(usePerlin)
   const amplitudeRef = useRef(amplitude)
@@ -318,12 +319,33 @@ const PerlinNoise = ({
 
   const handleClose = () => setShowModal(false)
 
+  const toggleControls = () => {
+    setControlsVisible(!controlsVisible);
+  };
+
   return (
     <div
       ref={containerRef}
       style={{ position: "relative", width: "100%", height: "100%" }}
     >
       <div ref={mountRef} style={{ width: "100%", height: "100%" }} />
+
+      <button
+        onClick={toggleControls}
+        style={{
+          position: "absolute",
+          top: "10px",
+          left: "10px",
+          zIndex: 1000,
+          padding: "5px 10px",
+          backgroundColor: "rgba(255, 255, 255, 0.8)",
+          border: "none",
+          borderRadius: "5px",
+          cursor: "pointer",
+        }}
+      >
+        {controlsVisible ? "Minimize Controls" : "Show Controls"}
+      </button>
 
       <div
         style={{
@@ -348,10 +370,10 @@ const PerlinNoise = ({
         {currentTextRef.current}
       </div>
 
-      {showControls && (
+      {controlsVisible && showControls && (
         <Container className="controls" style={{ 
           position: 'absolute', 
-          top: '20px', // Adjust as needed
+          top: '50px', // Adjust as needed
           left: '20px', // Adjust as needed
           width: '20%', 
           zIndex: 1000, // Ensure controls are on top
@@ -375,7 +397,7 @@ const PerlinNoise = ({
             {usePerlin && (
               <>
                 <Form.Group controlId="frequency">
-                  <Form.Label style={{ fontFamily: 'var(--primary-font)' }}>Frequency: {frequency}</Form.Label>
+                  <Form.Label>Frequency: {frequency}</Form.Label>
                   <InputGroup>
                     <Form.Control
                       type="range"
@@ -388,7 +410,7 @@ const PerlinNoise = ({
                   </InputGroup>
                 </Form.Group>
                 <Form.Group controlId="octaves">
-                  <Form.Label >Octaves: {octaves}</Form.Label>
+                  <Form.Label>Octaves: {octaves}</Form.Label>
                   <InputGroup>
                     <Form.Control
                       type="range"
@@ -404,7 +426,7 @@ const PerlinNoise = ({
             )}
 
             <Form.Group controlId="amplitude">
-              <Form.Label style={{ fontFamily: 'var(--primary-font)' }}>Amplitude: {amplitude}</Form.Label>
+              <Form.Label>Amplitude: {amplitude}</Form.Label>
               <InputGroup>
                 <Form.Control
                   type="range"
@@ -418,7 +440,7 @@ const PerlinNoise = ({
             </Form.Group>
 
             <Form.Group controlId="scale">
-              <Form.Label style={{ fontFamily: 'var(--primary-font)' }}>Noise Scale: {scale}</Form.Label>
+              <Form.Label>Noise Scale: {scale}</Form.Label>
               <InputGroup>
                 <Form.Control
                   type="range"
