@@ -492,12 +492,13 @@ const PerlinNoise = ({
             />
           )}
         </Modal.Body>
-        <Modal.Footer style={{ backgroundColor: 'black' }}>
-          <Button variant="secondary" onClick={handleClose}>
+        <Modal.Footer style={{ backgroundColor: 'black', fontFamily:'var(--primary-font)', alignItems:'center', justifyContent:'center' }}>
+          {/* <Button variant="secondary" onClick={handleClose}>
             Close
-          </Button>
+          </Button> */}
           <Button 
             variant="primary" 
+            
             onClick={async () => {
               try {
                 const wallet = await connectWallet(); // Function to connect to the wallet
