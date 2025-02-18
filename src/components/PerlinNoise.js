@@ -50,7 +50,7 @@ const PerlinNoise = ({
   const [capturedImage, setCapturedImage] = useState(null)
   const [showModal, setShowModal] = useState(false)
   const [controlsVisible, setControlsVisible] = useState(true)
- 
+  const [isMobile, setIsMobile] = useState(false)
 
   const usePerlinRef = useRef(usePerlin)
   const amplitudeRef = useRef(amplitude)
@@ -298,6 +298,21 @@ const PerlinNoise = ({
     }
   }, [data, enableOrbit, cameraParams])
 
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(max-width: 768px)');
+    const handleMediaQueryChange = (e) => {
+      setIsMobile(e.matches);
+    };
+
+    // Set initial value
+    handleMediaQueryChange(mediaQuery);
+    mediaQuery.addEventListener('change', handleMediaQueryChange);
+
+    return () => {
+      mediaQuery.removeEventListener('change', handleMediaQueryChange);
+    };
+  }, []);
+
   const captureScene = async () => {
     if (!containerRef.current) return;
   
@@ -333,7 +348,7 @@ const PerlinNoise = ({
       style={{ position: "relative", width: "100%", height: "100%" }}
     >
       <div ref={mountRef} style={{ width: "100%", height: "100%" }} />
-
+  <Container>
       <Button variant="danger"
         onClick={toggleControls}
         className="minimize-button"
@@ -381,7 +396,8 @@ const PerlinNoise = ({
             position: 'absolute',
             top: '50px',
             left: '20px',
-            width: '20%',
+            width: '80%', // Adjusted for better responsiveness on mobile screens
+            maxWidth: isMobile ? '90%' : '20%', // Set maxWidth based on mobile detection
             zIndex: 1000,
             backgroundColor: 'rgba(255, 255, 255, 0.8)',
             padding: '1rem',
@@ -471,7 +487,9 @@ const PerlinNoise = ({
             )}
           </Form>
         </Container>
+      
       )}
+        </Container>
 
       <Modal show={showModal} onHide={handleClose} size="lg">
         <Modal.Header closeButton>
