@@ -330,22 +330,20 @@ const PerlinNoise = ({
     >
       <div ref={mountRef} style={{ width: "100%", height: "100%" }} />
 
-      <button
+      <Button variant="danger"
         onClick={toggleControls}
         style={{
           position: "absolute",
           top: "10px",
-          left: "10px",
+          left: "70px",
           zIndex: 1000,
-          padding: "5px 10px",
-          backgroundColor: "rgba(255, 255, 255, 0.8)",
-          border: "none",
-          borderRadius: "5px",
           cursor: "pointer",
+          fontSize: "0.8rem",
+          fontFamily: "var(--primary-font)"
         }}
       >
         {controlsVisible ? "Minimize Controls" : "Show Controls"}
-      </button>
+      </Button>
 
       <div
         style={{
