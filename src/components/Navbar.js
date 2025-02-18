@@ -64,7 +64,7 @@ const CustomNavbar = ({ account, connectWallet, disconnectWallet }) => {
     const section = document.getElementById(sectionId);
     if (section) {
       window.scrollTo({
-        top: window.innerWidth <= 768 ? section.offsetTop - 350 : section.offsetTop - 150,
+        top: window.innerWidth <= 768 ? section.offsetTop - 100 : section.offsetTop - 50,
         behavior: "smooth",
       });
     }
