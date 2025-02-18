@@ -16,3 +16,16 @@ exports.createPages = async ({ actions }) => {
     defer: true,
   })
 }
+
+exports.onCreateWebpackConfig = ({ actions }) => {
+  actions.setWebpackConfig({
+    resolve: {
+      fallback: {
+        stream: require.resolve("stream-browserify"),
+        crypto: require.resolve("crypto-browserify"),
+        buffer: require.resolve("buffer/"),
+        process: require.resolve("process/browser"),
+      },
+    },
+  });
+};
