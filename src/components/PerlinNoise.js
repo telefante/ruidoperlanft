@@ -359,6 +359,7 @@ const PerlinNoise = ({
           padding: '1rem', // Optional: padding for aesthetics
           borderRadius: '8px', // Optional: rounded corners
           fontSize: '0.8rem',
+          fontFamily: 'var(--primary-font)'
         }}>
           <Form>
             <Form.Group controlId="usePerlin">
@@ -387,7 +388,7 @@ const PerlinNoise = ({
                   </InputGroup>
                 </Form.Group>
                 <Form.Group controlId="octaves">
-                  <Form.Label style={{ fontFamily: 'var(--primary-font)' }}>Octaves: {octaves}</Form.Label>
+                  <Form.Label >Octaves: {octaves}</Form.Label>
                   <InputGroup>
                     <Form.Control
                       type="range"
@@ -430,7 +431,7 @@ const PerlinNoise = ({
               </InputGroup>
             </Form.Group>
 
-            <Button variant="danger" onClick={captureScene}>
+            <Button variant="danger" onClick={captureScene} style={{ marginTop: '10px' }}>
               Capture Scene
             </Button>
           </Form>
