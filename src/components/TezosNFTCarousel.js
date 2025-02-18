@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { TezosToolkit } from "@taquito/taquito";
 import { BeaconWallet } from "@taquito/beacon-wallet";
+import { TezosToolkit } from "@taquito/taquito";
+import { BeaconEvent } from "@airgap/beacon-dapp"; // <-- Import this
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/pagination";
@@ -17,18 +18,48 @@ const TezosNFTCarousel = () => {
       const wallet = new BeaconWallet({ name: "Tezos NFT Viewer" });
       Tezos.setWalletProvider(wallet);
       setWallet(wallet);
+  
+      // 1. Check if an active account already exists
+      const activeAccount = await wallet.client.getActiveAccount();
+      if (activeAccount) {
+        console.log("Active Account Found:", activeAccount.address);
+        setAddress(activeAccount.address);
+        fetchNFTs(activeAccount.address);
+      } else {
+        console.log("No active account. User needs to connect.");
+      }
+  
+      // 2. Subscribe to wallet connection events (fixes missing subscription issue)
+      wallet.client.subscribeToEvent(BeaconEvent.ACTIVE_ACCOUNT_SET, async (account) => {
+        console.log("Active Account Set:", account.address);
+        setAddress(account.address);
+        fetchNFTs(account.address);
+      });
     };
+  
     setupWallet();
   }, [Tezos]);
 
   const connectWallet = async () => {
     if (!wallet) return;
-    await wallet.requestPermissions();
-    const userAddress = await wallet.getPKH();
-    setAddress(userAddress);
-    fetchNFTs(userAddress);
+  
+    try {
+      await wallet.requestPermissions({ network: { type: "mainnet" } });
+  
+      // Ensure an active account is set
+      const activeAccount = await wallet.client.getActiveAccount();
+      if (activeAccount) {
+        setAddress(activeAccount.address);
+        fetchNFTs(activeAccount.address);
+      } else {
+        console.warn("User must connect their wallet manually.");
+      }
+    } catch (error) {
+      console.error("Wallet connection failed:", error);
+    }
   };
 
+  
   const fetchNFTs = async (walletAddress) => {
     try {
       const response = await fetch(`https://api.tzkt.io/v1/tokens/balances?account=${walletAddress}&token.standard=fa2`);
