@@ -294,29 +294,27 @@ const PerlinNoise = ({
   }, [data, enableOrbit, cameraParams])
 
   const captureScene = async () => {
-    if (!containerRef.current) return
-
+    if (!containerRef.current) return;
+  
     try {
       const canvas = await html2canvas(containerRef.current, {
         useCORS: true,
         backgroundColor: null,
         scale: 2,
         logging: false,
-        ignoreElements: element => {
-          return (
-            element.classList.contains("controls") ||
-            element.tagName === "BUTTON"
-          )
+        ignoreElements: (element) => {
+          // Exclude the entire controls container
+          return element.classList.contains("controls"); // Ensure this matches the class of your controls container
         },
-      })
-
-      const imageData = canvas.toDataURL("image/png")
-      setCapturedImage(imageData)
-      setShowModal(true)
+      });
+  
+      const imageData = canvas.toDataURL("image/png");
+      setCapturedImage(imageData);
+      setShowModal(true);
     } catch (error) {
-      console.error("Error capturing scene:", error)
+      console.error("Error capturing scene:", error);
     }
-  }
+  };
 
   const handleClose = () => setShowModal(false)
 
@@ -351,15 +349,16 @@ const PerlinNoise = ({
       </div>
 
       {showControls && (
-        <Container style={{ 
+        <Container className="controls" style={{ 
           position: 'absolute', 
           top: '20px', // Adjust as needed
           left: '20px', // Adjust as needed
-          width: '33%', 
+          width: '20%', 
           zIndex: 1000, // Ensure controls are on top
           backgroundColor: 'rgba(255, 255, 255, 0.8)', // Optional: background for better visibility
           padding: '1rem', // Optional: padding for aesthetics
-          borderRadius: '8px' // Optional: rounded corners
+          borderRadius: '8px', // Optional: rounded corners
+          fontSize: '0.8rem',
         }}>
           <Form>
             <Form.Group controlId="usePerlin">
