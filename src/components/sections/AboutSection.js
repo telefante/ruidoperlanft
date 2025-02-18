@@ -1,4 +1,5 @@
 import React, { useState } from "react"
+import { Button } from "react-bootstrap"
 import { Link } from "gatsby"
 import { GatsbyImage, getImage } from "gatsby-plugin-image"
 import { useStaticQuery, graphql } from "gatsby"
@@ -37,24 +38,22 @@ const ImageWrapper = styled.div`
   }
 `
 
-const StyledButton = styled(Link)`
-  display: inline-block;
-  margin-top: 1rem;
-  padding: 0.8rem 1.5rem;
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
-  text-decoration: none;
-  border-radius: 4px;
-  transition: all 0.3s ease;
-
-  &:hover {
-    background: rgba(255, 255, 255, 0.2);
-    color: white;
-  }
+const Overlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
 `
 
 const AboutSection = () => {
   const [showCarousel, setShowCarousel] = useState(true);
+  const [showVideo, setShowVideo] = useState(false);
 
   const toggleCarousel = () => {
     setShowCarousel(prev => !prev);
@@ -89,11 +88,28 @@ const AboutSection = () => {
 
   const videoUrl = data.videoFiles.nodes.length > 0 ? data.videoFiles.nodes[0].publicURL : null;
   const images = data.imageFiles.nodes.map(node => getImage(node.childImageSharp));
-  console.log(videoUrl);
+
+  const handlePlayVideo = () => {
+    setShowVideo(true);
+  };
+
+  const handleCloseVideo = () => {
+    setShowVideo(false);
+  };
+
   return (
     <SectionContainer id="about">
       <OverlappingContainer>
-        {videoUrl && <Video url={videoUrl} />}
+        {videoUrl && (
+          <>
+           
+            {showVideo && (
+              <Overlay onClick={handleCloseVideo}>
+                <Video url={videoUrl} />
+              </Overlay>
+            )}
+          </>
+        )}
         <TextOverlay>
           <h2 className="simulation-title">community</h2>
           <section>
@@ -105,6 +121,7 @@ const AboutSection = () => {
               landscapes intertwine to explore the relationship between noise
               and the pearl.
             </p>
+            <Button variant="secondary" style={{ fontFamily: 'var(--primary-font)',  fontStyle: 'italic', fontSize: '1.2rem', padding: '10px 20px', borderRadius: '5px' }} onClick={handlePlayVideo}>See Video .. </Button>
           </section>
         </TextOverlay>
 
