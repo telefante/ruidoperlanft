@@ -70,6 +70,7 @@ const SimulationSection = ({ account, connectWallet, disconnectWallet }) => {
           account={account}
           connectWallet={handleConnectWallet}
           disconnectWallet={disconnectWallet}
+          showCaptureButton={true}
         />
       </div>
     </SectionContainer>
