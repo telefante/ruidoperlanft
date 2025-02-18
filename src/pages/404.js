@@ -1,4 +1,5 @@
 import * as React from "react"
+import { useEffect } from "react"
 
 import Layout from "../components/layout"
 import Seo from "../components/seo"
@@ -6,6 +7,12 @@ import Seo from "../components/seo"
 const NotFoundPage = () => {
   // Check if running in the browser
   const isBrowser = typeof window !== "undefined";
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      // Your code that uses window
+    }
+  }, []);
 
   return (
     <Layout>
