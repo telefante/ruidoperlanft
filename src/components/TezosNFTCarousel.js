@@ -63,12 +63,34 @@ const TezosNFTCarousel = () => {
     }
   };
 
+
+// List all NFTs from a Wallet 
+
+  // const fetchNFTs = async (walletAddress) => {
+  //   try {
+  //     const response = await fetch(`https://api.tzkt.io/v1/tokens/balances?account=${walletAddress}&token.standard=fa2`);
+  //     const data = await response.json();
+  //     const filteredNFTs = data.filter((token) => token.token.metadata?.artifactUri);
+  //     setNfts(filteredNFTs);
+  //   } catch (error) {
+  //     console.error("Error fetching NFTs: ", error);
+  //   }
+  // };
+
+  const COLLECTION_CONTRACT = "KT1VsqcpRfzzPCqPiwLXsFKh6BCpEfsJt2yR"; // Replace with your collection's address
+
   const fetchNFTs = async (walletAddress) => {
     try {
       const response = await fetch(`https://api.tzkt.io/v1/tokens/balances?account=${walletAddress}&token.standard=fa2`);
       const data = await response.json();
-      const filteredNFTs = data.filter((token) => token.token.metadata?.artifactUri);
-      setNfts(filteredNFTs);
+  
+      // Filter NFTs from a specific contract (collection)
+      const filteredNFTs = data.filter((nft) => nft.token.contract.address === COLLECTION_CONTRACT);
+  
+      // Ensure they have images
+      const nftsWithImages = filteredNFTs.filter((nft) => nft.token.metadata?.artifactUri);
+      
+      setNfts(nftsWithImages);
     } catch (error) {
       console.error("Error fetching NFTs: ", error);
     }
