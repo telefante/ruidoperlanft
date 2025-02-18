@@ -5,9 +5,10 @@ import { Perlin } from "three-noise"
 import { createNoise3D } from "simplex-noise"
 import html2canvas from "html2canvas"
 import { useStaticQuery, graphql } from "gatsby"
-import { Modal, Button, Stack } from "react-bootstrap"
+import { Modal, Button, Stack, Form, InputGroup, Container } from "react-bootstrap"
 import { mintImage } from "./MintImage" // Ensure this path is correct
 // import { mintImage } from '../images/og-image.jpg'; // Adjust the path as necessary
+// import './PerlinNoise.css' // Import custom CSS for controls
 
 const PerlinNoise = ({
   showControls = true,
@@ -47,6 +48,7 @@ const PerlinNoise = ({
   const [textOpacity, setTextOpacity] = useState(1)
   const [capturedImage, setCapturedImage] = useState(null)
   const [showModal, setShowModal] = useState(false)
+  const [controlsVisible, setControlsVisible] = useState(true)
 
   const usePerlinRef = useRef(usePerlin)
   const amplitudeRef = useRef(amplitude)
@@ -58,6 +60,8 @@ const PerlinNoise = ({
     position: { x: 0, y: 0, z: 0 },
     lookAt: { x: 0, y: 0, z: 0 },
   })
+
+  const controlsRef = useRef(null)
 
   useEffect(() => {
     usePerlinRef.current = usePerlin
@@ -293,31 +297,33 @@ const PerlinNoise = ({
   }, [data, enableOrbit, cameraParams])
 
   const captureScene = async () => {
-    if (!containerRef.current) return
-
+    if (!containerRef.current) return;
+  
     try {
       const canvas = await html2canvas(containerRef.current, {
         useCORS: true,
         backgroundColor: null,
         scale: 2,
         logging: false,
-        ignoreElements: element => {
-          return (
-            element.classList.contains("controls") ||
-            element.tagName === "BUTTON"
-          )
+        ignoreElements: (element) => {
+          // Exclude the entire controls container
+          return element.classList.contains("controls"); // Ensure this matches the class of your controls container
         },
-      })
-
-      const imageData = canvas.toDataURL("image/png")
-      setCapturedImage(imageData)
-      setShowModal(true)
+      });
+  
+      const imageData = canvas.toDataURL("image/png");
+      setCapturedImage(imageData);
+      setShowModal(true);
     } catch (error) {
-      console.error("Error capturing scene:", error)
+      console.error("Error capturing scene:", error);
     }
-  }
+  };
 
   const handleClose = () => setShowModal(false)
+
+  const toggleControls = () => {
+    setControlsVisible(!controlsVisible);
+  };
 
   return (
     <div
@@ -325,6 +331,21 @@ const PerlinNoise = ({
       style={{ position: "relative", width: "100%", height: "100%" }}
     >
       <div ref={mountRef} style={{ width: "100%", height: "100%" }} />
+
+      <Button variant="danger"
+        onClick={toggleControls}
+        style={{
+          position: "absolute",
+          top: "10px",
+          left: "70px",
+          zIndex: 1000,
+          cursor: "pointer",
+          fontSize: "0.8rem",
+          fontFamily: "var(--primary-font)"
+        }}
+      >
+        {controlsVisible ? "Minimize Controls" : "Show Controls"}
+      </Button>
 
       <div
         style={{
@@ -350,127 +371,101 @@ const PerlinNoise = ({
       </div>
 
       {showControls && (
-        <>
-          <div
-            className="controls"
-            style={{
-              position: "absolute",
-              bottom: "-180px",
-              left: "50%",
-              transform: "translateX(-50%)",
-              backgroundColor: "rgba(255, 255, 255, 0.8)",
-              padding: "10px",
-              borderRadius: "5px",
-              fontFamily: "var(--primary-font)",
-              fontSize: "14px",
-              letterSpacing: "0.5px",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-            }}
-          >
-            <div style={{ marginBottom: "10px" }}>
-              <label style={{ display: "flex", alignItems: "center" }}>
-                <input
-                  type="checkbox"
-                  checked={usePerlin}
-                  onChange={e => setUsePerlin(e.target.checked)}
-                  style={{ marginRight: "10px" }}
-                />
-                Use Perlin Noise (uncheck for Simplex)
-              </label>
-            </div>
+        <Container
+          ref={controlsRef}
+          className="controls"
+          style={{
+            position: 'absolute',
+            top: '50px',
+            left: '20px',
+            width: '20%',
+            zIndex: 1000,
+            backgroundColor: 'rgba(255, 255, 255, 0.8)',
+            padding: '1rem',
+            borderRadius: '8px',
+            fontSize: '0.8rem',
+            fontFamily: 'var(--primary-font)',
+            opacity: controlsVisible ? 1 : 0,
+            transform: controlsVisible ? 'scale(1)' : 'scale(0.8)',
+            transition: 'opacity 0.5s ease, transform 0.5s ease',
+            pointerEvents: controlsVisible ? 'auto' : 'none',
+          }}
+        >
+          <Form>
+            <Form.Group controlId="usePerlin">
+              <Form.Check 
+                type="checkbox"
+                label="Use Perlin Noise (uncheck for Simplex)"
+                checked={usePerlin}
+                onChange={e => setUsePerlin(e.target.checked)}
+                style={{ fontFamily: 'var(--primary-font)' }}
+              />
+            </Form.Group>
 
             {usePerlin && (
               <>
-                <div style={{ marginBottom: "10px" }}>
-                  <label style={{ display: "flex", alignItems: "center" }}>
-                    <span style={{ minWidth: "120px" }}>
-                      Frequency: {frequency}
-                    </span>
-                    <input
+                <Form.Group controlId="frequency">
+                  <Form.Label>Frequency: {frequency}</Form.Label>
+                  <InputGroup>
+                    <Form.Control
                       type="range"
                       min="0.5"
                       max="10"
                       step="0.5"
                       value={frequency}
                       onChange={e => setFrequency(parseFloat(e.target.value))}
-                      style={{ marginLeft: "10px" }}
                     />
-                  </label>
-                </div>
-                <div style={{ marginBottom: "10px" }}>
-                  <label style={{ display: "flex", alignItems: "center" }}>
-                    <span style={{ minWidth: "120px" }}>
-                      Octaves: {octaves}
-                    </span>
-                    <input
+                  </InputGroup>
+                </Form.Group>
+                <Form.Group controlId="octaves">
+                  <Form.Label>Octaves: {octaves}</Form.Label>
+                  <InputGroup>
+                    <Form.Control
                       type="range"
                       min="1"
                       max="4"
                       step="1"
                       value={octaves}
                       onChange={e => setOctaves(parseInt(e.target.value))}
-                      style={{ marginLeft: "10px" }}
                     />
-                  </label>
-                </div>
+                  </InputGroup>
+                </Form.Group>
               </>
             )}
 
-            <div style={{ marginBottom: "10px" }}>
-              <label style={{ display: "flex", alignItems: "center" }}>
-                <span style={{ minWidth: "120px" }}>
-                  Amplitude: {amplitude}
-                </span>
-                <input
+            <Form.Group controlId="amplitude">
+              <Form.Label>Amplitude: {amplitude}</Form.Label>
+              <InputGroup>
+                <Form.Control
                   type="range"
                   min="0"
                   max="30"
                   step="0.1"
                   value={amplitude}
                   onChange={e => setAmplitude(parseFloat(e.target.value))}
-                  style={{ marginLeft: "10px" }}
                 />
-              </label>
-            </div>
-            <div>
-              <label style={{ display: "flex", alignItems: "center" }}>
-                <span style={{ minWidth: "120px" }}>Noise Scale: {scale}</span>
-                <input
+              </InputGroup>
+            </Form.Group>
+
+            <Form.Group controlId="scale">
+              <Form.Label>Noise Scale: {scale}</Form.Label>
+              <InputGroup>
+                <Form.Control
                   type="range"
                   min="0.001"
                   max="0.1"
                   step="0.001"
                   value={scale}
                   onChange={e => setScale(parseFloat(e.target.value))}
-                  style={{ marginLeft: "10px" }}
                 />
-              </label>
-            </div>
+              </InputGroup>
+            </Form.Group>
 
-            <div style={{ marginBottom: "10px", textAlign: "center" }}>
-              <p style={{ margin: "0 0 8px 0", color: "black" }}>Controls:</p>
-              <p style={{ margin: "0", fontSize: "12px", color: "black" }}>
-                Orbit: Left Mouse Button | Zoom: Mouse Wheel | Pan: Right Mouse
-                Button
-              </p>
-            </div>
-
-            <button
-              onClick={captureScene}
-              className="btn btn-danger"
-              style={{
-                marginTop: "15px",
-                fontFamily: "var(--primary-font)",
-                fontSize: "14px",
-                zIndex: 1000,
-              }}
-            >
+            <Button variant="danger" onClick={captureScene} style={{ marginTop: '10px' }}>
               Capture Scene
-            </button>
-          </div>
-        </>
+            </Button>
+          </Form>
+        </Container>
       )}
 
       <Modal show={showModal} onHide={handleClose} size="lg">
@@ -486,10 +481,8 @@ const PerlinNoise = ({
           >
             Mint this ?
           </Modal.Title>
-          
         </Modal.Header>
         <Modal.Body style={{ backgroundColor: "black" }}>
-       
           {capturedImage && (
             <img
               src={capturedImage}
@@ -498,11 +491,10 @@ const PerlinNoise = ({
             />
           )}
         </Modal.Body>
-        <Modal.Footer  style={{ backgroundColor: "black", justifyContent: "center" }}>
-          {/* <Button variant="secondary" onClick={handleClose}>
+        <Modal.Footer style={{ backgroundColor: 'black' }}>
+          <Button variant="secondary" onClick={handleClose}>
             Close
-          </Button> */}
-
+          </Button>
           <Button 
             variant="primary" 
             onClick={async () => {
@@ -518,16 +510,6 @@ const PerlinNoise = ({
                 console.error("Error minting image:", error);
                 alert("Failed to mint image: " + error.message); // Provide more context in the alert
               }
-            }}
-            style={{
-              marginTop: "15px",
-              fontFamily: "var(--primary-font)",
-              fontSize: "14px",
-              fontSize: "32px",
-              fontWeight: "bold",
-              fontStyle: "italic",
-              zIndex: 1000
-              
             }}
           >
             Mint Image
