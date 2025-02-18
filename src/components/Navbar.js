@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Navbar, Nav, Container } from "react-bootstrap";
+import { Navbar, Nav, Container , Button } from "react-bootstrap";
 import styled from "styled-components";
 // import Web3 from "web3";
 import "./navbar.css";
@@ -36,6 +36,11 @@ const sections = [
 const CustomNavbar = ({ account, connectWallet, disconnectWallet }) => {
   const [scrolled, setScrolled] = useState(false);
   const [expanded, setExpanded] = useState(false);
+  const [buttonLabel, setButtonLabel] = useState(account ? "Sync" : "Unsync");
+
+  useEffect(() => {
+    setButtonLabel(account ? "Disconnect" : "Connect");
+  }, [account]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -70,6 +75,16 @@ const CustomNavbar = ({ account, connectWallet, disconnectWallet }) => {
     }
   };
 
+  const handleWalletAction = () => {
+    if (account) {
+      console.log("Disconnecting wallet...");
+      disconnectWallet();
+    } else {
+      console.log("Connecting wallet...");
+      connectWallet();
+    }
+  };
+
   return (
     <Navbar 
       expand="lg" 
@@ -81,9 +96,13 @@ const CustomNavbar = ({ account, connectWallet, disconnectWallet }) => {
       <Container>
         <Navbar.Brand href="#" className="brand-title">Ruido Perla NFT Collection</Navbar.Brand>
         <div className="d-flex align-items-center">
-          <button onClick={account ? disconnectWallet : connectWallet} className="nav-link-custom">
-            {account ? "Sync" : "Unsync"}
-          </button>
+          <Button 
+            onClick={handleWalletAction}
+            className="nav-link-custom"
+            style={{ fontSize: window.innerWidth <= 768 ? '0.8rem' : '1rem' }}
+          >
+            {buttonLabel}
+          </Button>
           {account && (
             <span style={{ fontSize: '0.75rem', marginLeft: '0.5rem' }}>
               {account}
