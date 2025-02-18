@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Navbar, Nav, Container , Button } from "react-bootstrap";
+import { Navbar, Nav, Container , Button , Stack} from "react-bootstrap";
 import styled from "styled-components";
 // import Web3 from "web3";
 import "./navbar.css";
@@ -36,10 +36,9 @@ const sections = [
 const CustomNavbar = ({ account, connectWallet, disconnectWallet }) => {
   const [scrolled, setScrolled] = useState(false);
   const [expanded, setExpanded] = useState(false);
-  const [buttonLabel, setButtonLabel] = useState(account ? "Sync" : "Unsync");
 
   useEffect(() => {
-    setButtonLabel(account ? "Disconnect" : "Connect");
+    // No need for buttonLabel state anymore
   }, [account]);
 
   useEffect(() => {
@@ -94,22 +93,26 @@ const CustomNavbar = ({ account, connectWallet, disconnectWallet }) => {
       onToggle={(expanded) => setExpanded(expanded)}
     >
       <Container>
-        <Navbar.Brand href="#" className="brand-title">Ruido Perla NFT Collection</Navbar.Brand>
-        <div className="d-flex align-items-center">
-          <Button 
-            onClick={handleWalletAction}
-            className="nav-link-custom"
-            style={{ fontSize: window.innerWidth <= 768 ? '0.8rem' : '1rem' }}
-          >
-            {buttonLabel}
-          </Button>
-          {account && (
+      
+       
+          <Stack direction="horizontal" gap={2}>
+          <Navbar.Brand href="#" className="brand-title">Ruido Perla NFT Collection</Navbar.Brand>
+            <Button 
+              onClick={handleWalletAction}
+              className="nav-link-custom"
+              style={{ fontSize: window.innerWidth <= 768 ? '0.8rem' : '1rem' }}
+            >
+              {account ? account : "Connect Wallet"}
+            </Button> 
+            <Navbar.Toggle aria-controls="basic-navbar-nav" />
+            </Stack>
+          {/* {account && (
             <span style={{ fontSize: '0.75rem', marginLeft: '0.5rem' }}>
               {account}
             </span>
-          )}
-        </div>
-        <Navbar.Toggle aria-controls="basic-navbar-nav" />
+          )} */}
+     
+      
         <StyledNavbarCollapse id="basic-navbar-nav">
           <Nav className="ms-auto">
             {sections.map((section, index) => (
