@@ -5,9 +5,10 @@ import { Perlin } from "three-noise"
 import { createNoise3D } from "simplex-noise"
 import html2canvas from "html2canvas"
 import { useStaticQuery, graphql } from "gatsby"
-import { Modal, Button, Stack } from "react-bootstrap"
+import { Modal, Button, Stack, Form, InputGroup, Container } from "react-bootstrap"
 import { mintImage } from "./MintImage" // Ensure this path is correct
 // import { mintImage } from '../images/og-image.jpg'; // Adjust the path as necessary
+// import './PerlinNoise.css' // Import custom CSS for controls
 
 const PerlinNoise = ({
   showControls = true,
@@ -350,127 +351,91 @@ const PerlinNoise = ({
       </div>
 
       {showControls && (
-        <>
-          <div
-            className="controls"
-            style={{
-              position: "absolute",
-              bottom: "-180px",
-              left: "50%",
-              transform: "translateX(-50%)",
-              backgroundColor: "rgba(255, 255, 255, 0.8)",
-              padding: "10px",
-              borderRadius: "5px",
-              fontFamily: "var(--primary-font)",
-              fontSize: "14px",
-              letterSpacing: "0.5px",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-            }}
-          >
-            <div style={{ marginBottom: "10px" }}>
-              <label style={{ display: "flex", alignItems: "center" }}>
-                <input
-                  type="checkbox"
-                  checked={usePerlin}
-                  onChange={e => setUsePerlin(e.target.checked)}
-                  style={{ marginRight: "10px" }}
-                />
-                Use Perlin Noise (uncheck for Simplex)
-              </label>
-            </div>
+        <Container style={{ 
+          position: 'absolute', 
+          top: '20px', // Adjust as needed
+          left: '20px', // Adjust as needed
+          width: '33%', 
+          zIndex: 1000, // Ensure controls are on top
+          backgroundColor: 'rgba(255, 255, 255, 0.8)', // Optional: background for better visibility
+          padding: '1rem', // Optional: padding for aesthetics
+          borderRadius: '8px' // Optional: rounded corners
+        }}>
+          <Form>
+            <Form.Group controlId="usePerlin">
+              <Form.Check 
+                type="checkbox"
+                label="Use Perlin Noise (uncheck for Simplex)"
+                checked={usePerlin}
+                onChange={e => setUsePerlin(e.target.checked)}
+                style={{ fontFamily: 'var(--primary-font)' }}
+              />
+            </Form.Group>
 
             {usePerlin && (
               <>
-                <div style={{ marginBottom: "10px" }}>
-                  <label style={{ display: "flex", alignItems: "center" }}>
-                    <span style={{ minWidth: "120px" }}>
-                      Frequency: {frequency}
-                    </span>
-                    <input
+                <Form.Group controlId="frequency">
+                  <Form.Label style={{ fontFamily: 'var(--primary-font)' }}>Frequency: {frequency}</Form.Label>
+                  <InputGroup>
+                    <Form.Control
                       type="range"
                       min="0.5"
                       max="10"
                       step="0.5"
                       value={frequency}
                       onChange={e => setFrequency(parseFloat(e.target.value))}
-                      style={{ marginLeft: "10px" }}
                     />
-                  </label>
-                </div>
-                <div style={{ marginBottom: "10px" }}>
-                  <label style={{ display: "flex", alignItems: "center" }}>
-                    <span style={{ minWidth: "120px" }}>
-                      Octaves: {octaves}
-                    </span>
-                    <input
+                  </InputGroup>
+                </Form.Group>
+                <Form.Group controlId="octaves">
+                  <Form.Label style={{ fontFamily: 'var(--primary-font)' }}>Octaves: {octaves}</Form.Label>
+                  <InputGroup>
+                    <Form.Control
                       type="range"
                       min="1"
                       max="4"
                       step="1"
                       value={octaves}
                       onChange={e => setOctaves(parseInt(e.target.value))}
-                      style={{ marginLeft: "10px" }}
                     />
-                  </label>
-                </div>
+                  </InputGroup>
+                </Form.Group>
               </>
             )}
 
-            <div style={{ marginBottom: "10px" }}>
-              <label style={{ display: "flex", alignItems: "center" }}>
-                <span style={{ minWidth: "120px" }}>
-                  Amplitude: {amplitude}
-                </span>
-                <input
+            <Form.Group controlId="amplitude">
+              <Form.Label style={{ fontFamily: 'var(--primary-font)' }}>Amplitude: {amplitude}</Form.Label>
+              <InputGroup>
+                <Form.Control
                   type="range"
                   min="0"
                   max="30"
                   step="0.1"
                   value={amplitude}
                   onChange={e => setAmplitude(parseFloat(e.target.value))}
-                  style={{ marginLeft: "10px" }}
                 />
-              </label>
-            </div>
-            <div>
-              <label style={{ display: "flex", alignItems: "center" }}>
-                <span style={{ minWidth: "120px" }}>Noise Scale: {scale}</span>
-                <input
+              </InputGroup>
+            </Form.Group>
+
+            <Form.Group controlId="scale">
+              <Form.Label style={{ fontFamily: 'var(--primary-font)' }}>Noise Scale: {scale}</Form.Label>
+              <InputGroup>
+                <Form.Control
                   type="range"
                   min="0.001"
                   max="0.1"
                   step="0.001"
                   value={scale}
                   onChange={e => setScale(parseFloat(e.target.value))}
-                  style={{ marginLeft: "10px" }}
                 />
-              </label>
-            </div>
+              </InputGroup>
+            </Form.Group>
 
-            <div style={{ marginBottom: "10px", textAlign: "center" }}>
-              <p style={{ margin: "0 0 8px 0", color: "black" }}>Controls:</p>
-              <p style={{ margin: "0", fontSize: "12px", color: "black" }}>
-                Orbit: Left Mouse Button | Zoom: Mouse Wheel | Pan: Right Mouse
-                Button
-              </p>
-            </div>
-
-            <button
-              onClick={captureScene}
-              className="btn btn-danger"
-              style={{
-                marginTop: "15px",
-                fontFamily: "var(--primary-font)",
-                fontSize: "14px",
-                zIndex: 1000,
-              }}
-            >
+            <Button variant="danger" onClick={captureScene}>
               Capture Scene
-            </button>
-          </div>
-        </>
+            </Button>
+          </Form>
+        </Container>
       )}
 
       <Modal show={showModal} onHide={handleClose} size="lg">
@@ -498,11 +463,10 @@ const PerlinNoise = ({
             />
           )}
         </Modal.Body>
-        <Modal.Footer  style={{ backgroundColor: "black", justifyContent: "center" }}>
-          {/* <Button variant="secondary" onClick={handleClose}>
+        <Modal.Footer style={{ backgroundColor: 'black' }}>
+          <Button variant="secondary" onClick={handleClose}>
             Close
-          </Button> */}
-
+          </Button>
           <Button 
             variant="primary" 
             onClick={async () => {
@@ -518,16 +482,6 @@ const PerlinNoise = ({
                 console.error("Error minting image:", error);
                 alert("Failed to mint image: " + error.message); // Provide more context in the alert
               }
-            }}
-            style={{
-              marginTop: "15px",
-              fontFamily: "var(--primary-font)",
-              fontSize: "14px",
-              fontSize: "32px",
-              fontWeight: "bold",
-              fontStyle: "italic",
-              zIndex: 1000
-              
             }}
           >
             Mint Image
