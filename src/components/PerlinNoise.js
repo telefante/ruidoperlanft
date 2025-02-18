@@ -24,6 +24,7 @@ const PerlinNoise = ({
   account,
   connectWallet,
   disconnectWallet,
+  showCaptureButton
 }) => {
   const data = useStaticQuery(graphql`
     query {
@@ -49,6 +50,7 @@ const PerlinNoise = ({
   const [capturedImage, setCapturedImage] = useState(null)
   const [showModal, setShowModal] = useState(false)
   const [controlsVisible, setControlsVisible] = useState(true)
+ 
 
   const usePerlinRef = useRef(usePerlin)
   const amplitudeRef = useRef(amplitude)
@@ -462,9 +464,11 @@ const PerlinNoise = ({
               </InputGroup>
             </Form.Group>
 
-            <Button variant="danger" onClick={captureScene} style={{ marginTop: '10px' }}>
-              Capture Scene
-            </Button>
+            {showCaptureButton && (
+              <Button variant="danger" onClick={captureScene} style={{ marginTop: '10px' }}>
+                Capture Scene
+              </Button>
+            )}
           </Form>
         </Container>
       )}

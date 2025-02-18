@@ -54,6 +54,7 @@ const IntroductionSection = () => {
           enableOrbit={false}
           initialParams={surfaceParams}
           cameraParams={cameraParams}
+          showCaptureButton={false}
         />
       </div>
     </SectionContainer>
