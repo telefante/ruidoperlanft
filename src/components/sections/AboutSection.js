@@ -1,10 +1,10 @@
-import React from "react"
+import React, { useState } from "react"
 import { Link } from "gatsby"
 import { GatsbyImage, getImage } from "gatsby-plugin-image"
 import { useStaticQuery, graphql } from "gatsby"
 import styled from "styled-components"
 import SectionContainer from "./SectionContainer"
-import { Button } from "react-bootstrap"
+import { Button, Carousel } from "react-bootstrap"
 
 const OverlappingContainer = styled.div`
   position: relative;
@@ -52,32 +52,39 @@ const StyledButton = styled(Link)`
 `
 
 const AboutSection = () => {
+  const [showCarousel, setShowCarousel] = useState(true);
+
+  const toggleCarousel = () => {
+    setShowCarousel(prev => !prev);
+  };
+
   const data = useStaticQuery(graphql`
     query {
-      file(
-        sourceInstanceName: { eq: "images" }
-        name: { eq: "favicon" } 
+      allFile(
+        filter: { sourceInstanceName: { eq: "images" }, relativeDirectory: { eq: "about" } }
       ) {
-        childImageSharp {
-          gatsbyImageData(
-            width: 800
-            height: 600
-            quality: 90
-            placeholder: BLURRED
-            formats: [AUTO, WEBP]
-          )
+        nodes {
+          childImageSharp {
+            gatsbyImageData(
+              width: 800
+              height: 600
+              quality: 90
+              placeholder: BLURRED
+              formats: [AUTO, WEBP]
+            )
+          }
         }
       }
     }
   `)
 
-  const image = getImage(data.file)
+  const images = data.allFile.nodes.map(node => getImage(node.childImageSharp))
 
   return (
     <SectionContainer id="about" >
       <OverlappingContainer>
         <TextOverlay>
-        <h2 className="simulation-title">About</h2>
+        <h2 className="simulation-title">community</h2>
           <section>
             <p>
               Gain behind-the-scenes insight into the creative process of „Ruido
@@ -87,21 +94,39 @@ const AboutSection = () => {
               landscapes intertwine to explore the relationship between noise
               and the pearl.
             </p>
-            {/* <StyledButton to="/details">Enter</StyledButton>
-             */}
-             <Button variant="primary" size="lg" onClick={() => window.open("https://ruidoperla.com", "_blank")}>Enter</Button>
+            <Button variant="primary" size="lg" onClick={() => window.open("https://ruidoperla.com", "_blank")}>Enter</Button>
+            <button onClick={toggleCarousel} style={{ marginBottom: '20px' }}>
+              {showCarousel ? 'Hide Carousel' : 'Show Carousel'}
+            </button>
+            {showCarousel && (
+              <Carousel>
+                {images.map((image, index) => (
+                  <Carousel.Item key={index}>
+                    <GatsbyImage
+                      image={image}
+                      alt={`About section image ${index + 1}`}
+                      className="about-image"
+                    />
+                  </Carousel.Item>
+                ))}
+              </Carousel>
+            )}
           </section>
         </TextOverlay>
 
         <ImageWrapper>
           <div className="about-image-container">
-            {image && (
-              <GatsbyImage
-                image={image}
-                alt="About section image"
-                className="about-image"
-              />
-            )}
+            <Carousel>
+              {images.map((image, index) => (
+                <Carousel.Item key={index}>
+                  <GatsbyImage
+                    image={image}
+                    alt={`About section image ${index + 1}`}
+                    className="about-image"
+                  />
+                </Carousel.Item>
+              ))}
+            </Carousel>
           </div>
         </ImageWrapper>
       </OverlappingContainer>
