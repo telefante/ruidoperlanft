@@ -306,8 +306,8 @@ const PerlinNoise = ({
         scale: 2,
         logging: false,
         ignoreElements: (element) => {
-          // Exclude the entire controls container
-          return element.classList.contains("controls"); // Ensure this matches the class of your controls container
+          // Exclude the entire controls container and the Minimize Controls button
+          return element.classList.contains("controls") || element.classList.contains("minimize-button"); // Ensure this matches the class of your Minimize Controls button
         },
       });
   
@@ -334,6 +334,7 @@ const PerlinNoise = ({
 
       <Button variant="danger"
         onClick={toggleControls}
+        className="minimize-button"
         style={{
           position: "absolute",
           top: "10px",
@@ -491,12 +492,13 @@ const PerlinNoise = ({
             />
           )}
         </Modal.Body>
-        <Modal.Footer style={{ backgroundColor: 'black' }}>
-          <Button variant="secondary" onClick={handleClose}>
+        <Modal.Footer style={{ backgroundColor: 'black', fontFamily:'var(--primary-font)', alignItems:'center', justifyContent:'center' }}>
+          {/* <Button variant="secondary" onClick={handleClose}>
             Close
-          </Button>
+          </Button> */}
           <Button 
             variant="primary" 
+            
             onClick={async () => {
               try {
                 const wallet = await connectWallet(); // Function to connect to the wallet

@@ -50,7 +50,7 @@ const IntroductionSection = () => {
         marginBottom: '0px' // Add space for controls
       }}>
         <PerlinNoise 
-          showControls={false}
+          showControls={true}
           enableOrbit={false}
           initialParams={surfaceParams}
           cameraParams={cameraParams}
