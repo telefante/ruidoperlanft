@@ -249,7 +249,7 @@ const PerlinNoise = ({
 
     const planeWidth = 200
     const planeHeight = 200
-    const segments = 33
+    const segments = 17
     const geometry = new THREE.PlaneGeometry(
       planeWidth,
       planeHeight,
