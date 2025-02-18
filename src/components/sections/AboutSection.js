@@ -4,12 +4,13 @@ import { GatsbyImage, getImage } from "gatsby-plugin-image"
 import { useStaticQuery, graphql } from "gatsby"
 import styled from "styled-components"
 import SectionContainer from "./SectionContainer"
-import { Button, Carousel } from "react-bootstrap"
+import { Carousel } from "react-bootstrap"
 import Video from './Video'
 
 const OverlappingContainer = styled.div`
   position: relative;
   width: 100%;
+  height: 600px;
   margin-top: 2rem;
 `
 
@@ -61,7 +62,14 @@ const AboutSection = () => {
 
   const data = useStaticQuery(graphql`
     query {
-      allFile(
+      videoFiles: allFile(
+        filter: { sourceInstanceName: { eq: "video" }, relativePath: { eq: "video.mp4" } }
+      ) {
+        nodes {
+          publicURL
+        }
+      }
+      imageFiles: allFile(
         filter: { sourceInstanceName: { eq: "images" }, relativeDirectory: { eq: "about" } }
       ) {
         nodes {
@@ -77,16 +85,17 @@ const AboutSection = () => {
         }
       }
     }
-  `)
+  `);
 
-  const images = data.allFile.nodes.map(node => getImage(node.childImageSharp))
-
+  const videoUrl = data.videoFiles.nodes.length > 0 ? data.videoFiles.nodes[0].publicURL : null;
+  const images = data.imageFiles.nodes.map(node => getImage(node.childImageSharp));
+  console.log(videoUrl);
   return (
-    <SectionContainer id="about" >
+    <SectionContainer id="about">
       <OverlappingContainer>
-        <Video url="path/to/your/video.mp4" />
+        {videoUrl && <Video url={videoUrl} />}
         <TextOverlay>
-        <h2 className="simulation-title">community</h2>
+          <h2 className="simulation-title">community</h2>
           <section>
             <p>
               Gain behind-the-scenes insight into the creative process of „Ruido
@@ -96,22 +105,6 @@ const AboutSection = () => {
               landscapes intertwine to explore the relationship between noise
               and the pearl.
             </p>
-           {/* <Button variant="primary" onClick={toggleCarousel} style={{ marginBottom: '20px' }}>
-              {showCarousel ? 'Hide Carousel' : 'Show Carousel'}
-            </Button> */}
-            {/* {showCarousel && (
-              <Carousel>
-                {images.map((image, index) => (
-                  <Carousel.Item key={index}>
-                    <GatsbyImage
-                      image={image}
-                      alt={`About section image ${index + 1}`}
-                      className="about-image"
-                    />
-                  </Carousel.Item>
-                ))}
-              </Carousel>
-            )} */}
           </section>
         </TextOverlay>
 
@@ -134,7 +127,7 @@ const AboutSection = () => {
         )}
       </OverlappingContainer>
     </SectionContainer>
-  )
-}
+  );
+};
 
-export default AboutSection
+export default AboutSection;

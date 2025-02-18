@@ -1,11 +1,12 @@
 import React from 'react';
 import ReactPlayer from 'react-player';
 import styled from 'styled-components';
+import { useEffect, useRef } from 'react';
 
 const VideoContainer = styled.div`
-  position: relative;
+  osition: relative;
   width: 100%;
-  height: 100%;
+  height: 100%; // Ensure this is set to a valid height
   overflow: hidden;
 
   .react-player {
@@ -18,12 +19,15 @@ const VideoContainer = styled.div`
 `;
 
 const Video = ({ url }) => {
+  const videoRef = useRef(null);
+
+
   return (
-    <VideoContainer>
+    <VideoContainer id="video" >
       <ReactPlayer
         className="react-player"
         url={url}
-        playing
+        playing={true}
         loop
         muted
         width="100%"
