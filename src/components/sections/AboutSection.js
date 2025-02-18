@@ -94,11 +94,10 @@ const AboutSection = () => {
               landscapes intertwine to explore the relationship between noise
               and the pearl.
             </p>
-            <Button variant="primary" size="lg" onClick={() => window.open("https://ruidoperla.com", "_blank")}>Enter</Button>
-            <button onClick={toggleCarousel} style={{ marginBottom: '20px' }}>
+           {/* <Button variant="primary" onClick={toggleCarousel} style={{ marginBottom: '20px' }}>
               {showCarousel ? 'Hide Carousel' : 'Show Carousel'}
-            </button>
-            {showCarousel && (
+            </Button> */}
+            {/* {showCarousel && (
               <Carousel>
                 {images.map((image, index) => (
                   <Carousel.Item key={index}>
@@ -110,25 +109,27 @@ const AboutSection = () => {
                   </Carousel.Item>
                 ))}
               </Carousel>
-            )}
+            )} */}
           </section>
         </TextOverlay>
 
-        <ImageWrapper>
-          <div className="about-image-container">
-            <Carousel>
-              {images.map((image, index) => (
-                <Carousel.Item key={index}>
-                  <GatsbyImage
-                    image={image}
-                    alt={`About section image ${index + 1}`}
-                    className="about-image"
-                  />
-                </Carousel.Item>
-              ))}
-            </Carousel>
-          </div>
-        </ImageWrapper>
+        {showCarousel && (
+          <ImageWrapper>
+            <div className="about-image-container">
+              <Carousel>
+                {images.map((image, index) => (
+                  <Carousel.Item key={index}>
+                    <GatsbyImage
+                      image={image}
+                      alt={`About section image ${index + 1}`}
+                      className="about-image"
+                    />
+                  </Carousel.Item>
+                ))}
+              </Carousel>
+            </div>
+          </ImageWrapper>
+        )}
       </OverlappingContainer>
     </SectionContainer>
   )
