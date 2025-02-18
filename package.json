@@ -5,6 +5,8 @@
   "version": "0.1.0",
   "author": "Kyle Mathews <mathews.kyle@gmail.com>",
   "dependencies": {
+    "@taquito/beacon-wallet": "^21.0.2",
+    "@taquito/taquito": "^21.0.2",
     "bootstrap": "^5.3.3",
     "gatsby": "^5.14.1",
     "gatsby-plugin-image": "^3.14.0",
@@ -24,6 +26,7 @@
     "react-player": "^2.16.0",
     "simplex-noise": "^4.0.3",
     "styled-components": "^6.1.15",
+    "swiper": "^11.2.4",
     "three": "^0.173.0",
     "three-noise": "^1.1.2",
     "web3": "^4.16.0"
