@@ -17,14 +17,20 @@ module.exports = {
     siteUrl: `https://ruidoperlanft.netlify.app`,
   },
   plugins: [
-   `gatsby-plugin-postcss`,
-
+    `gatsby-plugin-postcss`,
     `gatsby-plugin-image`,
     {
       resolve: `gatsby-source-filesystem`,
       options: {
         name: `images`,
         path: `${__dirname}/static/images/`,
+      },
+    },
+    {
+      resolve: `gatsby-source-filesystem`,
+      options: {
+        name: `video`,
+        path: `${__dirname}/src/assets/video/`,
       },
     },
     `gatsby-transformer-sharp`,

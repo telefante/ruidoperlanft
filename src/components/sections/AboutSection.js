@@ -1,14 +1,17 @@
 import React, { useState } from "react"
+import { Button } from "react-bootstrap"
 import { Link } from "gatsby"
 import { GatsbyImage, getImage } from "gatsby-plugin-image"
 import { useStaticQuery, graphql } from "gatsby"
 import styled from "styled-components"
 import SectionContainer from "./SectionContainer"
-import { Button, Carousel } from "react-bootstrap"
+import { Carousel } from "react-bootstrap"
+import Video from './Video'
 
 const OverlappingContainer = styled.div`
   position: relative;
   width: 100%;
+  height: 600px;
   margin-top: 2rem;
 `
 
@@ -35,24 +38,22 @@ const ImageWrapper = styled.div`
   }
 `
 
-const StyledButton = styled(Link)`
-  display: inline-block;
-  margin-top: 1rem;
-  padding: 0.8rem 1.5rem;
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
-  text-decoration: none;
-  border-radius: 4px;
-  transition: all 0.3s ease;
-
-  &:hover {
-    background: rgba(255, 255, 255, 0.2);
-    color: white;
-  }
+const Overlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
 `
 
 const AboutSection = () => {
   const [showCarousel, setShowCarousel] = useState(true);
+  const [showVideo, setShowVideo] = useState(false);
 
   const toggleCarousel = () => {
     setShowCarousel(prev => !prev);
@@ -60,7 +61,14 @@ const AboutSection = () => {
 
   const data = useStaticQuery(graphql`
     query {
-      allFile(
+      videoFiles: allFile(
+        filter: { sourceInstanceName: { eq: "video" }, relativePath: { eq: "video.mp4" } }
+      ) {
+        nodes {
+          publicURL
+        }
+      }
+      imageFiles: allFile(
         filter: { sourceInstanceName: { eq: "images" }, relativeDirectory: { eq: "about" } }
       ) {
         nodes {
@@ -76,15 +84,34 @@ const AboutSection = () => {
         }
       }
     }
-  `)
+  `);
 
-  const images = data.allFile.nodes.map(node => getImage(node.childImageSharp))
+  const videoUrl = data.videoFiles.nodes.length > 0 ? data.videoFiles.nodes[0].publicURL : null;
+  const images = data.imageFiles.nodes.map(node => getImage(node.childImageSharp));
+
+  const handlePlayVideo = () => {
+    setShowVideo(true);
+  };
+
+  const handleCloseVideo = () => {
+    setShowVideo(false);
+  };
 
   return (
-    <SectionContainer id="about" >
+    <SectionContainer id="about">
       <OverlappingContainer>
+        {videoUrl && (
+          <>
+           
+            {showVideo && (
+              <Overlay onClick={handleCloseVideo}>
+                <Video url={videoUrl} />
+              </Overlay>
+            )}
+          </>
+        )}
         <TextOverlay>
-        <h2 className="simulation-title">community</h2>
+          <h2 className="simulation-title">community</h2>
           <section>
             <p>
               Gain behind-the-scenes insight into the creative process of „Ruido
@@ -94,22 +121,7 @@ const AboutSection = () => {
               landscapes intertwine to explore the relationship between noise
               and the pearl.
             </p>
-           {/* <Button variant="primary" onClick={toggleCarousel} style={{ marginBottom: '20px' }}>
-              {showCarousel ? 'Hide Carousel' : 'Show Carousel'}
-            </Button> */}
-            {/* {showCarousel && (
-              <Carousel>
-                {images.map((image, index) => (
-                  <Carousel.Item key={index}>
-                    <GatsbyImage
-                      image={image}
-                      alt={`About section image ${index + 1}`}
-                      className="about-image"
-                    />
-                  </Carousel.Item>
-                ))}
-              </Carousel>
-            )} */}
+            <Button variant="secondary" style={{ fontFamily: 'var(--primary-font)',  fontStyle: 'italic', fontSize: '1.2rem', padding: '10px 20px', borderRadius: '5px' }} onClick={handlePlayVideo}>See Video .. </Button>
           </section>
         </TextOverlay>
 
@@ -132,7 +144,7 @@ const AboutSection = () => {
         )}
       </OverlappingContainer>
     </SectionContainer>
-  )
-}
+  );
+};
 
-export default AboutSection
+export default AboutSection;
