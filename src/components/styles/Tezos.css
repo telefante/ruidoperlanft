@@ -1,0 +1,51 @@
+/* Ensure the Beacon modal is responsive */
+
+.toast-wrapper-show {
+  max-width: 860px;
+  overflow: hidden;
+  background-color: #f0f8ff; /* Change background color */
+  position: fixed;
+  top: 12px;
+  right: 12px;
+  border-radius: 6px;
+  transition: all ease 0.3s;
+  transform: translateY(0px) scale(1);
+  z-index: 1000000;
+  box-shadow: 0px 4px 11px -4px rgba(0, 0, 0, 0.45);
+}
+
+.toast-wrapper-hide {
+  max-width: 460px;
+  overflow: hidden;
+  background-color: #f0f8ff; /* Change background color */
+  position: fixed;
+  top: 12px;
+  right: 12px;
+  border-radius: 6px;
+  transition: all ease 0.3s;
+  transform: translateY(-150px) scale(0.2);
+  z-index: 1000000;
+  box-shadow: 0px 4px 11px -4px rgba(0, 0, 0, 0.45);
+}
+
+/* Media query for small screens */
+@media only screen and (max-width: 600px) {
+  .toast-wrapper-show,
+  .toast-wrapper-hide {
+    max-width: 95%; /* Make the modal wider on small screens */
+    left: 2.5%; /* Center the modal */
+    right: 2.5%; /* Center the modal */
+  }
+
+  .toast-header h3 {
+    font-size: 1em; /* Adjust header font size */
+  }
+
+  .toast-body {
+    padding: 0.4em 0.8em; /* Adjust padding for smaller screens */
+  }
+
+  .toast-action-button {
+    font-size: 0.9em; /* Adjust button font size */
+  }
+}

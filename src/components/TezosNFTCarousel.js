@@ -6,7 +6,7 @@ import { Pagination } from "swiper/modules";
 import SectionContainer from "./sections/SectionContainer";
 import placeholderImage from '../assets/placeholder.jpg';
 import { useStaticQuery, graphql } from "gatsby";
-
+import './styles/Tezos.css';
 // ✅ Lazy-load React Bootstrap components to prevent SSR issues
 let Container, Button;
 if (typeof window !== "undefined") {
@@ -20,6 +20,7 @@ const TezosNFTCarousel = () => {
   const [Tezos, setTezos] = useState(null);
   const [address, setAddress] = useState(null);
   const [nfts, setNfts] = useState([]);
+  const [isConnected, setIsConnected] = useState(false);
 
   // Fetch contract number from site metadata
   const data = useStaticQuery(graphql`
@@ -81,6 +82,7 @@ const TezosNFTCarousel = () => {
       const activeAccount = await wallet.client.getActiveAccount();
       if (activeAccount) {
         setAddress(activeAccount.address);
+        setIsConnected(true);
         fetchNFTs(activeAccount.address);
       } else {
         console.warn("User must connect their wallet manually.");
@@ -119,14 +121,30 @@ const TezosNFTCarousel = () => {
         {!address ? (
           <>
             <h2>Connect to your Ruido Perla NFTs</h2>
-            <Button style={{ fontFamily: 'var(--primary-font)',  fontStyle: 'italic', fontSize: '1.6rem' , fontWeight: 'bold'}} variant="primary" onClick={connectWallet}>
-              through your Tezos Wallet
+            <Button
+              style={{
+                fontFamily: 'var(--primary-font)',
+                fontStyle: 'italic',
+                fontSize: '1.6rem',
+                fontWeight: 'bold',
+                backgroundColor: isConnected ? 'green' : 'blue',
+                color: 'white',
+              }}
+              variant="primary"
+              onClick={connectWallet}
+            >
+              {isConnected ? "Connected" : "Connect through your Tezos Wallet"}
             </Button>
           </>
         ) : (
           <>
             <h2>Connect to your Ruido Perla NFTs</h2>
-            <Button style={{ fontFamily: 'var(--primary-font)',  fontStyle: 'italic', fontSize: '1.2rem'}} variant="danger" onClick={disconnectWallet} className="mt-4">
+            <Button
+              style={{ fontFamily: 'var(--primary-font)', fontStyle: 'italic', fontSize: '1.2rem' }}
+              variant="danger"
+              onClick={disconnectWallet}
+              className="mt-4"
+            >
               Disconnect Wallet
             </Button>
             <Swiper modules={[Pagination]} spaceBetween={10} slidesPerView={1} pagination={{ clickable: true }} className="w-full max-w-lg mt-4">
