@@ -5,11 +5,11 @@ import React from 'react';
 import CustomNavbar from "./Navbar";
 // import { mintImage } from './MintImage'; // Adjust the path as necessary
 
-const Header = ({ account, connectWallet, disconnectWallet }) => {
+const Header = () => {
   return (
     <header>
   {/* <BurgerMenu/> */}
-  <CustomNavbar account={account} connectWallet={connectWallet} disconnectWallet={disconnectWallet} />
+  <CustomNavbar />
     </header>
   );
 };

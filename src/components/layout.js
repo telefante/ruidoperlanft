@@ -5,7 +5,6 @@ import Seo from "./seo"; // Import SEO component
 import { useEffect, useState } from "react";
 import "./layout.css"; // Import global styles
 import Footer from "./Footer";
-import Web3 from "web3"; // Import Web3
 
 const Layout = ({ children, seoProps }) => {
   // Fetch site metadata and header image for SEO
@@ -31,11 +30,10 @@ const Layout = ({ children, seoProps }) => {
 
   // State to control background movement
   const [scrollY, setScrollY] = useState(0);
-  const [account, setAccount] = useState(null); // State to store wallet account
 
   useEffect(() => {
     const handleScroll = () => {
-      if (typeof window !== "undefined") { // Check if window is defined
+      if (typeof window !== "undefined") {
         setScrollY(window.scrollY * -0.2); // Negative to move in opposite direction
       }
     };
@@ -43,25 +41,6 @@ const Layout = ({ children, seoProps }) => {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-
-  const connectWallet = async () => {
-    if (typeof window !== "undefined" && window.ethereum) { // Check if window is defined
-      const web3 = new Web3(window.ethereum);
-      try {
-        await window.ethereum.request({ method: "eth_requestAccounts" });
-        const accounts = await web3.eth.getAccounts();
-        setAccount(accounts[0]); // Set the first account
-      } catch (error) {
-        console.error("User denied account access", error);
-      }
-    } else {
-      console.log("Please install MetaMask!");
-    }
-  };
-
-  const disconnectWallet = () => {
-    setAccount(null);
-  };
 
   return (
     <>
@@ -79,7 +58,7 @@ const Layout = ({ children, seoProps }) => {
       {/* Main Layout */}
       <div className="content">
         {/* Header */}
-        <Header account={account} connectWallet={connectWallet} disconnectWallet={disconnectWallet} />
+        <Header />
 
         {/* Page Content */}
         <main>{children}</main>

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { Navbar, Nav, Container , Button , Stack} from "react-bootstrap";
+import { Navbar, Nav, Container } from "react-bootstrap";
 import styled from "styled-components";
-// import Web3 from "web3";
 import "./navbar.css";
 
 // Add styled component for mobile nav items
@@ -33,56 +32,24 @@ const sections = [
   { name: "community", path: "about" },
 ];
 
-const CustomNavbar = ({ account, connectWallet, disconnectWallet }) => {
+const CustomNavbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const [expanded, setExpanded] = useState(false);
 
   useEffect(() => {
-    // No need for buttonLabel state anymore
-  }, [account]);
-
-  useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY > 50) {
-        setScrolled(true);
-      } else {
-        setScrolled(false);
+      if (typeof window !== "undefined") {
+        if (window.scrollY > 50) {
+          setScrolled(true);
+        } else {
+          setScrolled(false);
+        }
       }
     };
 
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-
-  useEffect(() => {
-    if (expanded) {
-      document.body.style.paddingTop = '320px';
-    } else {
-      document.body.style.paddingTop = '76px';
-    }
-  }, [expanded]);
-
-  const handleScrollToSection = (event, sectionId) => {
-    event.preventDefault();
-    setExpanded(false);
-    const section = document.getElementById(sectionId);
-    if (section) {
-      window.scrollTo({
-        top: window.innerWidth <= 768 ? section.offsetTop - 100 : section.offsetTop - 50,
-        behavior: "smooth",
-      });
-    }
-  };
-
-  const handleWalletAction = () => {
-    if (account) {
-      console.log("Disconnecting wallet...");
-      disconnectWallet();
-    } else {
-      console.log("Connecting wallet...");
-      connectWallet();
-    }
-  };
 
   return (
     <Navbar 
@@ -93,33 +60,14 @@ const CustomNavbar = ({ account, connectWallet, disconnectWallet }) => {
       onToggle={(expanded) => setExpanded(expanded)}
     >
       <Container>
-      
-       
-          <Stack direction="horizontal" gap={2}>
-          <Navbar.Brand href="#" className="brand-title">Ruido Perla NFT Collection</Navbar.Brand>
-            <Button 
-              onClick={handleWalletAction}
-              className="nav-link-custom"
-              style={{ fontSize: window.innerWidth <= 768 ? '0.8rem' : '1rem' }}
-            >
-              {account ? account : "Connect Wallet"}
-            </Button> 
-            <Navbar.Toggle aria-controls="basic-navbar-nav" />
-            </Stack>
-          {/* {account && (
-            <span style={{ fontSize: '0.75rem', marginLeft: '0.5rem' }}>
-              {account}
-            </span>
-          )} */}
-     
-      
+        <Navbar.Brand href="#" className="brand-title">Ruido Perla NFT Collection</Navbar.Brand>
+        <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <StyledNavbarCollapse id="basic-navbar-nav">
           <Nav className="ms-auto">
             {sections.map((section, index) => (
               <Nav.Link
                 key={index}
                 href={`#${section.path}`}
-                onClick={(e) => handleScrollToSection(e, section.path)}
                 className="nav-link-custom"
               >
                 {section.name}
