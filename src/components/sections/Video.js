@@ -1,37 +1,37 @@
-import React from 'react';
-import ReactPlayer from 'react-player';
-import styled from 'styled-components';
+import React, { useState, useEffect } from "react";
+import styled from "styled-components";
 
 const VideoContainer = styled.div`
   position: relative;
   width: 100%;
-  height: 100%; // Ensure this is set to a valid height
+  height: 100%;
   overflow: hidden;
-
-  .react-player {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 0;
-  }
 `;
+
+const ClientOnlyVideo = ({ url }) => {
+  const [ReactPlayer, setReactPlayer] = useState(null);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      import("react-player").then((module) => {
+        setReactPlayer(() => module.default);
+      });
+    }
+  }, []);
+
+  if (!ReactPlayer) {
+    return <p>Loading video...</p>;
+  }
+
+  return <ReactPlayer url={url} playing={true} loop muted controls width="100%" height="100%" />;
+};
 
 const Video = ({ url }) => {
   return (
-    <VideoContainer id="video">
-      <ReactPlayer
-        className="react-player"
-        url={url}
-        playing={true}
-        loop
-        muted
-        controls={true}
-        width="100%"
-        height="100%"
-      />
+    <VideoContainer>
+      <ClientOnlyVideo url={url} />
     </VideoContainer>
   );
 };
 
-export default Video; 
+export default Video;
