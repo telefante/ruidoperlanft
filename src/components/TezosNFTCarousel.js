@@ -5,6 +5,7 @@ import "swiper/css/pagination";
 import { Pagination } from "swiper/modules";
 import SectionContainer from "./sections/SectionContainer";
 import placeholderImage from '../assets/placeholder.jpg';
+import { useStaticQuery, graphql } from "gatsby";
 
 // ✅ Lazy-load React Bootstrap components to prevent SSR issues
 let Container, Button;
@@ -19,6 +20,19 @@ const TezosNFTCarousel = () => {
   const [Tezos, setTezos] = useState(null);
   const [address, setAddress] = useState(null);
   const [nfts, setNfts] = useState([]);
+
+  // Fetch contract number from site metadata
+  const data = useStaticQuery(graphql`
+    query {
+      site {
+        siteMetadata {
+          contractNumber
+        }
+      }
+    }
+  `);
+  
+  const COLLECTION_CONTRACT = data.site.siteMetadata.contractNumber; // Use the fetched contract number
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -76,7 +90,12 @@ const TezosNFTCarousel = () => {
     }
   };
 
-  const COLLECTION_CONTRACT = "KT1VsqcpRfzzPCqPiwLXsFKh6BCpEfsJt2yR";
+  // New disconnect function
+  const disconnectWallet = () => {
+    setAddress(null); // Clear the address
+    setNfts([]); // Clear the NFTs
+    console.log("Wallet disconnected");
+  };
 
   const fetchNFTs = async (walletAddress) => {
     try {
@@ -95,22 +114,28 @@ const TezosNFTCarousel = () => {
   }
 
   return (
-    <SectionContainer id="tezos-nft-carousel" title="Your NFTs" background={true} isGridLayout={false}>
-      <Container className="flex flex-col items-center p-4">
+    <SectionContainer id="tezos-nft-carousel" title="Connect to your Ruido Perla NFTs" background={false} isGridLayout={true}>
+    
         {!address ? (
-          <Button className="bg-blue-500 text-white px-4 py-2 rounded-lg shadow-md hover:bg-blue-700" onClick={connectWallet}>
-            Tezos Wallet
-          </Button>
+          <>
+            <h2>Connect to your Ruido Perla NFTs</h2>
+            <Button variant="primary" onClick={connectWallet}>
+              through your Tezos Wallet
+            </Button>
+          </>
         ) : (
           <>
-            <h2 className="text-xl font-bold mt-4">Your NFTs</h2>
+            <h2>Connected to your Ruido Perla NFTs</h2>
+            <Button variant="danger" onClick={disconnectWallet} className="mt-4">
+              Disconnect Wallet
+            </Button>
             <Swiper modules={[Pagination]} spaceBetween={10} slidesPerView={1} pagination={{ clickable: true }} className="w-full max-w-lg mt-4">
               {nfts.length > 0 ? (
                 nfts.map((nft, index) => {
                   const thumbnailUrl = nft.token.metadata.thumbnailUri.replace("ipfs://", "https://dweb.link/ipfs/");
                   return (
                     <SwiperSlide key={index}>
-                      <div className="p-4 bg-white shadow-lg rounded-lg">
+                      <div className="p-4 shadow-lg rounded-lg">
                         <img
                           src={thumbnailUrl}
                           alt={nft.token.metadata.name}
@@ -131,7 +156,7 @@ const TezosNFTCarousel = () => {
             </Swiper>
           </>
         )}
-      </Container>
+    
     </SectionContainer>
   );
 };
