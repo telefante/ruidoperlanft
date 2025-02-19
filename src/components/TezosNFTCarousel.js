@@ -119,14 +119,14 @@ const TezosNFTCarousel = () => {
         {!address ? (
           <>
             <h2>Connect to your Ruido Perla NFTs</h2>
-            <Button variant="primary" onClick={connectWallet}>
+            <Button style={{ fontFamily: 'var(--primary-font)',  fontStyle: 'italic', fontSize: '1.6rem' , fontWeight: 'bold'}} variant="primary" onClick={connectWallet}>
               through your Tezos Wallet
             </Button>
           </>
         ) : (
           <>
-            <h2>Connected to your Ruido Perla NFTs</h2>
-            <Button variant="danger" onClick={disconnectWallet} className="mt-4">
+            <h2>Connect to your Ruido Perla NFTs</h2>
+            <Button style={{ fontFamily: 'var(--primary-font)',  fontStyle: 'italic', fontSize: '1.2rem'}} variant="danger" onClick={disconnectWallet} className="mt-4">
               Disconnect Wallet
             </Button>
             <Swiper modules={[Pagination]} spaceBetween={10} slidesPerView={1} pagination={{ clickable: true }} className="w-full max-w-lg mt-4">
