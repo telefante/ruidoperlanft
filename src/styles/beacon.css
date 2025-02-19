@@ -1,0 +1,33 @@
+/* ✅ Force Beacon Modal to be responsive */
+#beacon-toast-wrapper {
+    max-width: 90% !important; /* Limit width */
+    width: auto !important;
+    bottom: 10px !important; /* Adjust position */
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    padding: 10px !important;
+    z-index: 9999 !important; /* Ensure it's on top */
+    font-family: var(--primary-font) !important;
+    background-color: #0082f4 !important;
+  }
+  
+  /* ✅ Reduce modal size */
+  #beacon-toast-wrapper div {
+    font-size: 14px !important; /* Smaller text */
+    padding: 8px !important;
+    color: #000000 !important;
+  }
+  
+  /* ✅ Apply mobile responsiveness */
+  @media (max-width: 768px) {
+    #beacon-toast-wrapper {
+      max-width: 95% !important;
+      font-size: 12px !important;
+      padding: 5px !important;
+      bottom: 20px !important;
+    }
+  
+    #beacon-toast-wrapper div {
+      font-size: 12px !important;
+    }
+  }
