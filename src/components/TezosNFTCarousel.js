@@ -6,6 +6,9 @@ import { Pagination } from "swiper/modules";
 import SectionContainer from "./sections/SectionContainer";
 import placeholderImage from '../assets/placeholder.jpg';
 import { useStaticQuery, graphql } from "gatsby";
+
+// import { ToastContainer, toast } from 'react-toastify';
+// import 'react-toastify/dist/ReactToastify.css';
 import './styles/Tezos.css';
 // ✅ Lazy-load React Bootstrap components to prevent SSR issues
 let Container, Button;
@@ -47,6 +50,7 @@ const TezosNFTCarousel = () => {
     import("@taquito/taquito").then(({ TezosToolkit }) => {
       const tezosInstance = new TezosToolkit("https://mainnet.api.tez.ie");
       setTezos(tezosInstance);
+      console.log("Tezos Toolkit initialized");
     });
 
     import("@taquito/beacon-wallet").then(({ BeaconWallet }) => {
@@ -88,14 +92,20 @@ const TezosNFTCarousel = () => {
         console.warn("User must connect their wallet manually.");
       }
     } catch (error) {
-      console.error("Wallet connection failed:", error);
+      if (error.name === "NoPrivateKeyBeaconError") {
+        console.error("Account Not Found:", error.message);
+        alert("Account not found. Please add the account to your wallet and try again.");
+      } else {
+        console.error("Wallet connection failed:", error);
+        alert("An error occurred while connecting to the wallet. Please try again.");
+      }
     }
   };
 
-  // New disconnect function
   const disconnectWallet = () => {
     setAddress(null); // Clear the address
     setNfts([]); // Clear the NFTs
+    setIsConnected(false); // Reset connection status
     console.log("Wallet disconnected");
   };
 
@@ -117,7 +127,7 @@ const TezosNFTCarousel = () => {
 
   return (
     <SectionContainer id="tezos-nft-carousel" title="Connect to your Ruido Perla NFTs" background={false} isGridLayout={true}>
-    
+      <Container className="flex flex-col items-center p-4">
         {!address ? (
           <>
             <h2>Connect to your Ruido Perla NFTs</h2>
@@ -174,7 +184,7 @@ const TezosNFTCarousel = () => {
             </Swiper>
           </>
         )}
-    
+      </Container>
     </SectionContainer>
   );
 };

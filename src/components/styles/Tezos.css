@@ -1,10 +1,14 @@
-/* Ensure the Beacon modal is responsive */
-.beacon-toast-wrapper {
+.alert-wrapper-show {
   font-family: var(--primary-font);
+  font-size: 14px;
+  display: grid;
+  overflow:scroll !important;
 }
 
-.toast-wrapper-show {
-  max-width: 460px;
+
+/* Ensure the Beacon modal is responsive */
+.beacon-toast-wrapper .toast-wrapper-show {
+  max-width: 460px; /* Your desired width */
   overflow: hidden;
   background-color: #f0f8ff; /* Change background color */
   position: fixed;
@@ -14,7 +18,7 @@
   transition: all ease 0.3s;
   transform: translateY(0px) scale(1);
   z-index: 1000000;
-  box-shadow: 0px 4px 11px -4px rgba(0, 0, 0, 0.45);    
+  box-shadow: 0px 4px 11px -4px rgba(0, 0, 0, 0.45);
   font-family: var(--primary-font);
 }
 
@@ -57,3 +61,19 @@
     font-size: 0.9em; /* Adjust button font size */
   }
 }
+
+
+@media (max-width: 768px) {
+    .beacon-modal {
+      max-width: 95%;
+      height: auto;
+      margin: 0 auto;
+      padding: 1rem;
+    }
+  
+    .beacon-modal__content {
+      font-size: 14px;
+      padding: 0.5rem;
+      overflow-y: scroll; /* Allow scrolling if content overflows */
+    }
+  }
