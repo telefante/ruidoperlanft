@@ -6,10 +6,9 @@ import { Pagination } from "swiper/modules";
 import SectionContainer from "./sections/SectionContainer";
 import placeholderImage from '../assets/placeholder.jpg';
 import { useStaticQuery, graphql } from "gatsby";
-
-// import { ToastContainer, toast } from 'react-toastify';
-// import 'react-toastify/dist/ReactToastify.css';
+import { DAppClient, TezosOperationType } from "@airgap/beacon-sdk";
 import './styles/Tezos.css';
+
 // ✅ Lazy-load React Bootstrap components to prevent SSR issues
 let Container, Button;
 if (typeof window !== "undefined") {
@@ -19,11 +18,12 @@ if (typeof window !== "undefined") {
 
 const TezosNFTCarousel = () => {
   const [isClient, setIsClient] = useState(false);
-  const [wallet, setWallet] = useState(null);
-  const [Tezos, setTezos] = useState(null);
   const [address, setAddress] = useState(null);
   const [nfts, setNfts] = useState([]);
   const [isConnected, setIsConnected] = useState(false);
+  
+  // Initialize DAppClient
+  const dAppClient = new DAppClient({ name: "Ruido Perla NFT Collection" });
 
   // Fetch contract number from site metadata
   const data = useStaticQuery(graphql`
@@ -45,29 +45,12 @@ const TezosNFTCarousel = () => {
   }, []);
 
   useEffect(() => {
-    if (!isClient) return;
-
-    import("@taquito/taquito").then(({ TezosToolkit }) => {
-      const tezosInstance = new TezosToolkit("https://mainnet.api.tez.ie");
-      setTezos(tezosInstance);
-      console.log("Tezos Toolkit initialized");
-    });
-
-    import("@taquito/beacon-wallet").then(({ BeaconWallet }) => {
-      const walletInstance = new BeaconWallet({ name: "Tezos NFT Viewer" });
-      setWallet(walletInstance);
-    });
-  }, [isClient]);
-
-  useEffect(() => {
     const setupWallet = async () => {
-      if (!wallet || !Tezos) return;
-      Tezos.setWalletProvider(wallet);
-
-      const activeAccount = await wallet.client.getActiveAccount();
+      const activeAccount = await dAppClient.getActiveAccount();
       if (activeAccount) {
-        console.log("Active Account Found:", activeAccount.address);
+        console.log("Already connected:", activeAccount.address);
         setAddress(activeAccount.address);
+        setIsConnected(true);
         fetchNFTs(activeAccount.address);
       } else {
         console.log("No active account. User needs to connect.");
@@ -77,28 +60,18 @@ const TezosNFTCarousel = () => {
     if (isClient) {
       setupWallet();
     }
-  }, [wallet, Tezos, isClient]);
+  }, [isClient]);
 
   const connectWallet = async () => {
-    if (!wallet) return;
     try {
-      await wallet.requestPermissions({ network: { type: "mainnet" } });
-      const activeAccount = await wallet.client.getActiveAccount();
-      if (activeAccount) {
-        setAddress(activeAccount.address);
-        setIsConnected(true);
-        fetchNFTs(activeAccount.address);
-      } else {
-        console.warn("User must connect their wallet manually.");
-      }
+      const permissions = await dAppClient.requestPermissions();
+      console.log("New connection:", permissions.address);
+      setAddress(permissions.address);
+      setIsConnected(true);
+      fetchNFTs(permissions.address);
     } catch (error) {
-      if (error.name === "NoPrivateKeyBeaconError") {
-        console.error("Account Not Found:", error.message);
-        alert("Account not found. Please add the account to your wallet and try again.");
-      } else {
-        console.error("Wallet connection failed:", error);
-        alert("An error occurred while connecting to the wallet. Please try again.");
-      }
+      console.error("Wallet connection failed:", error);
+      alert("An error occurred while connecting to the wallet. Please try again.");
     }
   };
 
