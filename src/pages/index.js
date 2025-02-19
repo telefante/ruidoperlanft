@@ -20,10 +20,11 @@ const IndexPage = () => {
     <Layout>
       <IntroductionSection />
       <InstallationSection />
-      <AssetsSection />
+      <TezosNFTCarousel />
+    
+      {/* <AssetsSection /> */}
       <SimulationSection />  
       <AboutSection />
-      <TezosNFTCarousel />
     </Layout>
   );
 };
