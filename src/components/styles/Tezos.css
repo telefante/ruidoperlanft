@@ -63,17 +63,21 @@
 }
 
 
-@media (max-width: 768px) {
-    .beacon-modal {
-      max-width: 95%;
-      height: auto;
-      margin: 0 auto;
-      padding: 1rem;
-    }
-  
-    .beacon-modal__content {
-      font-size: 14px;
-      padding: 0.5rem;
-      overflow-y: scroll; /* Allow scrolling if content overflows */
-    }
+@media only screen and (max-width: 768px) {
+  .beacon-modal {
+    max-width: 95%; /* Make the modal wider on small screens */
+    height: auto;
+    margin: 0 auto;
+    padding: 1rem;
   }
+
+  .beacon-modal__content {
+    font-size: 14px;
+    padding: 0.5rem;
+    overflow-y: scroll; /* Allow scrolling if content overflows */
+  }
+}
+
+.toast-wrapper-show {
+  z-index: 1000000; /* Ensure this is high enough */
+}

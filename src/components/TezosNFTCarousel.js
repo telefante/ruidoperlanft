@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/pagination";
@@ -6,7 +6,7 @@ import { Pagination } from "swiper/modules";
 import SectionContainer from "./sections/SectionContainer";
 import placeholderImage from '../assets/placeholder.jpg';
 import { useStaticQuery, graphql } from "gatsby";
-import { DAppClient, TezosOperationType } from "@airgap/beacon-sdk";
+import { DAppClient, BeaconEvent } from "@airgap/beacon-sdk";
 import './styles/Tezos.css';
 
 // ✅ Lazy-load React Bootstrap components to prevent SSR issues
@@ -21,9 +21,9 @@ const TezosNFTCarousel = () => {
   const [address, setAddress] = useState(null);
   const [nfts, setNfts] = useState([]);
   const [isConnected, setIsConnected] = useState(false);
-  
-  // Initialize DAppClient
-  const dAppClient = new DAppClient({ name: "Ruido Perla NFT Collection" });
+
+  // ✅ Use useRef to store DAppClient (to avoid multiple instances)
+  const dAppClientRef = useRef(null);
 
   // Fetch contract number from site metadata
   const data = useStaticQuery(graphql`
@@ -35,8 +35,7 @@ const TezosNFTCarousel = () => {
       }
     }
   `);
-  
-  const COLLECTION_CONTRACT = data.site.siteMetadata.contractNumber; // Use the fetched contract number
+  const COLLECTION_CONTRACT = data.site.siteMetadata.contractNumber; 
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -45,8 +44,23 @@ const TezosNFTCarousel = () => {
   }, []);
 
   useEffect(() => {
+    if (!isClient) return;
+
+    // ✅ Ensure DAppClient is initialized only once
+    if (!dAppClientRef.current) {
+      dAppClientRef.current = new DAppClient({ name: "Ruido Perla NFT Collection" });
+
+      // ✅ Subscribe to active account events (Fixes missing subscription warning)
+      dAppClientRef.current.subscribeToEvent(BeaconEvent.ACTIVE_ACCOUNT_SET, async (account) => {
+        console.log("Beacon Account Set:", account.address);
+        setAddress(account.address);
+        setIsConnected(true);
+        fetchNFTs(account.address);
+      });
+    }
+
     const setupWallet = async () => {
-      const activeAccount = await dAppClient.getActiveAccount();
+      const activeAccount = await dAppClientRef.current.getActiveAccount();
       if (activeAccount) {
         console.log("Already connected:", activeAccount.address);
         setAddress(activeAccount.address);
@@ -57,14 +71,12 @@ const TezosNFTCarousel = () => {
       }
     };
 
-    if (isClient) {
-      setupWallet();
-    }
+    setupWallet();
   }, [isClient]);
 
   const connectWallet = async () => {
     try {
-      const permissions = await dAppClient.requestPermissions();
+      const permissions = await dAppClientRef.current.requestPermissions();
       console.log("New connection:", permissions.address);
       setAddress(permissions.address);
       setIsConnected(true);
@@ -75,10 +87,10 @@ const TezosNFTCarousel = () => {
     }
   };
 
-  const disconnectWallet = () => {
-    setAddress(null); // Clear the address
-    setNfts([]); // Clear the NFTs
-    setIsConnected(false); // Reset connection status
+  const disconnectWallet = async () => {
+    setAddress(null);
+    setNfts([]);
+    setIsConnected(false);
     console.log("Wallet disconnected");
   };
 
