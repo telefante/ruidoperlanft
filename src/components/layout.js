@@ -35,7 +35,9 @@ const Layout = ({ children, seoProps }) => {
 
   useEffect(() => {
     const handleScroll = () => {
-      setScrollY(window.scrollY * -0.2); // Negative to move in opposite direction
+      if (typeof window !== "undefined") { // Check if window is defined
+        setScrollY(window.scrollY * -0.2); // Negative to move in opposite direction
+      }
     };
 
     window.addEventListener("scroll", handleScroll);
@@ -43,7 +45,7 @@ const Layout = ({ children, seoProps }) => {
   }, []);
 
   const connectWallet = async () => {
-    if (window.ethereum) {
+    if (typeof window !== "undefined" && window.ethereum) { // Check if window is defined
       const web3 = new Web3(window.ethereum);
       try {
         await window.ethereum.request({ method: "eth_requestAccounts" });
