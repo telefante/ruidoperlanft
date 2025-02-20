@@ -21,6 +21,7 @@
     "gatsby-transformer-remark": "^6.14.0",
     "gatsby-transformer-sharp": "^5.14.0",
     "html2canvas": "^1.4.1",
+    "nft.storage": "^7.2.0",
     "postcss": "^8.5.2",
     "postcss-loader": "^8.1.1",
     "process": "^0.11.10",

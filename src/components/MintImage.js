@@ -1,64 +1,76 @@
 import { TezosToolkit } from "@taquito/taquito";
 import { char2Bytes } from "@taquito/utils";
 import axios from "axios";
+import { NFTStorage } from "nft.storage";
 
 // ✅ Replace with your actual NFT.Storage API key
-const NFT_STORAGE_API_KEY = "2baeb84d.6af8c38284084b4eaa495eb58a59911f"; 
+const NFT_STORAGE_API_KEY = "YOUR_NFT_STORAGE_API_KEY"; 
 const IPFS_API = "https://api.nft.storage/upload"; 
+
+export const uploadToNFTStorage = async (imageFile) => {
+  try {
+    console.log("🚀 Uploading image to IPFS...");
+
+    const client = new NFTStorage({ token: NFT_STORAGE_API_KEY });
+
+    // ✅ Step 1: Store the image file on NFT.Storage (IPFS)
+    const cid = await client.storeBlob(imageFile);
+    const ipfsUrl = `ipfs://${cid}`;
+
+    console.log(`✅ Image uploaded to IPFS: ${ipfsUrl}`);
+    return ipfsUrl;
+  } catch (error) {
+    console.error("❌ IPFS Upload Failed:", error);
+    throw new Error("IPFS Upload Failed: " + error.message);
+  }
+};
+
+export const storeMetadataOnIPFS = async (imageIpfsUrl, walletAddress) => {
+  try {
+    console.log("🚀 Uploading metadata to IPFS...");
+
+    const metadata = {
+      name: "Real-Time Generated NFT",
+      description: "This NFT was dynamically generated in the DApp.",
+      artifactUri: imageIpfsUrl,
+      displayUri: imageIpfsUrl,
+      creators: [walletAddress],
+      royalties: {
+        decimals: 4,
+        shares: { [walletAddress]: 1000 }, // 10% royalties
+      },
+      attributes: [{ name: "Generated", value: "True" }],
+    };
+
+    const client = new NFTStorage({ token: NFT_STORAGE_API_KEY });
+    const metadataCid = await client.storeBlob(new Blob([JSON.stringify(metadata)], { type: "application/json" }));
+    
+    const metadataIpfsUrl = `ipfs://${metadataCid}`;
+    console.log(`✅ Metadata uploaded to IPFS: ${metadataIpfsUrl}`);
+
+    return metadataIpfsUrl;
+  } catch (error) {
+    console.error("❌ Metadata Upload Failed:", error);
+    throw new Error("Metadata Upload Failed: " + error.message);
+  }
+};
 
 export const mintImage = async (wallet, imageFile, contractAddress, rpcUrl) => {
   const tezos = new TezosToolkit(rpcUrl);
   tezos.setProvider({ signer: wallet });
 
   try {
-    console.log("🚀 Uploading image to IPFS...");
+    // Upload the image to IPFS
+    const imageIpfsUrl = await uploadToNFTStorage(imageFile);
 
-    // ✅ Step 1: Convert Image File to FormData for Upload
-    const formData = new FormData();
-    formData.append("file", imageFile);
+    // Store metadata on IPFS
+    const metadataIpfsUrl = await storeMetadataOnIPFS(imageIpfsUrl, await wallet.publicKeyHash());
 
-    // ✅ Step 2: Upload Image to IPFS via NFT.Storage
-    const ipfsResponse = await axios.post(IPFS_API, formData, {
-      headers: {
-        Authorization: `Bearer ${NFT_STORAGE_API_KEY}`, // ✅ Ensure API key is passed correctly
-        "Content-Type": "multipart/form-data",
-      },
-    });
-
-    if (!ipfsResponse.data || !ipfsResponse.data.value || !ipfsResponse.data.value.cid) {
-      throw new Error("IPFS upload failed");
-    }
-
-    const ipfsHash = ipfsResponse.data.value.cid;
-    const ipfsUrl = `ipfs://${ipfsHash}`;
-    console.log(`✅ Image uploaded: ${ipfsUrl}`);
-
-    // ✅ Step 3: Prepare NFT Metadata
-    const metadata = {
-      name: "Real-Time Generated NFT",
-      description: "This NFT was generated dynamically in the DApp.",
-      artifactUri: ipfsUrl,
-      displayUri: ipfsUrl,
-      creators: [await wallet.publicKeyHash()],
-      royalties: {
-        decimals: 4,
-        shares: { [await wallet.publicKeyHash()]: 1000 }, // 10% royalties
-      },
-      attributes: [{ name: "Generated", value: "True" }],
-    };
-
-    console.log("✅ Metadata formatted:", metadata);
-
-    // ✅ Step 4: Convert Metadata to Bytes
-    const metadataBytes = char2Bytes(JSON.stringify(metadata));
-
-    // ✅ Step 5: Call the Smart Contract to Mint the NFT
-    console.log("🚀 Calling mint function on contract...");
+    // Call the mint function on the contract
     const contract = await tezos.contract.at(contractAddress);
-
-    const operation = await contract.methods.mint(wallet.publicKeyHash(), metadataBytes).send();
+    const operation = await contract.methods.mint(wallet.publicKeyHash(), char2Bytes(JSON.stringify({ artifactUri: metadataIpfsUrl }))).send();
+    
     await operation.confirmation();
-
     console.log("✅ NFT Minted Successfully: ", operation.hash);
     return operation.hash;
   } catch (error) {
