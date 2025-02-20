@@ -1,23 +1,69 @@
-import React from "react";
-// import { useStaticQuery, graphql } from "gatsby";
-import { TezosToolkit } from '@taquito/taquito'; // Import Tezos toolkit
+import { TezosToolkit } from "@taquito/taquito";
+import { char2Bytes } from "@taquito/utils";
+import axios from "axios";
 
-export const mintImage = async (wallet, imageData, contractAddress, rpcUrl) => {
-  const tezos = new TezosToolkit(rpcUrl); // Connect to Ghostnet
+// ✅ Replace with your actual NFT.Storage API key
+const NFT_STORAGE_API_KEY = "2baeb84d.6af8c38284084b4eaa495eb58a59911f"; 
+const IPFS_API = "https://api.nft.storage/upload"; 
 
-  // Set the wallet provider
+export const mintImage = async (wallet, imageFile, contractAddress, rpcUrl) => {
+  const tezos = new TezosToolkit(rpcUrl);
   tezos.setProvider({ signer: wallet });
 
   try {
-    const contract = await tezos.contract.at(contractAddress); // Get the contract instance
+    console.log("🚀 Uploading image to IPFS...");
 
-    // Call the mint function on the contract
-    const operation = await contract.contract.methods.mint(wallet, imageData).send(); // Adjust the method name and parameters as needed
+    // ✅ Step 1: Convert Image File to FormData for Upload
+    const formData = new FormData();
+    formData.append("file", imageFile);
 
-    await operation.confirmation(); // Wait for the operation to be confirmed
-    return operation; // Return the result of the minting transaction
+    // ✅ Step 2: Upload Image to IPFS via NFT.Storage
+    const ipfsResponse = await axios.post(IPFS_API, formData, {
+      headers: {
+        Authorization: `Bearer ${NFT_STORAGE_API_KEY}`, // ✅ Ensure API key is passed correctly
+        "Content-Type": "multipart/form-data",
+      },
+    });
+
+    if (!ipfsResponse.data || !ipfsResponse.data.value || !ipfsResponse.data.value.cid) {
+      throw new Error("IPFS upload failed");
+    }
+
+    const ipfsHash = ipfsResponse.data.value.cid;
+    const ipfsUrl = `ipfs://${ipfsHash}`;
+    console.log(`✅ Image uploaded: ${ipfsUrl}`);
+
+    // ✅ Step 3: Prepare NFT Metadata
+    const metadata = {
+      name: "Real-Time Generated NFT",
+      description: "This NFT was generated dynamically in the DApp.",
+      artifactUri: ipfsUrl,
+      displayUri: ipfsUrl,
+      creators: [await wallet.publicKeyHash()],
+      royalties: {
+        decimals: 4,
+        shares: { [await wallet.publicKeyHash()]: 1000 }, // 10% royalties
+      },
+      attributes: [{ name: "Generated", value: "True" }],
+    };
+
+    console.log("✅ Metadata formatted:", metadata);
+
+    // ✅ Step 4: Convert Metadata to Bytes
+    const metadataBytes = char2Bytes(JSON.stringify(metadata));
+
+    // ✅ Step 5: Call the Smart Contract to Mint the NFT
+    console.log("🚀 Calling mint function on contract...");
+    const contract = await tezos.contract.at(contractAddress);
+
+    const operation = await contract.methods.mint(wallet.publicKeyHash(), metadataBytes).send();
+    await operation.confirmation();
+
+    console.log("✅ NFT Minted Successfully: ", operation.hash);
+    return operation.hash;
   } catch (error) {
-    console.error("Minting failed:", error); // Log the error for debugging
+    console.error("❌ Minting failed:", error);
     throw new Error("Minting failed: " + error.message);
   }
 };
+
