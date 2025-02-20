@@ -9,6 +9,9 @@ import { Modal, Button, Row, Form, InputGroup, Container } from "react-bootstrap
 import { mintImage } from "./MintImage" // Ensure this path is correct
 import PerlinControls from "./PerlinControls" // Import the new controls component
 import { useContractAddress } from "./ContractContext" // Import the custom hook
+import WalletConnection from "./WalletConnection" // Import the WalletConnection component
+import { useWallet } from "./WalletContext" // Import the WalletContext
+
 // import { mintImage } from '../images/og-image.jpg'; // Adjust the path as necessary
 // import './PerlinNoise.css' // Import custom CSS for controls
 
@@ -23,9 +26,7 @@ const PerlinNoise = ({
     usePerlin: true,
   },
   cameraParams = null,
-  account,
-  connectWallet,
-  disconnectWallet,
+ 
   showCaptureButton
 }) => {
   const data = useStaticQuery(graphql`
@@ -50,6 +51,7 @@ const PerlinNoise = ({
   const cameraRef = useRef(null)
   const rendererRef = useRef(null)
   const currentTextRef = useRef("")
+  const { walletAddress } = useWallet()
 
   const [usePerlin, setUsePerlin] = useState(initialParams.usePerlin)
   const [amplitude, setAmplitude] = useState(initialParams.amplitude)
@@ -354,8 +356,10 @@ const PerlinNoise = ({
   };
 
   const handleMint = async () => {
+    if (!capturedImage) return;
     try {
-      const operation = await mintImage(account, capturedImage, contractAddress, rpcUrl);
+      const blob = await fetch(capturedImage).then(res => res.blob());
+      const operation = await mintImage(blob, contractAddress, rpcUrl);
       console.log("Minting successful:", operation);
     } catch (error) {
       console.error("Minting failed:", error);
@@ -367,8 +371,7 @@ const PerlinNoise = ({
       ref={containerRef}
       style={{ position: "relative", width: "100%", height: "100%", backgroundColor: "transparent" }}
     >
-   
-
+      <WalletConnection />
       <div ref={mountRef} style={{ width: "100%", height: "100%" }} />
       <PerlinControls
         usePerlin={usePerlin}
@@ -441,7 +444,7 @@ const PerlinNoise = ({
               fontStyle: "italic",
             }}
           >
-            Mint this ?
+            Mint this?
           </Modal.Title>
         </Modal.Header>
         <Modal.Body style={{ backgroundColor: "black" }}>
@@ -454,12 +457,11 @@ const PerlinNoise = ({
           )}
         </Modal.Body>
         <Modal.Footer style={{ backgroundColor: 'black', fontFamily:'var(--primary-font)', alignItems:'center', justifyContent:'center' }}>
-          {/* <Button variant="secondary" onClick={handleClose}>
+          <Button variant="secondary" onClick={handleClose}>
             Close
-          </Button> */}
+          </Button>
           <Button 
             variant="primary" 
-            
             onClick={handleMint}
           >
             Mint Image
