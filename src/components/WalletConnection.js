@@ -10,7 +10,7 @@ const WalletConnection = ({ setAddress, setIsConnected }) => {
     // Initialize Tezos toolkit and Beacon wallet
     const initTezos = async () => {
       const beaconWallet = new BeaconWallet({
-        name: 'Your DApp Name',
+        name: 'Ruido Perla NFTs',
         preferredNetwork: 'ghostnet',
       });
 
