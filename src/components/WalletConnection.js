@@ -4,7 +4,7 @@ import { BeaconWallet } from '@taquito/beacon-wallet';
 import { useStaticQuery, graphql } from 'gatsby';
 import { Button } from 'react-bootstrap';
 
-const WalletConnection = ({ setAddress, setIsConnected }) => {
+const WalletConnection = ({ setAddress, setIsConnected, isConnected }) => {
   const [tezos, setTezos] = useState(null);
   const [wallet, setWallet] = useState(null);
 
@@ -60,9 +60,39 @@ const WalletConnection = ({ setAddress, setIsConnected }) => {
     }
   };
 
+  const disconnectWallet = async () => {
+    if (!wallet) return;
+
+    try {
+      // Clear the wallet connection
+      await wallet.clearActiveAccount(); // Clear the active account
+      setAddress(null); // Reset the address
+      setIsConnected(false); // Update connection status
+      console.log('Disconnected wallet');
+    } catch (error) {
+      console.error('Wallet disconnection failed:', error);
+    }
+  };
+
   return (
     <div>
-      <Button style={{ fontFamily: 'var(--primary-font)', fontStyle: 'italic', fontSize: '1.2rem' }} variant="primary" onClick={connectWallet}>Connect Wallet</Button>
+      {isConnected ? (
+        <Button
+          style={{ fontFamily: 'var(--primary-font)', fontStyle: 'italic', fontSize: '1.2rem', marginLeft: '10px' }}
+          variant="danger"
+          onClick={disconnectWallet}
+        >
+          Disconnect Wallet
+        </Button>
+      ) : (
+        <Button
+          style={{ fontFamily: 'var(--primary-font)', fontStyle: 'italic', fontSize: '1.2rem' }}
+          variant="primary"
+          onClick={connectWallet}
+        >
+          Connect Wallet
+        </Button>
+      )}
     </div>
   );
 };

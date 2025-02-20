@@ -6,7 +6,7 @@ import { Pagination } from "swiper/modules";
 import SectionContainer from "./sections/SectionContainer";
 import placeholderImage from "../assets/placeholder.jpg";
 import { useStaticQuery, graphql } from "gatsby";
-import { Container, Button } from "react-bootstrap";
+import { Container } from "react-bootstrap";
 import WalletConnection from './WalletConnection'; // Import the WalletConnection component
 
 const TezosNFTCarousel = () => {
@@ -42,17 +42,11 @@ const TezosNFTCarousel = () => {
     }
   };
 
-  // Connect wallet function
-  const connectWallet = () => {
-    // Logic to connect wallet
-    // This should be implemented in the WalletConnection component
-  };
-
-  // Disconnect wallet function
-  const disconnectWallet = () => {
-    // Logic to disconnect wallet
-    // This should be implemented in the WalletConnection component
-  };
+  useEffect(() => {
+    if (isConnected && address) {
+      fetchNFTs(address); // Fetch NFTs when connected
+    }
+  }, [isConnected, address]);
 
   if (!isClient) {
     return <p>Loading...</p>;
@@ -61,16 +55,10 @@ const TezosNFTCarousel = () => {
   return (
     <SectionContainer id="tezos-nft-carousel" title="Connect to your Ruido Perla NFTs" background={false} isGridLayout={true}>
       <Container className="flex flex-col items-center p-4">
-        {!address ? (
-          <>
-            <h2>Connect to your Ruido Perla NFTs on Tezos</h2>
-            <WalletConnection setAddress={setAddress} setIsConnected={setIsConnected} />
-           
-          </>
-        ) : (
+        <WalletConnection setAddress={setAddress} setIsConnected={setIsConnected} isConnected={isConnected} />
+        {isConnected && address && (
           <>
             <h2>Connected as: {address}</h2>
-            <WalletConnection setAddress={setAddress} setIsConnected={setIsConnected} />
             <Swiper modules={[Pagination]} spaceBetween={10} slidesPerView={1} pagination={{ clickable: true }} className="w-full max-w-lg mt-4">
               {nfts.length > 0 ? (
                 nfts.map((nft, index) => {
@@ -99,8 +87,6 @@ const TezosNFTCarousel = () => {
           </>
         )}
       </Container>
-
-     
     </SectionContainer>
   );
 };
