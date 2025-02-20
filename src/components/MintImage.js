@@ -1,38 +1,22 @@
-import Web3 from 'web3';
+import { TezosToolkit } from '@taquito/taquito'; // Import Tezos toolkit
 
-// Define the contract ABI
-const YourContractABI = [
-  {
-    "constant": false,
-    "inputs": [
-      {
-        "name": "to",
-        "type": "address"
-      },
-      {
-        "name": "imageData",
-        "type": "string"
-      }
-    ],
-    "name": "mint",
-    "outputs": [],
-    "payable": true,
-    "stateMutability": "payable",
-    "type": "function"
-  },
-  // Add other functions and events as needed
-];
+// Define the contract address and the entry point for minting
+const contractAddress = "your_tezos_contract_address"; // Replace with your Tezos contract address
 
-export const mintImage = async (wallet, contractAddress, imageData) => {
-  const web3 = new Web3(window.ethereum); // Initialize Web3 with the user's wallet
-  const contract = new web3.eth.Contract(YourContractABI, contractAddress); // Use the defined ABI
+export const mintImage = async (wallet, imageData) => {
+  const tezos = new TezosToolkit('https://YOUR_TEZOS_NODE_URL'); // Replace with your Tezos node URL
+
+  // Set the wallet provider
+  tezos.setProvider({ signer: wallet });
 
   try {
-    const result = await contract.methods.mint(wallet, imageData).send({
-      from: wallet,
-      value: web3.utils.toWei('0.01', 'ether') // Adjust value as needed
-    });
-    return result; // Return the result of the minting transaction
+    const contract = await tezos.contract.at(contractAddress); // Get the contract instance
+
+    // Call the mint function on the contract
+    const operation = await contract.methods.mint(wallet, imageData).send(); // Adjust the method name and parameters as needed
+
+    await operation.confirmation(); // Wait for the operation to be confirmed
+    return operation; // Return the result of the minting transaction
   } catch (error) {
     throw new Error("Minting failed: " + error.message);
   }
