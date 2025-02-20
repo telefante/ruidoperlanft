@@ -25,7 +25,9 @@ export const uploadToNFTStorage = async (imageFile) => {
     const client = new NFTStorage({ token: NFT_STORAGE_API_KEY });
 
     // ✅ Upload file to NFT.Storage
-    const cid = await client.storeBlob(imageFile);
+    const cid = await client.store(imageFile);
+   
+    console.log("cid:", cid);
     const ipfsUrl = `ipfs://${cid}`;
 
     console.log(`✅ Image uploaded to IPFS: ${ipfsUrl}`);
