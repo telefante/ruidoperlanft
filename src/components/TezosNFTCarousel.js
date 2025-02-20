@@ -6,7 +6,7 @@ import { Pagination } from "swiper/modules";
 import SectionContainer from "./sections/SectionContainer";
 import placeholderImage from "../assets/placeholder.jpg";
 import { useStaticQuery, graphql } from "gatsby";
-import { Container } from "react-bootstrap";
+import { Container, Row } from "react-bootstrap";
 import WalletConnection from './WalletConnection'; // Import the WalletConnection component
 
 const TezosNFTCarousel = () => {
@@ -17,22 +17,24 @@ const TezosNFTCarousel = () => {
   // Check if the code is running in the client
   const isClient = typeof window !== "undefined";
 
-  // Fetch contract number from site metadata
+  // Fetch contract number and RPC URL from site metadata
   const data = useStaticQuery(graphql`
     query {
       site {
         siteMetadata {
           contractNumber
+          rpcUrl
         }
       }
     }
   `);
   const COLLECTION_CONTRACT = data.site.siteMetadata.contractNumber;
+  const RPC_URL = data.site.siteMetadata.rpcUrl; // Get the RPC URL
 
   // Function to fetch NFTs
   const fetchNFTs = async (walletAddress) => {
     try {
-      const response = await fetch(`https://api.tzkt.io/v1/tokens/balances?account=${walletAddress}&token.standard=fa2`);
+      const response = await fetch(`${RPC_URL}/v1/tokens/balances?account=${walletAddress}&token.standard=fa2`);
       const data = await response.json();
       const filteredNFTs = data.filter((nft) => nft.token.contract.address === COLLECTION_CONTRACT);
       const nftsWithImages = filteredNFTs.filter((nft) => nft.token.metadata?.artifactUri);
@@ -59,6 +61,7 @@ const TezosNFTCarousel = () => {
         {isConnected && address && (
           <>
             <h2>Connected as: {address}</h2>
+            <p style={{ alignItems: 'center' }}>{nfts.length > 0 ? `You already have ${nfts.length} NFTs` : `nothing to show`}</p>
             <Swiper modules={[Pagination]} spaceBetween={10} slidesPerView={1} pagination={{ clickable: true }} className="w-full max-w-lg mt-4">
               {nfts.length > 0 ? (
                 nfts.map((nft, index) => {
