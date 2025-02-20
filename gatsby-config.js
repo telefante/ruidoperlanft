@@ -16,6 +16,7 @@ module.exports = {
     authorUrl: 'https://luis.negronvangrieken.com',
     siteUrl: `https://ruidoperlanft.netlify.app`,
     contractNumber: "KT1VsqcpRfzzPCqPiwLXsFKh6BCpEfsJt2yR", // Add your contract number for RuiPerla
+    rpcUrl: "https://ghostnet.api.tez.ie", // Add your RPC URL here
   },
   plugins: [
     `gatsby-plugin-postcss`,
