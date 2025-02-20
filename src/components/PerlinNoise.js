@@ -359,7 +359,7 @@ const PerlinNoise = ({
     if (!capturedImage) return;
     try {
       const blob = await fetch(capturedImage).then(res => res.blob());
-      const operation = await mintImage(blob, contractAddress, rpcUrl);
+      const operation = await mintImage(walletAddress, blob, contractAddress, rpcUrl);
       console.log("Minting successful:", operation);
     } catch (error) {
       console.error("Minting failed:", error);
