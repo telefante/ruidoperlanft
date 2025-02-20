@@ -485,7 +485,7 @@ const PerlinNoise = ({
 
             {showCaptureButton && (
               <Button variant="danger" onClick={captureScene} style={{ marginTop: '10px' }}>
-                Capture Scene
+                Capture and Mint
               </Button>
             )}
           </Form>
