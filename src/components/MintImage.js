@@ -4,16 +4,27 @@ import axios from "axios";
 import { NFTStorage } from "nft.storage";
 
 // ✅ Replace with your actual NFT.Storage API key
-const NFT_STORAGE_API_KEY = "YOUR_NFT_STORAGE_API_KEY"; 
+const NFT_STORAGE_API_KEY = process.env.GATSBY_NFT_STORAGE_API_KEY;
 const IPFS_API = "https://api.nft.storage/upload"; 
+console.log("NFT_STORAGE_API_KEY:", process.env.GATSBY_NFT_STORAGE_API_KEY);
+
+if (!NFT_STORAGE_API_KEY) {
+  throw new Error("Missing NFT_STORAGE_API_KEY in environment variables");
+}
+
 
 export const uploadToNFTStorage = async (imageFile) => {
   try {
     console.log("🚀 Uploading image to IPFS...");
+    console.log(NFT_STORAGE_API_KEY);
+    // ✅ Ensure the API key is properly passed as a string
+    if (!NFT_STORAGE_API_KEY || typeof NFT_STORAGE_API_KEY !== "string") {
+      throw new Error("❌ API Key is missing or not a string.");
+    }
 
     const client = new NFTStorage({ token: NFT_STORAGE_API_KEY });
 
-    // ✅ Step 1: Store the image file on NFT.Storage (IPFS)
+    // ✅ Upload file to NFT.Storage
     const cid = await client.storeBlob(imageFile);
     const ipfsUrl = `ipfs://${cid}`;
 
