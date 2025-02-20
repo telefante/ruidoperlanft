@@ -1,10 +1,24 @@
 import React, { useEffect, useState } from 'react';
 import { TezosToolkit } from '@taquito/taquito';
 import { BeaconWallet } from '@taquito/beacon-wallet';
+import { useStaticQuery, graphql } from 'gatsby';
+import { Button } from 'react-bootstrap';
 
 const WalletConnection = ({ setAddress, setIsConnected }) => {
   const [tezos, setTezos] = useState(null);
   const [wallet, setWallet] = useState(null);
+
+  // Fetch RPC URL from site metadata
+  const data = useStaticQuery(graphql`
+    query {
+      site {
+        siteMetadata {
+          rpcUrl
+        }
+      }
+    }
+  `);
+  const RPC_URL = data.site.siteMetadata.rpcUrl; // Get the RPC URL
 
   useEffect(() => {
     // Initialize Tezos toolkit and Beacon wallet
@@ -14,7 +28,7 @@ const WalletConnection = ({ setAddress, setIsConnected }) => {
         preferredNetwork: 'ghostnet',
       });
 
-      const tezosInstance = new TezosToolkit('https://ghostnet.api.tez.ie');
+      const tezosInstance = new TezosToolkit(RPC_URL); // Use the fetched RPC URL
       tezosInstance.setWalletProvider(beaconWallet);
 
       setTezos(tezosInstance);
@@ -22,7 +36,7 @@ const WalletConnection = ({ setAddress, setIsConnected }) => {
     };
 
     initTezos();
-  }, []);
+  }, [RPC_URL]); // Add RPC_URL as a dependency
 
   const connectWallet = async () => {
     if (!wallet) return;
@@ -32,7 +46,7 @@ const WalletConnection = ({ setAddress, setIsConnected }) => {
       await wallet.requestPermissions({
         network: {
           type: 'ghostnet',
-          rpcUrl: 'https://ghostnet.api.tez.ie',
+          rpcUrl: RPC_URL, // Use the fetched RPC URL
         },
       });
 
@@ -48,7 +62,7 @@ const WalletConnection = ({ setAddress, setIsConnected }) => {
 
   return (
     <div>
-      <button onClick={connectWallet}>Connect Wallet</button>
+      <Button variant="primary" onClick={connectWallet}>Connect Wallet</Button>
     </div>
   );
 };

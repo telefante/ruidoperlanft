@@ -64,6 +64,7 @@ const TezosNFTCarousel = () => {
         {!address ? (
           <>
             <h2>Connect to your Ruido Perla NFTs on Tezos</h2>
+            <WalletConnection setAddress={setAddress} setIsConnected={setIsConnected} />
             <Button
               style={{
                 fontFamily: 'var(--primary-font)',
