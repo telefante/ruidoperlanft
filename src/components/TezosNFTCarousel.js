@@ -7,7 +7,7 @@ import SectionContainer from "./sections/SectionContainer"
 import placeholderImage from "../assets/placeholder.jpg"
 import { useStaticQuery, graphql } from "gatsby"
 import { DAppClient, BeaconEvent } from "@airgap/beacon-sdk"
-// import './styles/Tezos.css';
+import './styles/Tezos.css';
 
 // ✅ Lazy-load React Bootstrap components to prevent SSR issues
 let Container, Button
@@ -57,7 +57,7 @@ const TezosNFTCarousel = () => {
   overflow: hidden;
   top: 0px;
   left: 0px;
-  background-color: rgba(0, 0, 0, 0.6);
+  background-color: rgba(0, 255, 106, 0.6);
   opacity: 1;
   transition: all ease 0.3s;
   z-index: 99999;
