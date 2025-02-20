@@ -7,6 +7,7 @@ import html2canvas from "html2canvas"
 import { useStaticQuery, graphql } from "gatsby"
 import { Modal, Button, Row, Form, InputGroup, Container } from "react-bootstrap"
 import { mintImage } from "./MintImage" // Ensure this path is correct
+import PerlinControls from "./PerlinControls" // Import the new controls component
 // import { mintImage } from '../images/og-image.jpg'; // Adjust the path as necessary
 // import './PerlinNoise.css' // Import custom CSS for controls
 
@@ -317,14 +318,15 @@ const PerlinNoise = ({
     if (!containerRef.current) return;
   
     try {
-      const canvas = await html2canvas(containerRef.current, {
+      const canvas = await html2canvas(containerRef.parentElement.parentElement, {
         useCORS: true,
         backgroundColor: null,
         scale: 2,
-        logging: false,
+        logging: true,
+    
         ignoreElements: (element) => {
           // Exclude the entire controls container and the Minimize Controls button
-          return element.classList.contains("controls") || element.classList.contains("minimize-button"); // Ensure this matches the class of your Minimize Controls button
+          return element.classList.contains("controls") || element.classList.contains("minimize-button");
         },
       });
   
@@ -345,154 +347,70 @@ const PerlinNoise = ({
   return (
     <div
       ref={containerRef}
-      style={{ position: "relative", width: "100%", height: "100%" }}
+      style={{ position: "relative", width: "100%", height: "100%", backgroundColor: "transparent" }}
     >
+   
+
       <div ref={mountRef} style={{ width: "100%", height: "100%" }} />
-  <Container>
-    <Row>
-      <Button variant="danger"
-        onClick={toggleControls}
-        className="minimize-button"
-        style={{
-          position: "absolute",
-          top: "10px",
-          left: "20px",
-          zIndex: 1000,
-          cursor: "pointer",
-          fontSize: "0.8rem",
-          fontFamily: "var(--primary-font)",
-          width: isMobile ? '90%' : '20%', // Set maxWidth based on mobile detection
-        }}
-      >
-        {controlsVisible ? "Minimize Controls" : "Show Controls"}
-      </Button>
-      </Row>
+      <PerlinControls
+        usePerlin={usePerlin}
+        setUsePerlin={setUsePerlin}
+        amplitude={amplitude}
+        setAmplitude={setAmplitude}
+        scale={scale}
+        setScale={setScale}
+        frequency={frequency}
+        setFrequency={setFrequency}
+        octaves={octaves}
+        setOctaves={setOctaves}
+        showCaptureButton={showCaptureButton}
+        captureScene={captureScene}
+        controlsVisible={controlsVisible}
+        isMobile={isMobile}
+      />
+      <Container>
+        <Row>
+          <Button variant="danger"
+            onClick={toggleControls}
+            className="minimize-button"
+            style={{
+              position: "absolute",
+              top: "10px",
+              left: "20px",
+              zIndex: 1000,
+              cursor: "pointer",
+              fontSize: "0.8rem",
+              fontFamily: "var(--primary-font)",
+              width: isMobile ? '90%' : '20%', // Set maxWidth based on mobile detection
+            }}
+          >
+            {controlsVisible ? "Minimize Controls" : "Show Controls"}
+          </Button>
+        </Row>
 
-      <div
-        style={{
-          position: "absolute",
-          top: "50%",
-          left: "50%",
-          transform: "translate(-50%, -50%)",
-          color: "white",
-          fontSize: "8vw",
-          fontFamily: "var(--primary-font)",
-          fontStyle: "italic",
-          fontWeight: "bold",
-          textAlign: "center",
-          pointerEvents: "none",
-          zIndex: 1000,
-          textShadow: "2px 2px 4px rgba(0,0,0,0.5)",
-          opacity: textOpacity,
-          transition: "opacity 0.5s ease-in-out",
-          letterSpacing: "0.05em",
-        }}
-      >
-        {currentTextRef.current}
-      </div>
-
-      {showControls && (
-        <Container
-          ref={controlsRef}
-          className="controls"
+        <div
           style={{
-            position: 'absolute',
-            top: '50px',
-            left: '20px',
-            width: '80%', // Adjusted for better responsiveness on mobile screens
-            maxWidth: isMobile ? '90%' : '20%', // Set maxWidth based on mobile detection
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            color: "white",
+            fontSize: "8vw",
+            fontFamily: "var(--primary-font)",
+            fontStyle: "italic",
+            fontWeight: "bold",
+            textAlign: "center",
+            pointerEvents: "none",
             zIndex: 1000,
-            backgroundColor: 'rgba(255, 255, 255, 0.8)',
-            padding: '1rem',
-            borderRadius: '8px',
-            fontSize: '0.8rem',
-            fontFamily: 'var(--primary-font)',
-            opacity: controlsVisible ? 1 : 0,
-            transform: controlsVisible ? 'scale(1)' : 'scale(0.8)',
-            transition: 'opacity 0.5s ease, transform 0.5s ease',
-            pointerEvents: controlsVisible ? 'auto' : 'none',
+            textShadow: "2px 2px 4px rgba(0,0,0,0.5)",
+            opacity: textOpacity,
+            transition: "opacity 0.5s ease-in-out",
+            letterSpacing: "0.05em",
           }}
         >
-          <Form>
-            <Form.Group controlId="usePerlin">
-              <Form.Check 
-                type="checkbox"
-                label="Use Perlin Noise (uncheck for Simplex)"
-                checked={usePerlin}
-                onChange={e => setUsePerlin(e.target.checked)}
-                style={{ fontFamily: 'var(--primary-font)' }}
-              />
-            </Form.Group>
-
-            {usePerlin && (
-              <>
-                <Form.Group controlId="frequency">
-                  <Form.Label>Frequency: {frequency}</Form.Label>
-                  <InputGroup>
-                    <Form.Control
-                      type="range"
-                      min="0.5"
-                      max="10"
-                      step="0.5"
-                      value={frequency}
-                      onChange={e => setFrequency(parseFloat(e.target.value))}
-                    />
-                  </InputGroup>
-                </Form.Group>
-                <Form.Group controlId="octaves">
-                  <Form.Label>Octaves: {octaves}</Form.Label>
-                  <InputGroup>
-                    <Form.Control
-                      type="range"
-                      min="1"
-                      max="4"
-                      step="1"
-                      value={octaves}
-                      onChange={e => setOctaves(parseInt(e.target.value))}
-                    />
-                  </InputGroup>
-                </Form.Group>
-              </>
-            )}
-
-            <Form.Group controlId="amplitude">
-              <Form.Label>Amplitude: {amplitude}</Form.Label>
-              <InputGroup>
-                <Form.Control
-                  type="range"
-                  min="0"
-                  max="30"
-                  step="0.1"
-                  value={amplitude}
-                  onChange={e => setAmplitude(parseFloat(e.target.value))}
-                />
-              </InputGroup>
-            </Form.Group>
-
-            <Form.Group controlId="scale">
-              <Form.Label>Noise Scale: {scale}</Form.Label>
-              <InputGroup>
-                <Form.Control
-                  type="range"
-                  min="0.001"
-                  max="0.1"
-                  step="0.001"
-                  value={scale}
-                  onChange={e => setScale(parseFloat(e.target.value))}
-                />
-              </InputGroup>
-            </Form.Group>
-
-            {showCaptureButton && (
-              <Button variant="danger" onClick={captureScene} style={{ marginTop: '10px' }}>
-                Capture and Mint
-              </Button>
-            )}
-          </Form>
-        </Container>
-      
-      )}
-        </Container>
+          {currentTextRef.current}
+        </div>
+      </Container>
 
       <Modal show={showModal} onHide={handleClose} size="lg">
         <Modal.Header closeButton>
