@@ -1,10 +1,22 @@
+import React from "react";
+import { useStaticQuery, graphql } from "gatsby";
 import { TezosToolkit } from '@taquito/taquito'; // Import Tezos toolkit
 
-// Define the contract address and the entry point for minting
-const contractAddress = "your_tezos_contract_address"; // Replace with your Tezos contract address
-
 export const mintImage = async (wallet, imageData) => {
-  const tezos = new TezosToolkit('https://YOUR_TEZOS_NODE_URL'); // Replace with your Tezos node URL
+  // Fetch the contract address from site metadata
+  const data = useStaticQuery(graphql`
+    query {
+      site {
+        siteMetadata {
+          contractAddress
+        }
+      }
+    }
+  `);
+
+  const contractAddress = data.site.siteMetadata.contractAddress; // Get the contract address
+
+  const tezos = new TezosToolkit('https://ghostnet.api.tez.ie'); // Connect to Ghostnet
 
   // Set the wallet provider
   tezos.setProvider({ signer: wallet });
