@@ -2,20 +2,7 @@ import React from "react";
 import { useStaticQuery, graphql } from "gatsby";
 import { TezosToolkit } from '@taquito/taquito'; // Import Tezos toolkit
 
-export const mintImage = async (wallet, imageData) => {
-  // Fetch the contract address from site metadata
-  const data = useStaticQuery(graphql`
-    query {
-      site {
-        siteMetadata {
-          contractAddress
-        }
-      }
-    }
-  `);
-
-  const contractAddress = data.site.siteMetadata.contractAddress; // Get the contract address
-
+export const mintImage = async (wallet, imageData, contractAddress) => {
   const tezos = new TezosToolkit('https://ghostnet.api.tez.ie'); // Connect to Ghostnet
 
   // Set the wallet provider

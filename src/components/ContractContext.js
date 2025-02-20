@@ -10,7 +10,7 @@ export const ContractProvider = ({ children }) => {
     query {
       site {
         siteMetadata {
-          contractAddress
+          contractNumber
         }
       }
     }

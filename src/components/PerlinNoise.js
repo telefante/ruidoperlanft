@@ -8,6 +8,7 @@ import { useStaticQuery, graphql } from "gatsby"
 import { Modal, Button, Row, Form, InputGroup, Container } from "react-bootstrap"
 import { mintImage } from "./MintImage" // Ensure this path is correct
 import PerlinControls from "./PerlinControls" // Import the new controls component
+import { useContractAddress } from "./ContractContext" // Import the custom hook
 // import { mintImage } from '../images/og-image.jpg'; // Adjust the path as necessary
 // import './PerlinNoise.css' // Import custom CSS for controls
 
@@ -35,6 +36,7 @@ const PerlinNoise = ({
     }
   `)
 
+  const contractAddress = useContractAddress()
   const mountRef = useRef(null)
   const containerRef = useRef(null)
   const sceneRef = useRef(null)
@@ -344,6 +346,15 @@ const PerlinNoise = ({
     setControlsVisible(!controlsVisible);
   };
 
+  const handleMint = async () => {
+    try {
+      const operation = await mintImage(account, capturedImage, contractAddress);
+      console.log("Minting successful:", operation);
+    } catch (error) {
+      console.error("Minting failed:", error);
+    }
+  };
+
   return (
     <div
       ref={containerRef}
@@ -442,20 +453,7 @@ const PerlinNoise = ({
           <Button 
             variant="primary" 
             
-            onClick={async () => {
-              try {
-                const wallet = await connectWallet(); // Function to connect to the wallet
-                const imageData = capturedImage; // The image data to be minted
-                const contractAddress = "your_tezos_contract_address"; // Replace with your contract address
-                
-                // Call the mint function on your Tezos contract
-                await mintImage(wallet, contractAddress, imageData); // Use capturedImage as imageData
-                alert("Image minted successfully!");
-              } catch (error) {
-                console.error("Error minting image:", error);
-                alert("Failed to mint image: " + error.message); // Provide more context in the alert
-              }
-            }}
+            onClick={handleMint}
           >
             Mint Image
           </Button>

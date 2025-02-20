@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/pagination";
@@ -6,30 +6,16 @@ import { Pagination } from "swiper/modules";
 import SectionContainer from "./sections/SectionContainer";
 import placeholderImage from "../assets/placeholder.jpg";
 import { useStaticQuery, graphql } from "gatsby";
-
-// ✅ Lazy-load React Bootstrap components to prevent SSR issues
-let Container, Button;
-if (typeof window !== "undefined") {
-  Container = require("react-bootstrap/Container").default;
-  Button = require("react-bootstrap/Button").default;
-}
-
-// ✅ Ensure Beacon SDK only runs in the browser
-const isBrowser = typeof window !== "undefined";
-
-let DAppClient, BeaconEvent;
-if (isBrowser) {
-  ({ DAppClient, BeaconEvent } = require("@airgap/beacon-sdk"));
-}
+import { Container, Button } from "react-bootstrap";
+import WalletConnection from './WalletConnection'; // Import the WalletConnection component
 
 const TezosNFTCarousel = () => {
-  const [isClient, setIsClient] = useState(false);
   const [address, setAddress] = useState(null);
   const [nfts, setNfts] = useState([]);
   const [isConnected, setIsConnected] = useState(false);
 
-  // ✅ Use useRef to store DAppClient (to avoid multiple instances)
-  const dAppClientRef = useRef(null);
+  // Check if the code is running in the client
+  const isClient = typeof window !== "undefined";
 
   // Fetch contract number from site metadata
   const data = useStaticQuery(graphql`
@@ -43,65 +29,7 @@ const TezosNFTCarousel = () => {
   `);
   const COLLECTION_CONTRACT = data.site.siteMetadata.contractNumber;
 
-  useEffect(() => {
-    if (isBrowser) {
-      setIsClient(true);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (!isClient || !isBrowser) return;
-
-    // ✅ Initialize Beacon SDK only once
-    if (!dAppClientRef.current) {
-      dAppClientRef.current = new DAppClient({ name: "Ruido Perla NFT Collection" });
-
-      // ✅ Subscribe to active account events
-      dAppClientRef.current.subscribeToEvent(BeaconEvent.ACTIVE_ACCOUNT_SET, async (account) => {
-        console.log("Beacon Account Set:", account.address);
-        setAddress(account.address);
-        setIsConnected(true);
-        fetchNFTs(account.address);
-      });
-    }
-
-    const setupWallet = async () => {
-      const activeAccount = await dAppClientRef.current.getActiveAccount();
-      if (activeAccount) {
-        console.log("Already connected:", activeAccount.address);
-        setAddress(activeAccount.address);
-        setIsConnected(true);
-        fetchNFTs(activeAccount.address);
-      } else {
-        console.log("No active account. User needs to connect.");
-      }
-    };
-
-    setupWallet();
-  }, [isClient]);
-
-  const connectWallet = async () => {
-    try {
-      if (!isBrowser) return;
-      
-      const permissions = await dAppClientRef.current.requestPermissions();
-      console.log("New connection:", permissions.address);
-      setAddress(permissions.address);
-      setIsConnected(true);
-      fetchNFTs(permissions.address);
-    } catch (error) {
-      console.error("Wallet connection failed:", error);
-      alert("An error occurred while connecting to the wallet. Please try again.");
-    }
-  };
-
-  const disconnectWallet = async () => {
-    setAddress(null);
-    setNfts([]);
-    setIsConnected(false);
-    console.log("Wallet disconnected");
-  };
-
+  // Function to fetch NFTs
   const fetchNFTs = async (walletAddress) => {
     try {
       const response = await fetch(`https://api.tzkt.io/v1/tokens/balances?account=${walletAddress}&token.standard=fa2`);
@@ -114,6 +42,18 @@ const TezosNFTCarousel = () => {
     }
   };
 
+  // Connect wallet function
+  const connectWallet = () => {
+    // Logic to connect wallet
+    // This should be implemented in the WalletConnection component
+  };
+
+  // Disconnect wallet function
+  const disconnectWallet = () => {
+    // Logic to disconnect wallet
+    // This should be implemented in the WalletConnection component
+  };
+
   if (!isClient) {
     return <p>Loading...</p>;
   }
@@ -123,7 +63,7 @@ const TezosNFTCarousel = () => {
       <Container className="flex flex-col items-center p-4">
         {!address ? (
           <>
-            <h2>Connect to your Ruido Perla NFTs</h2>
+            <h2>Connect to your Ruido Perla NFTs on Tezos</h2>
             <Button
               style={{
                 fontFamily: 'var(--primary-font)',
@@ -136,12 +76,12 @@ const TezosNFTCarousel = () => {
               variant="primary"
               onClick={connectWallet}
             >
-              {isConnected ? "Connected" : "Connect through your Tezos Wallet"}
+              {isConnected ? "Connected" : "Connect Wallet"}
             </Button>
           </>
         ) : (
           <>
-            <h2>Connect to your Ruido Perla NFTs</h2>
+            <h2>Connected as: {address}</h2>
             <Button
               style={{ fontFamily: 'var(--primary-font)', fontStyle: 'italic', fontSize: '1.2rem' }}
               variant="danger"
@@ -178,6 +118,19 @@ const TezosNFTCarousel = () => {
           </>
         )}
       </Container>
+
+      <SectionContainer id="tezos-nft-carousel" title="Connect to your Ruido Perla NFTs" background={false} isGridLayout={true}>
+        <div className="flex flex-col items-center p-4">
+          {!address ? (
+            <WalletConnection setAddress={setAddress} setIsConnected={setIsConnected} />
+          ) : (
+            <>
+              <h2>Connected as: {address}</h2>
+              {/* Add your NFT display logic here */}
+            </>
+          )}
+        </div>
+      </SectionContainer>
     </SectionContainer>
   );
 };
