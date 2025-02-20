@@ -318,7 +318,7 @@ const PerlinNoise = ({
     if (!containerRef.current) return;
   
     try {
-      const canvas = await html2canvas(containerRef.parentElement.parentElement, {
+      const canvas = await html2canvas(containerRef.current, {
         useCORS: true,
         backgroundColor: null,
         scale: 2,
