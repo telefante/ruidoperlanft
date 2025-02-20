@@ -9,3 +9,4 @@
 
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./src/styles/global.css"; // Custom global styles (optional)
+// import "./src/styles/beacon.css";  // ✅ Import global Beacon styles

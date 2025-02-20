@@ -3,7 +3,7 @@ import Layout from "../components/layout";
 import IntroductionSection from "../components/sections/IntroductionSection";
 import InstallationSection from "../components/sections/InstallationSection";
 import SimulationSection from "../components/sections/SimulationSection";
-import AssetsSection from "../components/sections/AssetsSection";
+// import AssetsSection from "../components/sections/AssetsSection";
 import AboutSection from "../components/sections/AboutSection";
 import TezosNFTCarousel from "../components/TezosNFTCarousel";
 
@@ -20,10 +20,11 @@ const IndexPage = () => {
     <Layout>
       <IntroductionSection />
       <InstallationSection />
-      <AssetsSection />
+      <TezosNFTCarousel />
+    
+      {/* <AssetsSection /> */}
       <SimulationSection />  
       <AboutSection />
-      <TezosNFTCarousel />
     </Layout>
   );
 };

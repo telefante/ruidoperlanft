@@ -1,0 +1,83 @@
+.alert-wrapper-show {
+  font-family: var(--primary-font);
+  font-size: 14px;
+  display: grid;
+  overflow:scroll !important;
+}
+
+
+/* Ensure the Beacon modal is responsive */
+.beacon-toast-wrapper .toast-wrapper-show {
+  max-width: 460px; /* Your desired width */
+  overflow: hidden;
+  background-color: #f0f8ff; /* Change background color */
+  position: fixed;
+  top: 12px;
+  right: 12px;
+  border-radius: 6px;
+  transition: all ease 0.3s;
+  transform: translateY(0px) scale(1);
+  z-index: 1000000;
+  box-shadow: 0px 4px 11px -4px rgba(0, 0, 0, 0.45);
+  font-family: var(--primary-font);
+}
+
+.toast-wrapper-hide {
+  max-width: 460px;
+  overflow: hidden;
+  background-color: #f0f8ff; /* Change background color */
+  position: fixed;
+  top: 12px;
+  right: 12px;
+  border-radius: 6px;
+  transition: all ease 0.3s;
+  transform: translateY(-150px) scale(0.2);
+  z-index: 1000000;
+  box-shadow: 0px 4px 11px -4px rgba(0, 0, 0, 0.45);
+}
+
+.toast-label {
+  font-family: var(--primary-font);
+}
+
+/* Media query for small screens */
+@media only screen and (max-width: 762px) {
+  .toast-wrapper-show,
+  .toast-wrapper-hide {
+    max-width: 95%; /* Make the modal wider on small screens */
+    left: 2.5%; /* Center the modal */
+    right: 2.5%; /* Center the modal */
+  }
+
+  .toast-header h3 {
+    font-size: 1em; /* Adjust header font size */
+  }
+
+  .toast-body {
+    padding: 0.4em 0.8em; /* Adjust padding for smaller screens */
+  }
+
+  .toast-action-button {
+    font-size: 0.9em; /* Adjust button font size */
+  }
+}
+
+
+@media only screen and (max-width: 768px) {
+  .beacon-modal {
+    max-width: 95%; /* Make the modal wider on small screens */
+    height: auto;
+    margin: 0 auto;
+    padding: 1rem;
+  }
+
+  .beacon-modal__content {
+    font-size: 14px;
+    padding: 0.5rem;
+    overflow-y: scroll; /* Allow scrolling if content overflows */
+  }
+}
+
+.toast-wrapper-show {
+  z-index: 1000000; /* Ensure this is high enough */
+}

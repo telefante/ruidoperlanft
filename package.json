@@ -5,6 +5,7 @@
   "version": "0.1.0",
   "author": "Kyle Mathews <mathews.kyle@gmail.com>",
   "dependencies": {
+    "@airgap/beacon-sdk": "^4.4.0",
     "@taquito/beacon-wallet": "^21.0.2",
     "@taquito/taquito": "^21.0.2",
     "babel-plugin-styled-components": "^2.1.4",

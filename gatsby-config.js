@@ -15,9 +15,18 @@ module.exports = {
     author: 'Luis Negrón van Grieekn',
     authorUrl: 'https://luis.negronvangrieken.com',
     siteUrl: `https://ruidoperlanft.netlify.app`,
+    contractNumber: "KT1VsqcpRfzzPCqPiwLXsFKh6BCpEfsJt2yR", // Add your contract number for RuiPerla
   },
   plugins: [
     `gatsby-plugin-postcss`,
+    {
+      resolve: `gatsby-plugin-postcss`,
+      options: {
+        postCssPlugins: [
+          require('autoprefixer'), // Example of a PostCSS plugin
+        ],
+      },
+    },
     `gatsby-plugin-image`,
     {
       resolve: `gatsby-source-filesystem`,
