@@ -62,7 +62,7 @@ const WalletConnection = ({ setAddress, setIsConnected }) => {
 
   return (
     <div>
-      <Button variant="primary" onClick={connectWallet}>Connect Wallet</Button>
+      <Button style={{ fontFamily: 'var(--primary-font)', fontStyle: 'italic', fontSize: '1.2rem' }} variant="primary" onClick={connectWallet}>Connect Wallet</Button>
     </div>
   );
 };

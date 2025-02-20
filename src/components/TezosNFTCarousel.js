@@ -65,32 +65,12 @@ const TezosNFTCarousel = () => {
           <>
             <h2>Connect to your Ruido Perla NFTs on Tezos</h2>
             <WalletConnection setAddress={setAddress} setIsConnected={setIsConnected} />
-            <Button
-              style={{
-                fontFamily: 'var(--primary-font)',
-                fontStyle: 'italic',
-                fontSize: '1.6rem',
-                fontWeight: 'bold',
-                backgroundColor: isConnected ? 'green' : 'blue',
-                color: 'white',
-              }}
-              variant="primary"
-              onClick={connectWallet}
-            >
-              {isConnected ? "Connected" : "Connect Wallet"}
-            </Button>
+           
           </>
         ) : (
           <>
             <h2>Connected as: {address}</h2>
-            <Button
-              style={{ fontFamily: 'var(--primary-font)', fontStyle: 'italic', fontSize: '1.2rem' }}
-              variant="danger"
-              onClick={disconnectWallet}
-              className="mt-4"
-            >
-              Disconnect Wallet
-            </Button>
+            <WalletConnection setAddress={setAddress} setIsConnected={setIsConnected} />
             <Swiper modules={[Pagination]} spaceBetween={10} slidesPerView={1} pagination={{ clickable: true }} className="w-full max-w-lg mt-4">
               {nfts.length > 0 ? (
                 nfts.map((nft, index) => {
@@ -120,18 +100,7 @@ const TezosNFTCarousel = () => {
         )}
       </Container>
 
-      <SectionContainer id="tezos-nft-carousel" title="Connect to your Ruido Perla NFTs" background={false} isGridLayout={true}>
-        <div className="flex flex-col items-center p-4">
-          {!address ? (
-            <WalletConnection setAddress={setAddress} setIsConnected={setIsConnected} />
-          ) : (
-            <>
-              <h2>Connected as: {address}</h2>
-              {/* Add your NFT display logic here */}
-            </>
-          )}
-        </div>
-      </SectionContainer>
+     
     </SectionContainer>
   );
 };
