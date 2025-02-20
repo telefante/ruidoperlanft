@@ -16,7 +16,7 @@ export const ContractProvider = ({ children }) => {
     }
   `);
 
-  const contractAddress = data.site.siteMetadata.contractAddress;
+  const contractAddress = data.site.siteMetadata.contractNumber;
 
   return (
     <ContractContext.Provider value={contractAddress}>

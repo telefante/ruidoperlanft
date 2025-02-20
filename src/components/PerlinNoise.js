@@ -33,10 +33,17 @@ const PerlinNoise = ({
       markdownRemark(fileAbsolutePath: { regex: "/perlin-text.md/" }) {
         rawMarkdownBody
       }
+      site {
+        siteMetadata {
+          contractNumber
+          rpcUrl
+        }
+      }
     }
   `)
 
-  const contractAddress = useContractAddress()
+  const contractAddress = data.site.siteMetadata.contractNumber//useContractAddress()
+  const rpcUrl = data.site.siteMetadata.rpcUrl
   const mountRef = useRef(null)
   const containerRef = useRef(null)
   const sceneRef = useRef(null)
@@ -348,7 +355,7 @@ const PerlinNoise = ({
 
   const handleMint = async () => {
     try {
-      const operation = await mintImage(account, capturedImage, contractAddress);
+      const operation = await mintImage(account, capturedImage, contractAddress, rpcUrl);
       console.log("Minting successful:", operation);
     } catch (error) {
       console.error("Minting failed:", error);

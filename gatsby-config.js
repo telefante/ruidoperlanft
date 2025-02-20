@@ -15,8 +15,10 @@ module.exports = {
     author: 'Luis Negrón van Grieekn',
     authorUrl: 'https://luis.negronvangrieken.com',
     siteUrl: `https://ruidoperlanft.netlify.app`,
-    contractNumber: "KT1VsqcpRfzzPCqPiwLXsFKh6BCpEfsJt2yR", // Add your contract number for RuiPerla
-    rpcUrl: "https://ghostnet.api.tez.ie", // Add your RPC URL here
+    // contractNumber: "KT1VsqcpRfzzPCqPiwLXsFKh6BCpEfsJt2yR", // Add your contract number for RuiPerla
+    contractNumber: " KT1Aiyr9Aqc778TRnsYU9vDf1z93yst5D9kM", //contract number for RuiPerla in ghosnet
+    // rpcUrl: "https://ghostnet.api.tez.ie", // Add your RPC URL here
+    rpcUrl: "https://ghostnet.tzkt.io/",
   },
   plugins: [
     `gatsby-plugin-postcss`,
