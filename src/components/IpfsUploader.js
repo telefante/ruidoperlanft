@@ -11,7 +11,7 @@ const IpfsUploader = () => {
 
   // Fetch API Key from Environment Variables
   const LIGHTHOUSE_API_KEY = process.env.GATSBY_LIGHTHOUSE_API_KEY;
-console.log("LIGHTHOUSE_API_KEY:", LIGHTHOUSE_API_KEY);
+// console.log("LIGHTHOUSE_API_KEY:", LIGHTHOUSE_API_KEY);
   const handleFileChange = (event) => {
     setFile(event.target.files[0]);
   };
