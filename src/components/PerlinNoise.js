@@ -8,7 +8,7 @@ import { useStaticQuery, graphql } from "gatsby"
 import { Modal, Button, Row, Form, InputGroup, Container } from "react-bootstrap"
 import { mintImage } from "./MintImage" // Ensure this path is correct
 import PerlinControls from "./PerlinControls" // Import the new controls component
-import { useContractAddress } from "./ContractContext" // Import the custom hook
+// import { useContractAddress } from "./ContractContext" // Import the custom hook
 import WalletConnection from "./WalletConnection" // Import the WalletConnection component
 import { useWallet } from "./WalletContext" // Import the WalletContext
 // import { IpfsUploader } from "./IpfsUploader"
@@ -55,7 +55,7 @@ const PerlinNoise = ({
   const rendererRef = useRef(null)
   const currentTextRef = useRef("")
   // const [canvas, setCanvas] = useState(null);
-  const { walletAddress } = useWallet()
+  const { walletAddress, isConnected } = useWallet()
 
   const [usePerlin, setUsePerlin] = useState(initialParams.usePerlin)
   const [amplitude, setAmplitude] = useState(initialParams.amplitude)
@@ -341,7 +341,7 @@ const PerlinNoise = ({
     
         ignoreElements: (element) => {
           // Exclude the entire controls container and the Minimize Controls button
-          return element.classList.contains("controls") || element.classList.contains("minimize-button");
+          return element.classList.contains("controls") || element.classList.contains("minimize-button") || element.classList.contains("wallet-connection");
         },
       });
       //  setCanvas(capturedCanvas);
