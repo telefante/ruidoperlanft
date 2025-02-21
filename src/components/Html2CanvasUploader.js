@@ -74,24 +74,24 @@ const [name, setName] = useState("RuidoPerla_Now");
   };
 
   return (
-    <Form style={{ padding: "20px", textAlign: "center" }}>
-      <h2>Generate & Upload NFT to IPFS</h2>
-
+    <Form style={{ padding: "10px", textAlign: "center" }}>
+      {/* <h2>Generate & Upload NFT to IPFS</h2> */}
+{/* Upload Button */}
+<Button variant="primary" onClick={captureAndUpload} disabled={uploading}>
+        {uploading ? "Uploading..." : "Upload"}
+      </Button>
       {/* Editable NFT Name & Description */}
       <Form.Group controlId="nft-name">
-        <Form.Label>NFT Name</Form.Label>
+        <Form.Label style={{ color: "white", fontSize: "16px" }}>NFT Name</Form.Label>
         <Form.Control type="text" placeholder="NFT Name" value={name} onChange={(e) => setName(e.target.value)} />
       </Form.Group>
 
       <Form.Group controlId="nft-description">
-        <Form.Label>NFT Description</Form.Label>
+        <Form.Label style={{ color: "white", fontSize: "16px" }}>NFT Description</Form.Label>
         <Form.Control type="text" placeholder="NFT Description" value={description} onChange={(e) => setDescription(e.target.value)} />
       </Form.Group>
 
-      {/* Upload Button */}
-      <Button variant="primary" onClick={captureAndUpload} disabled={uploading}>
-        {uploading ? "Uploading..." : "Capture & Upload"}
-      </Button>
+      
 
       {/* Display IPFS URLs */}
       {ipfsUrl && (
