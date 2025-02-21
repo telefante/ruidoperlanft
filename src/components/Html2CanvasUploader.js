@@ -1,14 +1,16 @@
 import React, { useRef, useState } from "react";
 import * as lighthouse from "@lighthouse-web3/sdk";
 import html2canvas from "html2canvas";
+import { Button, Form } from "react-bootstrap";
 
 const Html2CanvasUploader = ({containerRef}) => {
   const captureRef = useRef(null);
-  const [name, setName] = useState("Generated NFT");
-  const [description, setDescription] = useState("This is an auto-generated NFT.");
+const [name, setName] = useState("RuidoPerla_Now");
+  const [description, setDescription] = useState("This is a real-time generated NFT from the Perlin Noise algorithm.");
   const [uploading, setUploading] = useState(false);
   const [ipfsUrl, setIpfsUrl] = useState(null);
   const [metadataUrl, setMetadataUrl] = useState(null);
+
 //   const [imageBlob, setImageBlob] = useState(null);
 
  
@@ -47,7 +49,7 @@ const Html2CanvasUploader = ({containerRef}) => {
       // 🎲 Generate NFT Metadata with random "entropie" value
       const metadataJson = {
         name,
-        description,
+        description: `${description} (Generated: ${timestamp})`,
         entropie: Math.random().toFixed(6), // Random number between 0-1
         image: imageIpfsUrl, // Link to uploaded file
       };
@@ -72,25 +74,24 @@ const Html2CanvasUploader = ({containerRef}) => {
   };
 
   return (
-    <div style={{ padding: "20px", textAlign: "center" }}>
+    <Form style={{ padding: "20px", textAlign: "center" }}>
       <h2>Generate & Upload NFT to IPFS</h2>
 
       {/* Editable NFT Name & Description */}
-      <input type="text" placeholder="NFT Name" value={name} onChange={(e) => setName(e.target.value)} />
-      <br />
-      <input type="text" placeholder="NFT Description" value={description} onChange={(e) => setDescription(e.target.value)} />
-      <br />
+      <Form.Group controlId="nft-name">
+        <Form.Label>NFT Name</Form.Label>
+        <Form.Control type="text" placeholder="NFT Name" value={name} onChange={(e) => setName(e.target.value)} />
+      </Form.Group>
 
-      {/* Capture Target */}
-      <div ref={containerRef.current} style={{ width: "300px", height: "200px", backgroundColor: "#ddd", margin: "20px auto", textAlign: "center" }}>
-        <h3>🎨 NFT Preview</h3>
-        <p>(Captured area will be uploaded)</p>
-      </div>
+      <Form.Group controlId="nft-description">
+        <Form.Label>NFT Description</Form.Label>
+        <Form.Control type="text" placeholder="NFT Description" value={description} onChange={(e) => setDescription(e.target.value)} />
+      </Form.Group>
 
       {/* Upload Button */}
-      <button onClick={captureAndUpload} disabled={uploading}>
+      <Button variant="primary" onClick={captureAndUpload} disabled={uploading}>
         {uploading ? "Uploading..." : "Capture & Upload"}
-      </button>
+      </Button>
 
       {/* Display IPFS URLs */}
       {ipfsUrl && (
@@ -108,7 +109,7 @@ const Html2CanvasUploader = ({containerRef}) => {
           <p><a href={`https://gateway.lighthouse.storage/ipfs/${metadataUrl.split("ipfs://")[1]}`} target="_blank" rel="noopener noreferrer">View Metadata on IPFS</a></p>
         </div>
       )}
-    </div>
+    </Form>
   );
 };
 
