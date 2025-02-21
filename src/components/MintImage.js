@@ -2,8 +2,7 @@ import { TezosToolkit } from "@taquito/taquito";
 import { char2Bytes } from "@taquito/utils";
 // import axios from "axios";
 import { NFTStorage, File, Blob } from "nft.storage";
-import dotenv from 'dotenv';
-dotenv.config();
+
 
 // ✅ Replace with your actual NFT.Storage API key
 // const NFT_STORAGE_API_KEY = process.env.GATSBY_NFT_STORAGE_API_KEY;
