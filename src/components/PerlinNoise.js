@@ -9,8 +9,6 @@ import {
   Modal,
   Button,
   Row,
-  Form,
-  InputGroup,
   Container,
 } from "react-bootstrap"
 import { mintImage } from "./MintImage" // Ensure this path is correct
