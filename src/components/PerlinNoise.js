@@ -481,9 +481,7 @@ const PerlinNoise = ({
             justifyContent: "center",
           }}
         >
-          <Button variant="secondary" onClick={handleClose}>
-            Close
-          </Button>
+        
 
           {/* The Html2CanvasUploader component takes a reference to the container element 
           (in this case, the PerlinNoise component's containerRef) 
