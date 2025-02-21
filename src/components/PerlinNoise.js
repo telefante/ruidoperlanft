@@ -11,6 +11,8 @@ import PerlinControls from "./PerlinControls" // Import the new controls compone
 import { useContractAddress } from "./ContractContext" // Import the custom hook
 import WalletConnection from "./WalletConnection" // Import the WalletConnection component
 import { useWallet } from "./WalletContext" // Import the WalletContext
+// import { IpfsUploader } from "./IpfsUploader"
+import IpfsUploader from "./IpfsUploader";
 
 // import { mintImage } from '../images/og-image.jpg'; // Adjust the path as necessary
 // import './PerlinNoise.css' // Import custom CSS for controls
@@ -473,6 +475,7 @@ const PerlinNoise = ({
           >
             Mint Image
           </Button>
+          <IpfsUploader />
         </Modal.Footer>
       </Modal>
     </div>
