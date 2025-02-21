@@ -9,7 +9,9 @@ const Html2CanvasUploader = ({containerRef}) => {
   const [uploading, setUploading] = useState(false);
   const [ipfsUrl, setIpfsUrl] = useState(null);
   const [metadataUrl, setMetadataUrl] = useState(null);
-  const [imageBlob, setImageBlob] = useState(null);
+//   const [imageBlob, setImageBlob] = useState(null);
+
+ 
   
   // Fetch API Key from Environment Variables
   const LIGHTHOUSE_API_KEY = process.env.GATSBY_LIGHTHOUSE_API_KEY;
@@ -23,17 +25,18 @@ const Html2CanvasUploader = ({containerRef}) => {
       const canvas = await html2canvas(containerRef.current, {
         useCORS: true,
         backgroundColor: null,
-        scale: 2,
+        scale: 1,
+        ignoreElements: (element) => {
+            // Exclude the entire controls container and the Minimize Controls button
+            return element.classList.contains("controls") || element.classList.contains("minimize-button") || element.classList.contains("wallet-connection");
+          },
       });
 
-      // Convert canvas to Blob
-       // Use the captured image to generate the image blob
-    //    const imageBlob = await (await fetch(capturedImage)).arrayBuffer();
-    // const imageBlob = await fetch(capturedImage).then(res => res.blob());
+    
       const imageBlob = await new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
-    //   setImageBlob(imageBlob);
+      const timestamp = new Date().toISOString();
+      const file = new File([imageBlob], `${name}-${timestamp}.png`, { type: "image/png" });
 
-      const file = new File([imageBlob], "screenshot.png", { type: "image/png" });
 
       // ⬆️ Upload image to IPFS via Lighthouse
       const fileResponse = await lighthouse.upload([file], LIGHTHOUSE_API_KEY);
@@ -79,7 +82,7 @@ const Html2CanvasUploader = ({containerRef}) => {
       <br />
 
       {/* Capture Target */}
-      <div ref={captureRef} style={{ width: "300px", height: "200px", backgroundColor: "#ddd", margin: "20px auto", textAlign: "center" }}>
+      <div ref={containerRef.current} style={{ width: "300px", height: "200px", backgroundColor: "#ddd", margin: "20px auto", textAlign: "center" }}>
         <h3>🎨 NFT Preview</h3>
         <p>(Captured area will be uploaded)</p>
       </div>

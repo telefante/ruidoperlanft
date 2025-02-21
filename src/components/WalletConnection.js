@@ -61,7 +61,7 @@ const WalletConnection = () => {
   };
 
   return (
-    <div>
+    <div className='wallet-connection'>
       {isConnected ? (
         <Button variant="danger" onClick={disconnectWallet}>
           Disconnect Wallet
