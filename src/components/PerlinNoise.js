@@ -54,6 +54,7 @@ const PerlinNoise = ({
   const cameraRef = useRef(null)
   const rendererRef = useRef(null)
   const currentTextRef = useRef("")
+  // const [canvas, setCanvas] = useState(null);
   const { walletAddress } = useWallet()
 
   const [usePerlin, setUsePerlin] = useState(initialParams.usePerlin)
@@ -332,7 +333,7 @@ const PerlinNoise = ({
     if (!containerRef.current) return;
   
     try {
-      const canvas = await html2canvas(containerRef.current, {
+      const capturedCanvas  = await html2canvas(containerRef.current, {
         useCORS: true,
         backgroundColor: null,
         scale: 2,
@@ -343,8 +344,9 @@ const PerlinNoise = ({
           return element.classList.contains("controls") || element.classList.contains("minimize-button");
         },
       });
+      //  setCanvas(capturedCanvas);
   
-      const imageData = canvas.toDataURL("image/png");
+      const imageData = capturedCanvas.toDataURL("image/png");
       setCapturedImage(imageData);
       setShowModal(true);
     } catch (error) {
@@ -477,7 +479,7 @@ const PerlinNoise = ({
             Mint Image
           </Button>
           {/* <IpfsUploader /> */}
-          <Html2CanvasUploader />
+          <Html2CanvasUploader containerRef={containerRef} />
         </Modal.Footer>
       </Modal>
     </div>

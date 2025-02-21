@@ -2,30 +2,37 @@ import React, { useRef, useState } from "react";
 import * as lighthouse from "@lighthouse-web3/sdk";
 import html2canvas from "html2canvas";
 
-const Html2CanvasUploader = () => {
+const Html2CanvasUploader = ({containerRef}) => {
   const captureRef = useRef(null);
   const [name, setName] = useState("Generated NFT");
   const [description, setDescription] = useState("This is an auto-generated NFT.");
   const [uploading, setUploading] = useState(false);
   const [ipfsUrl, setIpfsUrl] = useState(null);
   const [metadataUrl, setMetadataUrl] = useState(null);
-
+  const [imageBlob, setImageBlob] = useState(null);
+  
   // Fetch API Key from Environment Variables
   const LIGHTHOUSE_API_KEY = process.env.GATSBY_LIGHTHOUSE_API_KEY;
 
   const captureAndUpload = async () => {
+    if (!containerRef.current) return;
     setUploading(true);
     
     try {
-      // 📸 Capture the HTML element as an image
-      const canvas = await html2canvas(captureRef.current, {
+    //   📸 Capture the HTML element as an image
+      const canvas = await html2canvas(containerRef.current, {
         useCORS: true,
         backgroundColor: null,
         scale: 2,
       });
 
       // Convert canvas to Blob
+       // Use the captured image to generate the image blob
+    //    const imageBlob = await (await fetch(capturedImage)).arrayBuffer();
+    // const imageBlob = await fetch(capturedImage).then(res => res.blob());
       const imageBlob = await new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
+    //   setImageBlob(imageBlob);
+
       const file = new File([imageBlob], "screenshot.png", { type: "image/png" });
 
       // ⬆️ Upload image to IPFS via Lighthouse
