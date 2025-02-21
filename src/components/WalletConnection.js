@@ -9,6 +9,7 @@ const WalletConnection = () => {
   const { setWalletAddress, setIsConnected } = useWallet();
   const [wallet, setWallet] = useState(null);
   const [isConnected, setIsConnectedState] = useState(false);
+  const { isConnected: isWalletConnected } = useWallet();
   const RPC_URL = "https://ghostnet.tzkt.io/"; // Use your RPC URL
 
   useEffect(() => {
@@ -61,7 +62,7 @@ const WalletConnection = () => {
   };
 
   return (
-    <div>
+    <div className='wallet-connection'>
       {isConnected ? (
         <Button variant="danger" onClick={disconnectWallet}>
           Disconnect Wallet
