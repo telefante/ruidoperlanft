@@ -5,7 +5,14 @@ import { Perlin } from "three-noise"
 import { createNoise3D } from "simplex-noise"
 import html2canvas from "html2canvas"
 import { useStaticQuery, graphql } from "gatsby"
-import { Modal, Button, Row, Form, InputGroup, Container } from "react-bootstrap"
+import {
+  Modal,
+  Button,
+  Row,
+  Form,
+  InputGroup,
+  Container,
+} from "react-bootstrap"
 import { mintImage } from "./MintImage" // Ensure this path is correct
 import PerlinControls from "./PerlinControls" // Import the new controls component
 // import { useContractAddress } from "./ContractContext" // Import the custom hook
@@ -29,8 +36,8 @@ const PerlinNoise = ({
     usePerlin: true,
   },
   cameraParams = null,
- 
-  showCaptureButton
+
+  showCaptureButton,
 }) => {
   const data = useStaticQuery(graphql`
     query {
@@ -46,7 +53,7 @@ const PerlinNoise = ({
     }
   `)
 
-  const contractAddress = data.site.siteMetadata.contractNumber//useContractAddress()
+  const contractAddress = data.site.siteMetadata.contractNumber //useContractAddress()
   const rpcUrl = data.site.siteMetadata.rpcUrl
   const mountRef = useRef(null)
   const containerRef = useRef(null)
@@ -315,73 +322,77 @@ const PerlinNoise = ({
   }, [data, enableOrbit, cameraParams])
 
   useEffect(() => {
-    const mediaQuery = window.matchMedia('(max-width: 768px)');
-    const handleMediaQueryChange = (e) => {
-      setIsMobile(e.matches);
-    };
+    const mediaQuery = window.matchMedia("(max-width: 768px)")
+    const handleMediaQueryChange = e => {
+      setIsMobile(e.matches)
+    }
 
     // Set initial value
-    handleMediaQueryChange(mediaQuery);
-    mediaQuery.addEventListener('change', handleMediaQueryChange);
+    handleMediaQueryChange(mediaQuery)
+    mediaQuery.addEventListener("change", handleMediaQueryChange)
 
     return () => {
-      mediaQuery.removeEventListener('change', handleMediaQueryChange);
-    };
-  }, []);
+      mediaQuery.removeEventListener("change", handleMediaQueryChange)
+    }
+  }, [])
+
+  /**
+   * Captures the current scene within the container reference as a canvas image.
+   * The capture ignores specific elements such as controls and buttons.
+   * The captured image is then converted to a PNG data URL and stored in state,
+   * which triggers a modal to display the image.
+   *
+   * @async
+   * @throws Will log an error if the capture process fails.
+   */
 
   const captureScene = async () => {
-    if (!containerRef.current) return;
-  
+    if (!containerRef.current) return
+
     try {
-      const capturedCanvas  = await html2canvas(containerRef.current, {
+      const capturedCanvas = await html2canvas(containerRef.current, {
         useCORS: true,
         backgroundColor: null,
         scale: 2,
         logging: true,
-    
-        ignoreElements: (element) => {
+
+        ignoreElements: element => {
           // Exclude the entire controls container and the Minimize Controls button
-          return element.classList.contains("controls") || element.classList.contains("minimize-button") || element.classList.contains("wallet-connection");
+          return (
+            element.classList.contains("controls") ||
+            element.classList.contains("minimize-button") ||
+            element.classList.contains("wallet-connection")
+          )
         },
-      });
+      })
       //  setCanvas(capturedCanvas);
-  
-      const imageData = capturedCanvas.toDataURL("image/png");
-      setCapturedImage(imageData);
-      setShowModal(true);
+
+      const imageData = capturedCanvas.toDataURL("image/png")
+      setCapturedImage(imageData)
+      setShowModal(true)
     } catch (error) {
-      console.error("Error capturing scene:", error);
+      console.error("Error capturing scene:", error)
     }
-  };
+  }
 
   const handleClose = () => setShowModal(false)
 
+  /**
+   * Toggle visibility of Perlin noise controls.
+   */
   const toggleControls = () => {
-    setControlsVisible(!controlsVisible);
-  };
-
-  const handleMint = async () => {
-    if (!capturedImage) return;
-
-    try {
-      // Convert the captured image data URL to a Blob
-      const blob = await fetch(capturedImage).then(res => res.blob());
-
-      // Wrap the Blob into a File
-      const file = new File([blob], "generated-nft.png", { type: "image/png" });
-
-      // Pass the File to the mintImage function
-      const operation = await mintImage(walletAddress, file, contractAddress, rpcUrl);
-      console.log("Minting successful:", operation);
-    } catch (error) {
-      console.error("Minting failed:", error);
-    }
-  };
+    setControlsVisible(!controlsVisible)
+  }
 
   return (
     <div
       ref={containerRef}
-      style={{ position: "relative", width: "100%", height: "100%", backgroundColor: "transparent" }}
+      style={{
+        position: "relative",
+        width: "100%",
+        height: "100%",
+        backgroundColor: "transparent",
+      }}
     >
       <WalletConnection />
       <div ref={mountRef} style={{ width: "100%", height: "100%" }} />
@@ -403,7 +414,8 @@ const PerlinNoise = ({
       />
       <Container>
         <Row>
-          <Button variant="danger"
+          <Button
+            variant="danger"
             onClick={toggleControls}
             className="minimize-button"
             style={{
@@ -414,7 +426,7 @@ const PerlinNoise = ({
               cursor: "pointer",
               fontSize: "0.8rem",
               fontFamily: "var(--primary-font)",
-              width: isMobile ? '90%' : '20%', // Set maxWidth based on mobile detection
+              width: isMobile ? "90%" : "20%", // Set maxWidth based on mobile detection
             }}
           >
             {controlsVisible ? "Minimize Controls" : "Show Controls"}
@@ -468,17 +480,23 @@ const PerlinNoise = ({
             />
           )}
         </Modal.Body>
-        <Modal.Footer style={{ backgroundColor: 'black', fontFamily:'var(--primary-font)', alignItems:'center', justifyContent:'center' }}>
+        <Modal.Footer
+          style={{
+            backgroundColor: "black",
+            fontFamily: "var(--primary-font)",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
           <Button variant="secondary" onClick={handleClose}>
             Close
           </Button>
-          <Button 
-            variant="primary" 
-            onClick={handleMint}
-          >
-            Mint Image
-          </Button>
-          {/* <IpfsUploader /> */}
+
+          {/* The Html2CanvasUploader component takes a reference to the container element 
+          (in this case, the PerlinNoise component's containerRef) 
+          and uses it to capture the scene as an image when the "Mint this?" modal is shown. 
+          The captured image is then uploaded to IPFS via the Lighthouse API and the generated IPFS URL 
+          is passed to the MintImage component as a prop. */}
           <Html2CanvasUploader containerRef={containerRef} />
         </Modal.Footer>
       </Modal>
