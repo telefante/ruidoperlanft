@@ -11,17 +11,12 @@ import {
   Row,
   Container,
 } from "react-bootstrap"
-import { mintImage } from "./MintImage" // Ensure this path is correct
 import PerlinControls from "./PerlinControls" // Import the new controls component
 // import { useContractAddress } from "./ContractContext" // Import the custom hook
 import WalletConnection from "./WalletConnection" // Import the WalletConnection component
 import { useWallet } from "./WalletContext" // Import the WalletContext
-// import { IpfsUploader } from "./IpfsUploader"
-// import IpfsUploader from "./IpfsUploader";
 import Html2CanvasUploader from "./Html2CanvasUploader"
 
-// import { mintImage } from '../images/og-image.jpg'; // Adjust the path as necessary
-// import './PerlinNoise.css' // Import custom CSS for controls
 
 const PerlinNoise = ({
   showControls = true,
