@@ -357,9 +357,16 @@ const PerlinNoise = ({
 
   const handleMint = async () => {
     if (!capturedImage) return;
+
     try {
+      // Convert the captured image data URL to a Blob
       const blob = await fetch(capturedImage).then(res => res.blob());
-      const operation = await mintImage(walletAddress, blob, contractAddress, rpcUrl);
+
+      // Wrap the Blob into a File
+      const file = new File([blob], "generated-nft.png", { type: "image/png" });
+
+      // Pass the File to the mintImage function
+      const operation = await mintImage(walletAddress, file, contractAddress, rpcUrl);
       console.log("Minting successful:", operation);
     } catch (error) {
       console.error("Minting failed:", error);

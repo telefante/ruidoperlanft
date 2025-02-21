@@ -12,6 +12,7 @@
     "bootstrap": "^5.3.3",
     "buffer": "^6.0.3",
     "crypto-browserify": "^3.12.1",
+    "dotenv": "^16.4.7",
     "gatsby": "^5.14.1",
     "gatsby-plugin-image": "^3.14.0",
     "gatsby-plugin-manifest": "^5.14.0",
