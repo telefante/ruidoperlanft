@@ -15,7 +15,8 @@ import PerlinControls from "./PerlinControls" // Import the new controls compone
 // import { useContractAddress } from "./ContractContext" // Import the custom hook
 import WalletConnection from "./WalletConnection" // Import the WalletConnection component
 import { useWallet } from "./WalletContext" // Import the WalletContext
-import Html2CanvasUploader from "./Html2CanvasUploader"
+// import Html2CanvasUploader from "./Html2CanvasUploader"
+import WalletMintNFT from "./WalletMintNFT"
 
 
 const PerlinNoise = ({
@@ -488,7 +489,8 @@ const PerlinNoise = ({
           and uses it to capture the scene as an image when the "Mint this?" modal is shown. 
           The captured image is then uploaded to IPFS via the Lighthouse API and the generated IPFS URL 
           is passed to the MintImage component as a prop. */}
-          <Html2CanvasUploader containerRef={containerRef} />
+          {/* <Html2CanvasUploader containerRef={containerRef} /> */}
+          <WalletMintNFT containerRef={containerRef} />
         </Modal.Footer>
       </Modal>
     </div>
