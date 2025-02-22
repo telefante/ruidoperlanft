@@ -90,6 +90,7 @@ const Html2CanvasUploader = ({ containerRef }) => {
 
   return (
     <Container>
+        {isConnected ? (
       <Form style={{ padding: "10px", textAlign: "center" }}>
         {/* Upload Button */}
         <Button
@@ -165,6 +166,9 @@ const Html2CanvasUploader = ({ containerRef }) => {
           </Container>
         )}
       </Form>
+      ) : (
+        <p>Please connect your wallet to upload.</p>
+      )}
     </Container>
   )
 }

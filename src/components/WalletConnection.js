@@ -6,10 +6,10 @@ import { Button } from 'react-bootstrap';
 import { useWallet } from './WalletContext'; // Import the WalletContext
 
 const WalletConnection = () => {
-  const { setWalletAddress, setIsConnected } = useWallet();
+  const { setWalletAddress, setIsConnected , isConnected} = useWallet();
   const [wallet, setWallet] = useState(null);
-  const [isConnected, setIsConnectedState] = useState(false);
-  const { isConnected: isWalletConnected } = useWallet();
+ 
+  // const { isConnected: isWalletConnected } = useWallet();
   const RPC_URL = "https://ghostnet.tzkt.io/"; // Use your RPC URL
 
   useEffect(() => {
@@ -41,7 +41,7 @@ const WalletConnection = () => {
 
       const address = await wallet.getPKH();
       setWalletAddress(address);
-      setIsConnectedState(true);
+      setIsConnected(true);
       console.log('Connected wallet address:', address);
     } catch (error) {
       console.error('Wallet connection failed:', error);
@@ -54,12 +54,16 @@ const WalletConnection = () => {
     try {
       await wallet.clearActiveAccount();
       setWalletAddress(null);
-      setIsConnectedState(false);
+      setIsConnected(false);
       console.log('Disconnected wallet');
     } catch (error) {
       console.error('Wallet disconnection failed:', error);
     }
   };
+
+  useEffect(() => {
+    console.log('isConnected:', isConnected); // Log the isConnected state
+  }, [isConnected]);
 
   return (
     <div className='wallet-connection'>
