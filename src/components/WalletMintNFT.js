@@ -18,7 +18,7 @@ const WalletMintNFT = ({ containerRef }) => {
   const [transactionHash, setTransactionHash] = useState(null);
 
   // Wallet Context Hook
-  const { isConnected, walletAddress, connectWallet, getSigner } = useWallet(); 
+  const { isConnected, walletAddress, connectWallet, beaconWallet } = useWallet();
 
   // Tezos Contract Configuration
   const TEZOS_RPC = process.env.GATSBY_TEZOS_RPC;
@@ -26,24 +26,39 @@ const WalletMintNFT = ({ containerRef }) => {
   const Tezos = new TezosToolkit(TEZOS_RPC);
 
   const getLighthouseAuthToken = async () => {
-    if (!walletAddress) {
+    if (!walletAddress || !beaconWallet) {
       alert("Please connect your wallet first!");
       return;
     }
-
+  
     try {
+      // Get the active account
+      const activeAccount = await beaconWallet.client.getActiveAccount();
+      if (!activeAccount || !activeAccount.publicKey) {
+        alert("Wallet is not fully connected or does not provide a public key. Please reconnect.");
+        return;
+      }
+  
+      const publicKey = activeAccount.publicKey; // ✅ Correct way to fetch public key
+      console.log("✅ Fetched Public Key:", publicKey);
+  
       const message = "Authenticate upload to Lighthouse with Tezos wallet";
-      const signedMessage = await getSigner().sign(message);
-
-      console.log("✅ Signed Message:", signedMessage);
-
-      const response = await lighthouse.getAuthMessage(walletAddress, signedMessage);
+  
+      // Request signing from Beacon Wallet
+      const signedPayload = await beaconWallet.client.requestSignPayload({
+        signingType: "raw",
+        payload: Buffer.from(message, "utf8").toString("hex"), // Hex encoding for correct format
+      });
+  
+      console.log("✅ Signed Message:", signedPayload.signature.trim());
+  
+      // Authenticate with Lighthouse using the public key
+      const response = await lighthouse.getAuthMessage(publicKey, signedPayload.signature.trim());
       return response.data.token;
     } catch (error) {
       console.error("❌ Authentication Error:", error);
     }
   };
-
   const captureAndUpload = async () => {
     if (!isConnected) {
       alert("Please connect your wallet first!");
@@ -118,17 +133,26 @@ const WalletMintNFT = ({ containerRef }) => {
   };
 
   const mintNFT = async (metadataIpfsUrl) => {
-    if (!walletAddress) {
+    if (!walletAddress || !beaconWallet) {
       alert("Please connect your wallet first!");
       return;
     }
-
+  
     setMinting(true);
-
+  
     try {
-      Tezos.setWalletProvider(await getSigner());
+      // Get the wallet's signer
+      const activeAccount = await beaconWallet.client.getActiveAccount();
+      if (!activeAccount) {
+        await connectWallet(); // Reconnect wallet if needed
+        alert("Wallet was not connected. Please try again.");
+        return;
+      }
+      // Set the wallet as the signer for Tezos transactions
+      Tezos.setWalletProvider(beaconWallet);
+  
       const contract = await Tezos.contract.at(TEZOS_CONTRACT);
-
+  
       // 🛠️ Minting Parameters
       const tokenId = Math.floor(Math.random() * 100000);
       const mintParams = [
@@ -144,12 +168,12 @@ const WalletMintNFT = ({ containerRef }) => {
           },
         },
       ];
-
+  
       // 📌 Send Minting Transaction
       const op = await contract.methods.mint_tokens(mintParams).send();
       await op.confirmation();
       setTransactionHash(op.hash);
-
+  
       console.log("✅ NFT Minted on Tezos! Tx Hash:", op.hash);
     } catch (error) {
       console.error("❌ Minting Error:", error);

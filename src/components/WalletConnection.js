@@ -1,72 +1,77 @@
-import React, { useEffect, useState } from 'react';
-import { TezosToolkit } from '@taquito/taquito';
-import { BeaconWallet } from '@taquito/beacon-wallet';
-// import { useStaticQuery, graphql } from 'gatsby';
-import { Button } from 'react-bootstrap';
-import { useWallet } from './WalletContext'; // Import the WalletContext
+import React, { useEffect, useState } from "react";
+import { TezosToolkit } from "@taquito/taquito";
+import { BeaconWallet } from "@taquito/beacon-wallet";
+import { Button } from "react-bootstrap";
+import { useWallet } from "./WalletContext"; // Import WalletContext
 
 const WalletConnection = () => {
-  const { setWalletAddress, setIsConnected , isConnected} = useWallet();
+  const { setWalletAddress, setIsConnected, isConnected, beaconWallet, setBeaconWallet } = useWallet();
   const [wallet, setWallet] = useState(null);
- 
-  // const { isConnected: isWalletConnected } = useWallet();
-  const RPC_URL = "https://ghostnet.tzkt.io/"; // Use your RPC URL
+  
+  const RPC_URL = "https://ghostnet.ecadinfra.com"; // Correct Tezos RPC URL
+  const tezos = new TezosToolkit(RPC_URL);
 
   useEffect(() => {
     const initTezos = async () => {
-      const beaconWallet = new BeaconWallet({
-        name: 'Ruido Perla NFTs',
-        preferredNetwork: 'ghostnet',
+      const walletInstance = new BeaconWallet({
+        name: "Ruido Perla NFTs",
+        preferredNetwork: "ghostnet",
       });
 
-      const tezosInstance = new TezosToolkit(RPC_URL);
-      tezosInstance.setWalletProvider(beaconWallet);
+      tezos.setWalletProvider(walletInstance);
+      setWallet(walletInstance); // Store local instance
+      setBeaconWallet(walletInstance); // Store in global context
 
-      setWallet(beaconWallet);
+      const activeAccount = await walletInstance.client.getActiveAccount();
+      if (activeAccount) {
+        setWalletAddress(activeAccount.address);
+        setIsConnected(true);
+      }
     };
 
     initTezos();
   }, []);
 
   const connectWallet = async () => {
-    if (!wallet) return;
+    console.log("Connecting wallet...");
+    if (!beaconWallet) return;
 
     try {
-      await wallet.requestPermissions({
+      await beaconWallet.requestPermissions({
         network: {
-          type: 'ghostnet',
+          type: "ghostnet",
           rpcUrl: RPC_URL,
         },
       });
 
-      const address = await wallet.getPKH();
+      const address = await beaconWallet.getPKH();
       setWalletAddress(address);
       setIsConnected(true);
-      console.log('Connected wallet address:', address);
+      console.log("Connected wallet address:", address);
     } catch (error) {
-      console.error('Wallet connection failed:', error);
+      console.error("❌ Wallet connection failed:", error);
     }
   };
 
   const disconnectWallet = async () => {
-    if (!wallet) return;
+    if (!beaconWallet) return;
 
     try {
-      await wallet.clearActiveAccount();
+      await beaconWallet.clearActiveAccount();
       setWalletAddress(null);
       setIsConnected(false);
-      console.log('Disconnected wallet');
+      console.log("✅ Disconnected wallet");
     } catch (error) {
-      console.error('Wallet disconnection failed:', error);
+      console.error("❌ Wallet disconnection failed:", error);
     }
   };
 
   useEffect(() => {
-    console.log('isConnected:', isConnected); // Log the isConnected state
+    console.log("isConnected:", isConnected);
   }, [isConnected]);
 
   return (
-    <div className='wallet-connection'>
+    <div className="wallet-connection">
       {isConnected ? (
         <Button variant="danger" onClick={disconnectWallet}>
           Disconnect Wallet
