@@ -56,7 +56,7 @@ const PerlinNoise = ({
   const currentTextRef = useRef("")
   // const [canvas, setCanvas] = useState(null);
   const { walletAddress, isConnected } = useWallet()
-
+  // console.log("walletAddress:", walletAddress)
   const [usePerlin, setUsePerlin] = useState(initialParams.usePerlin)
   const [amplitude, setAmplitude] = useState(initialParams.amplitude)
   const [scale, setScale] = useState(initialParams.scale)
@@ -109,7 +109,7 @@ const PerlinNoise = ({
 
     const scene = new THREE.Scene()
     const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000)
-
+  
     if (cameraParams) {
       const { position, lookAt } = cameraParams
       camera.position.set(position.x, position.y, position.z)

@@ -1,7 +1,8 @@
 import React, { useRef, useState } from "react"
 import * as lighthouse from "@lighthouse-web3/sdk"
 import html2canvas from "html2canvas"
-import { Button, Form , Container} from "react-bootstrap"
+import { Button, Form, Container } from "react-bootstrap"
+import { useWallet } from "./WalletContext" // Import the useWallet hook
 
 const Html2CanvasUploader = ({ containerRef }) => {
   const captureRef = useRef(null)
@@ -13,12 +14,13 @@ const Html2CanvasUploader = ({ containerRef }) => {
   const [ipfsUrl, setIpfsUrl] = useState(null)
   const [metadataUrl, setMetadataUrl] = useState(null)
 
-  //   const [imageBlob, setImageBlob] = useState(null);
-
   // Fetch API Key from Environment Variables
   const LIGHTHOUSE_API_KEY = process.env.GATSBY_LIGHTHOUSE_API_KEY
+  const { isConnected } = useWallet() // Get the isConnected state
+  console.log("isConnected:", isConnected)
 
   const captureAndUpload = async () => {
+    if (!isConnected) return // Only allow upload when wallet is connected
     if (!containerRef.current) return
     setUploading(true)
 
@@ -87,78 +89,83 @@ const Html2CanvasUploader = ({ containerRef }) => {
   }
 
   return (
-    <Form style={{ padding: "10px", textAlign: "center" }}>
-      {/* <h2>Generate & Upload NFT to IPFS</h2> */}
-      {/* Upload Button */}
-      <Button variant="primary" onClick={captureAndUpload} disabled={uploading}>
-        {uploading ? "Uploading..." : "Upload"}
-      </Button>
-      {/* Editable NFT Name & Description */}
-      <Form.Group controlId="nft-name">
-        <Form.Label style={{ color: "white", fontSize: "16px" }}>
-          NFT Name
-        </Form.Label>
-        <Form.Control
-          type="text"
-          placeholder="NFT Name"
-          value={name}
-          onChange={e => setName(e.target.value)}
-        />
-      </Form.Group>
+    <Container>
+      <Form style={{ padding: "10px", textAlign: "center" }}>
+        {/* Upload Button */}
+        <Button
+          variant="primary"
+          onClick={captureAndUpload}
+          disabled={uploading}
+        >
+          {uploading ? "Uploading..." : "Upload"}
+        </Button>
+        {/* Editable NFT Name & Description */}
+        <Form.Group controlId="nft-name">
+          <Form.Label style={{ color: "white", fontSize: "16px" }}>
+            NFT Name
+          </Form.Label>
+          <Form.Control
+            type="text"
+            placeholder="NFT Name"
+            value={name}
+            onChange={e => setName(e.target.value)}
+          />
+        </Form.Group>
 
-      <Form.Group controlId="nft-description">
-        <Form.Label style={{ color: "white", fontSize: "16px" }}>
-          NFT Description
-        </Form.Label>
-        <Form.Control
-          type="text"
-          placeholder="NFT Description"
-          value={description}
-          onChange={e => setDescription(e.target.value)}
-        />
-      </Form.Group>
+        <Form.Group controlId="nft-description">
+          <Form.Label style={{ color: "white", fontSize: "16px" }}>
+            NFT Description
+          </Form.Label>
+          <Form.Control
+            type="text"
+            placeholder="NFT Description"
+            value={description}
+            onChange={e => setDescription(e.target.value)}
+          />
+        </Form.Group>
 
-      {/* Display IPFS URLs */}
-      {ipfsUrl && (
-        <div>
-          <h3>File Uploaded!</h3>
-          <p>
-            <strong>IPFS CID:</strong> {ipfsUrl}
-          </p>
-          <p>
-            <a
-              href={`https://gateway.lighthouse.storage/ipfs/${
-                ipfsUrl.split("ipfs://")[1]
-              }`}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              View File on IPFS
-            </a>
-          </p>
-        </div>
-      )}
+        {/* Display IPFS URLs */}
+        {ipfsUrl && (
+          <div>
+            <h3>File Uploaded!</h3>
+            <p>
+              <strong>IPFS CID:</strong> {ipfsUrl}
+            </p>
+            <p>
+              <a
+                href={`https://gateway.lighthouse.storage/ipfs/${
+                  ipfsUrl.split("ipfs://")[1]
+                }`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                View File on IPFS
+              </a>
+            </p>
+          </div>
+        )}
 
-      {metadataUrl && (
-        <Container style={{fontSize:'10px'}}>
-          <h3>Metadata Uploaded!</h3>
-          <p>
-            <strong>Metadata IPFS CID:</strong> {metadataUrl}
-          </p>
-          <p>
-            <a
-              href={`https://gateway.lighthouse.storage/ipfs/${
-                metadataUrl.split("ipfs://")[1]
-              }`}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              View Metadata on IPFS
-            </a>
-          </p>
-        </Container>
-      )}
-    </Form>
+        {metadataUrl && (
+          <Container style={{ fontSize: "10px" }}>
+            <h3>Metadata Uploaded!</h3>
+            <p>
+              <strong>Metadata IPFS CID:</strong> {metadataUrl}
+            </p>
+            <p>
+              <a
+                href={`https://gateway.lighthouse.storage/ipfs/${
+                  metadataUrl.split("ipfs://")[1]
+                }`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                View Metadata on IPFS
+              </a>
+            </p>
+          </Container>
+        )}
+      </Form>
+    </Container>
   )
 }
 

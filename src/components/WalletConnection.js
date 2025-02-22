@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { TezosToolkit } from '@taquito/taquito';
 import { BeaconWallet } from '@taquito/beacon-wallet';
-import { useStaticQuery, graphql } from 'gatsby';
+// import { useStaticQuery, graphql } from 'gatsby';
 import { Button } from 'react-bootstrap';
 import { useWallet } from './WalletContext'; // Import the WalletContext
 

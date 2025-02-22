@@ -1,6 +1,6 @@
 import React, { useState } from "react"
 import { Button } from "react-bootstrap"
-import { Link } from "gatsby"
+// import { Link } from "gatsby"
 import { GatsbyImage, getImage } from "gatsby-plugin-image"
 import { useStaticQuery, graphql } from "gatsby"
 import styled from "styled-components"
@@ -55,9 +55,9 @@ const AboutSection = () => {
   const [showCarousel, setShowCarousel] = useState(true);
   const [showVideo, setShowVideo] = useState(false);
 
-  const toggleCarousel = () => {
-    setShowCarousel(prev => !prev);
-  };
+  // const toggleCarousel = () => {
+  //   setShowCarousel(prev => !prev);
+  // };
 
   const data = useStaticQuery(graphql`
     query {
