@@ -14,10 +14,8 @@ import {
 import PerlinControls from "./PerlinControls" // Import the new controls component
 // import { useContractAddress } from "./ContractContext" // Import the custom hook
 import WalletConnection from "./WalletConnection" // Import the WalletConnection component
-import { useWallet } from "./WalletContext" // Import the WalletContext
-// import Html2CanvasUploader from "./Html2CanvasUploader"
-// import WalletMintNFT from "./WalletMintNFT"
-import UploadImageIpfs from "./UploadImageIpfs"
+// import { useWallet } from "./WalletContext" // Import the WalletContext
+import UploadImageWithWallet from "./UploadImagewithWallet" // Import the new component
 
 const PerlinNoise = ({
   showControls = true,
@@ -47,8 +45,8 @@ const PerlinNoise = ({
     }
   `)
 
-  const contractAddress = data.site.siteMetadata.contractNumber //useContractAddress()
-  const rpcUrl = data.site.siteMetadata.rpcUrl
+  // const contractAddress = data.site.siteMetadata.contractNumber //useContractAddress()
+  // const rpcUrl = data.site.siteMetadata.rpcUrl
   const mountRef = useRef(null)
   const containerRef = useRef(null)
   const sceneRef = useRef(null)
@@ -56,7 +54,7 @@ const PerlinNoise = ({
   const rendererRef = useRef(null)
   const currentTextRef = useRef("")
   // const [canvas, setCanvas] = useState(null);
-  const { walletAddress, isConnected } = useWallet()
+  // const { walletAddress, isConnected } = useWallet()
   // console.log("walletAddress:", walletAddress)
   const [usePerlin, setUsePerlin] = useState(initialParams.usePerlin)
   const [amplitude, setAmplitude] = useState(initialParams.amplitude)
@@ -80,7 +78,7 @@ const PerlinNoise = ({
     lookAt: { x: 0, y: 0, z: 0 },
   })
 
-  const controlsRef = useRef(null)
+  // const controlsRef = useRef(null)
 
   useEffect(() => {
     usePerlinRef.current = usePerlin
@@ -482,15 +480,7 @@ const PerlinNoise = ({
             justifyContent: "center",
           }}
         >
-        
-
-          {/* The Html2CanvasUploader component takes a reference to the container element 
-          (in this case, the PerlinNoise component's containerRef) 
-          and uses it to capture the scene as an image when the "Mint this?" modal is shown. 
-          The captured image is then uploaded to IPFS via the Lighthouse API and the generated IPFS URL 
-          is passed to the MintImage component as a prop. */}
-          {/* <Html2CanvasUploader containerRef={containerRef} /> */}
-          <UploadImageIpfs containerRef={containerRef} />
+          <UploadImageWithWalletAuth containerRef={containerRef} />
         </Modal.Footer>
       </Modal>
     </div>

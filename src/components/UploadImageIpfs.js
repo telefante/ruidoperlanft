@@ -3,6 +3,8 @@ import html2canvas from "html2canvas";
 import { Button, Container } from "react-bootstrap";
 import { useWallet } from "./WalletContext"; // Import wallet context hook
 import lighthouse from "@lighthouse-web3/sdk";
+import { encodeKey } from "@taquito/utils";
+
 
 const UploadImageIpfs = ({ containerRef }) => {
   const [uploading, setUploading] = useState(false);
@@ -14,17 +16,22 @@ const UploadImageIpfs = ({ containerRef }) => {
 
   const uploadFileWithTemple = async (file, apiKey, publicKey) => {
     try {
+      console.log("🔍 Sending Public Key to Lighthouse:", publicKey);
+      
+      const authMessageResponse = await lighthouse.getAuthMessage(publicKey);
+      console.log("🔑 Lighthouse Auth Message:", authMessageResponse);
+  
       const signedMessage = await beaconWallet.client.requestSignPayload({
         signingType: "raw",
-        payload: Buffer.from(await lighthouse.getAuthMessage(publicKey), "utf8").toString("hex"),
+        payload: Buffer.from(authMessageResponse.data.message, "utf8").toString("hex"),
       });
-
+  
       console.log("✅ Signed Lighthouse Auth Message:", signedMessage.signature.trim());
-
+  
       const response = await lighthouse.uploadEncrypted(file, apiKey, publicKey, signedMessage.signature.trim());
       console.log("✅ File uploaded successfully:", response);
-
-      return response;
+  
+      return response;  
     } catch (error) {
       console.error("❌ Upload Failed:", error);
       throw error;
@@ -40,9 +47,9 @@ const UploadImageIpfs = ({ containerRef }) => {
       alert("No content detected for capture.");
       return;
     }
-
+  
     setUploading(true);
-
+  
     try {
       // 📸 Capture Screenshot
       const canvas = await html2canvas(containerRef.current, {
@@ -50,7 +57,7 @@ const UploadImageIpfs = ({ containerRef }) => {
         backgroundColor: null,
         scale: 1,
       });
-
+  
       // Convert to Blob & Upload to IPFS
       const imageBlob = await new Promise((resolve) =>
         canvas.toBlob(resolve, "image/png")
@@ -59,23 +66,33 @@ const UploadImageIpfs = ({ containerRef }) => {
       const file = new File([imageBlob], `captured-image-${timestamp}.png`, {
         type: "image/png",
       });
-
+  
       // Get Public Key
       const activeAccount = await beaconWallet.client.getActiveAccount();
       if (!activeAccount || !activeAccount.publicKey) {
         alert("Wallet is not fully connected. Please reconnect.");
         return;
       }
-
-      const publicKey = activeAccount.publicKey;
-      console.log("✅ Fetched Public Key:", publicKey);
-
+  
+      let publicKey = activeAccount.publicKey;
+      console.log("✅ Original Public Key:", publicKey);
+  
+      // Convert to Base58 if needed
+      if (!publicKey.startsWith("edpk") && !publicKey.startsWith("sppk") && !publicKey.startsWith("p2pk")) {
+        publicKey = encodeKey(Buffer.from(publicKey, "hex"), "edpk");
+        console.log("🔄 Converted Public Key to Base58:", publicKey);
+      }
+  
       // Upload file
       const fileResponse = await uploadFileWithTemple(file, LIGHTHOUSE_API_KEY, publicKey);
+      if (!fileResponse?.data?.Hash) {
+        throw new Error("Failed to retrieve IPFS hash from Lighthouse.");
+      }
+  
       const imageCid = fileResponse.data.Hash;
       const imageIpfsUrl = `ipfs://${imageCid}`;
       setIpfsUrl(imageIpfsUrl);
-
+  
       console.log("✅ Image Uploaded to IPFS:", imageIpfsUrl);
     } catch (error) {
       console.error("❌ Upload Failed:", error);
