@@ -3,7 +3,6 @@ import { char2Bytes } from "@taquito/utils";
 // import axios from "axios";
 import { NFTStorage, File, Blob } from "nft.storage";
 
-
 // ✅ Replace with your actual NFT.Storage API key
 // const NFT_STORAGE_API_KEY = process.env.GATSBY_NFT_STORAGE_API_KEY;
 const NFT_STORAGE_API_KEY = '2baeb84d.6af8c38284084b4eaa495eb58a59911f'

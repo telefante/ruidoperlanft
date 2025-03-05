@@ -1,13 +1,39 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import html2canvas from "html2canvas";
 import { Button, Container } from "react-bootstrap";
 import { useWallet } from "./WalletContext";
 import lighthouse from "@lighthouse-web3/sdk";
+import { encodeKey } from "@taquito/utils";
+import axios from "axios";
 
 const UploadImageWithWallet = ({ containerRef }) => {
-  const [uploading, setUploading] = useState(false);
+  const [uploading, setUploading] = useState(false);t
   const [ipfsUrl, setIpfsUrl] = useState(null);
-  const { isConnected, beaconWallet } = useWallet();
+  const { isConnected, beaconWallet, walletAddress } = useWallet();
+  const [authMessage, setAuthMessage] = useState("");
+
+  useEffect(() => {
+    const fetchAuthMessage = async () => {
+      if (walletAddress) {
+        try {
+          const response = await axios.get(
+            `https://encryption.lighthouse.storage/api/message/${walletAddress}`
+          );
+          if (response.status === 200 && response.data && response.data.length > 0) {
+            setAuthMessage(response.data[0].message);
+          } else {
+            console.error("Failed to fetch auth message:", response);
+            alert("Failed to fetch authentication message. Check console.");
+          }
+        } catch (error) {
+          console.error("Error fetching auth message:", error);
+          alert("Error fetching authentication message. Check console.");
+        }
+      }
+    };
+
+    fetchAuthMessage();
+  }, [walletAddress]);
 
   const captureAndUpload = async () => {
     if (!isConnected) {
@@ -16,6 +42,10 @@ const UploadImageWithWallet = ({ containerRef }) => {
     }
     if (!containerRef.current) {
       alert("No content detected for capture.");
+      return;
+    }
+    if (!authMessage) {
+      alert("Authentication message not available. Please try again.");
       return;
     }
 
@@ -42,19 +72,41 @@ const UploadImageWithWallet = ({ containerRef }) => {
         return;
       }
 
-      const publicKey = activeAccount.publicKey;
-      const authMessageResponse = await lighthouse.getAuthMessage(publicKey);
+      let publicKey = activeAccount.publicKey;
+      console.log("✅ Original Public Key:", publicKey);
+
+      // Convert to Base58 if needed
+      if (!publicKey.startsWith("edpk") && !publicKey.startsWith("sppk") && !publicKey.startsWith("p2pk")) {
+        publicKey = encodeKey(Buffer.from(publicKey, "hex"), "edpk");
+        console.log("🔄 Converted Public Key to Base58:", publicKey);
+      }
+
+      // Validate the public key format
+      if (!publicKey.startsWith("edpk") && !publicKey.startsWith("sppk") && !publicKey.startsWith("p2pk")) {
+        throw new Error("Invalid public key format");
+      }
+
+      console.log("🔑 Validated Public Key:", publicKey);
+      console.log("📝 Auth Message:", authMessage);
+
       const signedMessage = await beaconWallet.client.requestSignPayload({
         signingType: "raw",
-        payload: Buffer.from(authMessageResponse.data.message, "utf8").toString("hex"),
+        payload: Buffer.from(authMessage, "utf8").toString("hex"),
       });
+      console.log("✍️ Signed Message:", signedMessage);
 
       const response = await lighthouse.uploadEncrypted(file, signedMessage.signature.trim(), publicKey);
-      const imageCid = response.data.Hash;
-      const imageIpfsUrl = `ipfs://${imageCid}`;
-      setIpfsUrl(imageIpfsUrl);
+      console.log("📤 Upload Response:", response);
 
-      console.log("✅ Image Uploaded to IPFS:", imageIpfsUrl);
+      if (response.data && response.data.Hash) {
+        const imageCid = response.data.Hash;
+        const imageIpfsUrl = `ipfs://${imageCid}`;
+        setIpfsUrl(imageIpfsUrl);
+        console.log("✅ Image Uploaded to IPFS:", imageIpfsUrl);
+      } else {
+        console.error("❌ Upload Failed: Hash not found in response");
+        throw new Error("Hash not found in response");
+      }
     } catch (error) {
       console.error("❌ Upload Failed:", error);
     } finally {

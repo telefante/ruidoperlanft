@@ -480,7 +480,7 @@ const PerlinNoise = ({
             justifyContent: "center",
           }}
         >
-          <UploadImageWithWalletAuth containerRef={containerRef} />
+          <UploadImageWithWallet containerRef={containerRef} />
         </Modal.Footer>
       </Modal>
     </div>
