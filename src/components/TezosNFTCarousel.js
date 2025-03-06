@@ -15,10 +15,12 @@ const TezosNFTCarousel = () => {
   const [nfts, setNfts] = useState([])
   const [showModal, setShowModal] = useState(false)
   const [modalImage, setModalImage] = useState("")
+  const [selectedNft, setSelectedNft] = useState(null) // new state
 
   // const RPC_URL = process.env.GATSBY_TEZOS_RPC_URL;
   const TzKT_API = process.env.GATSBY_TZKT_API_URL
   const COLLECTION_CONTRACT = process.env.GATSBY_TEZOS_CONTRACT
+  const OBJKT_TOKEN_URL = process.env.GATSBY_OBJKT_TOKEN_URL
   console.log("TzKT_API:", TzKT_API)
   console.log("COLLECTION_CONTRACT:", COLLECTION_CONTRACT)
 
@@ -68,14 +70,19 @@ const TezosNFTCarousel = () => {
     fetchNFTsfromCollection()
   }, [])
 
-  const openModal = displayUri => {
-    setModalImage(displayUri)
+  const openModal = nft => {
+    setModalImage(
+      nft.metadata.displayUri?.replace("ipfs://", "https://dweb.link/ipfs/") ||
+        placeholderImage
+    )
+    setSelectedNft(nft) // Store the selected NFT
     setShowModal(true)
   }
 
   const closeModal = () => {
     setShowModal(false)
     setModalImage("")
+    setSelectedNft(null) // Clear the selected NFT
   }
 
   return (
@@ -106,7 +113,11 @@ const TezosNFTCarousel = () => {
                 "https://dweb.link/ipfs/"
               ) || placeholderImage
 
-              const displayURL = nft.metadata.displayUri?.replace("ipfs://", "https://dweb.link/ipfs/")
+            // Create a function to handle the click event
+            const handleImageClick = () => {
+              openModal(nft)
+            }
+
             return (
               <SwiperSlide key={index}>
                 {/* <Container className="d-flex align-items-center"> */}
@@ -122,7 +133,7 @@ const TezosNFTCarousel = () => {
                         marginRight: "20px",
                         cursor: "pointer", // Add cursor pointer
                       }}
-                      onClick={() => openModal(displayURL)} // Open modal on click
+                      onClick={handleImageClick} // Call the new function
                     />
                   </Col>
                   <Col className="align-items-center">
@@ -159,10 +170,10 @@ const TezosNFTCarousel = () => {
                   <p>
                     {nft.metadata?.description || "No description available"}
                   </p>
-                  </Row>
+                </Row>
                 <Row style={{ justifyContent: "center" }}>
                   <Button
-                    href={`https://ghostnet.objkt.com/tokens/${COLLECTION_CONTRACT}/${nft.tokenId}`}
+                    href={`${OBJKT_TOKEN_URL}/${COLLECTION_CONTRACT}/${nft.tokenId}`}
                     target="_blank"
                     variant="primary"
                     style={{
@@ -199,6 +210,23 @@ const TezosNFTCarousel = () => {
           <img src={modalImage} alt="NFT" style={{ width: "100%" }} />
         </Modal.Body>
         <Modal.Footer>
+          {selectedNft && (
+            <>
+              {console.log("Buy Button - selectedNft:", selectedNft)} {/* Log here */}
+              <Button
+                style={{
+                  fontFamily: "var(--primary-font)",
+                  fontSize: "1.5rem",
+                  fontVariant: "italic",
+                  fontWeight: "bold",
+                }}
+                variant="primary"
+                href={`${OBJKT_TOKEN_URL}/${COLLECTION_CONTRACT}/${selectedNft.tokenId}`}
+              >
+                Buy
+              </Button>
+            </>
+          )}
           <Button variant="secondary" onClick={closeModal}>
             Close
           </Button>
