@@ -5,9 +5,10 @@ import "swiper/css/pagination"
 import { Pagination } from "swiper/modules"
 import SectionContainer from "./sections/SectionContainer"
 import placeholderImage from "../assets/placeholder.jpg"
-import { Container, Button, Stack } from "react-bootstrap"
+import { Container, Button, Card } from "react-bootstrap"
 // import WalletConnection from "./WalletConnection"
 import { useWallet } from "./WalletContext" // Use WalletContext
+import "./TezosNFTCarousel.css"
 
 const TezosNFTCarousel = () => {
   const { walletAddress, isConnected } = useWallet() // Get wallet state from context
@@ -95,32 +96,32 @@ const TezosNFTCarousel = () => {
                     ) || placeholderImage
                   return (
                     <SwiperSlide key={index}>
-                     <Stack direction="horizontal" className="flex flex-col items-center p-4">
+                      <Container className="flex flex-col items-center p-2">
                         <img
                           src={thumbnailUrl}
                           alt={nft.metadata?.name || "Unnamed NFT"}
+                          // style={{ maxWidth: "200px", maxHeight: "200px" }} // Adjust size as needed
                         />
-                      
-                       
-                         {nft.metadata?.attributes && (
-                          <div>
-                            <h3>Attributes:</h3>
-                            <ul>
-                              {nft.metadata.attributes.map((attr, i) => (
-                                <li key={i}>
-                                  <strong>{attr.name}:</strong> {attr.value}
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        )}
 
-                     </Stack>
-                     <h3>{nft.metadata?.name || "Unnamed NFT"}</h3>
-                        <p>
-                          {nft.metadata?.description ||
-                            "No description available"}
-                        </p>
+                        {nft.metadata?.attributes && (
+                          <Card style={{ width: "12rem", margin: "10px" }}>
+                            <div className="card-body custom-card-body">
+                              <h5 className="card-title custom-card-title">Attributes:</h5>
+                              <ul className="list-group list-group-flush custom-list-group">
+                                {nft.metadata.attributes.map((attr, i) => (
+                                  <li key={i} className="list-group-item custom-list-item">
+                                    <strong>{attr.name}:</strong> {attr.value}
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          </Card>
+                        )}
+                      </Container>
+                      <h3>{nft.metadata?.name || "Unnamed NFT"}</h3>
+                      <p>
+                        {nft.metadata?.description || "No description available"}
+                      </p>
                     </SwiperSlide>
                   )
                 })}
