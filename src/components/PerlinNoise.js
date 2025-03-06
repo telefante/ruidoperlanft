@@ -28,12 +28,12 @@ const PerlinNoise = ({
     usePerlin: true,
   },
   cameraParams = null,
-
   showCaptureButton,
+  queryFile
 }) => {
   const data = useStaticQuery(graphql`
     query {
-     markdownRemark(fileAbsolutePath: { regex: "/intro.md/" }) {
+     markdownRemark(fileAbsolutePath: { regex:  "${queryFile}" }) {
         rawMarkdownBody
       }
       site {

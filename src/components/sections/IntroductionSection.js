@@ -28,6 +28,9 @@ const IntroductionSection = () => {
       lookAt: { x: -0.00, y: 90.13, z: 0.00 }
     };
 
+    const queryFile = "intro.md" // Specify the file name
+
+
   return (
     <SectionContainer id="introduction" isGridLayout={false}>
        {/* <section>
@@ -53,6 +56,7 @@ const IntroductionSection = () => {
           initialParams={surfaceParams}
           cameraParams={cameraParams}
           showCaptureButton={false}
+          queryFile={queryFile} // Pass the queryFile prop
         />
       </div>
     </SectionContainer>
