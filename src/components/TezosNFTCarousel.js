@@ -34,8 +34,8 @@ const TezosNFTCarousel = () => {
   }, [isConnected, walletAddress])
 
   const fetchNFTs = async walletAddress => {
-    const apiUrl = `${TzKT_API}/v1/tokens/balances?account=${walletAddress}&token.standard=fa2`;
-    console.log("Fetching NFTs from:", apiUrl);
+    const apiUrl = `${TzKT_API}/v1/tokens/balances?account=${walletAddress}&token.standard=fa2`
+    console.log("Fetching NFTs from:", apiUrl)
     try {
       console.log("Fetching NFTs for:", walletAddress)
 
@@ -110,6 +110,15 @@ const TezosNFTCarousel = () => {
             ) : (
               <p className="text-center text-gray-500">No NFTs found</p>
             )}
+
+            <Button
+              href={`${process.env.GATSBY_OBJKT_COLLECTION_URL}/${COLLECTION_CONTRACT}`}
+              target="_blank"
+              variant="secondary"
+              style={{ marginTop: "1rem",   fontFamily: "var(--primary-font)" }}
+            >
+              View Full Collection on Objkt
+            </Button>
           </>
         ) : (
           <p>Please connect your wallet</p>
