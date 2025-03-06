@@ -5,7 +5,7 @@ import "swiper/css/pagination"
 import { Pagination } from "swiper/modules"
 import SectionContainer from "./sections/SectionContainer"
 import placeholderImage from "../assets/placeholder.jpg"
-import { Container, Button, Card, Row } from "react-bootstrap"
+import { Container, Button, Card, Row, Col, Modal } from "react-bootstrap"
 // import WalletConnection from "./WalletConnection"
 import { useWallet } from "./WalletContext" // Use WalletContext
 import "./TezosNFTCarousel.css"
@@ -13,10 +13,14 @@ import "./TezosNFTCarousel.css"
 const TezosNFTCarousel = () => {
   const { walletAddress, isConnected } = useWallet() // Get wallet state from context
   const [nfts, setNfts] = useState([])
+  const [showModal, setShowModal] = useState(false)
+  const [modalImage, setModalImage] = useState("")
+  const [selectedNft, setSelectedNft] = useState(null) // new state
 
   // const RPC_URL = process.env.GATSBY_TEZOS_RPC_URL;
   const TzKT_API = process.env.GATSBY_TZKT_API_URL
   const COLLECTION_CONTRACT = process.env.GATSBY_TEZOS_CONTRACT
+  const OBJKT_TOKEN_URL = process.env.GATSBY_OBJKT_TOKEN_URL
   console.log("TzKT_API:", TzKT_API)
   console.log("COLLECTION_CONTRACT:", COLLECTION_CONTRACT)
 
@@ -42,9 +46,7 @@ const TezosNFTCarousel = () => {
     try {
       // console.log("Fetching NFTs for:", walletAddress)
 
-      const response = await fetch(
-        apiUrl
-      )
+      const response = await fetch(apiUrl)
       // https://api.tzkt.io/v1/tokens/balances?account=${walletAddress}&token.standard=fa2`
       const data = await response.json()
 
@@ -55,9 +57,7 @@ const TezosNFTCarousel = () => {
         return
       }
 
-      const nftsWithImages = data.filter(
-        nft => nft?.metadata?.artifactUri
-      )
+      const nftsWithImages = data.filter(nft => nft?.metadata?.artifactUri)
       console.log("NFTs with Images:", nftsWithImages)
 
       setNfts(nftsWithImages)
@@ -70,93 +70,168 @@ const TezosNFTCarousel = () => {
     fetchNFTsfromCollection()
   }, [])
 
+  const openModal = nft => {
+    setModalImage(
+      nft.metadata.displayUri?.replace("ipfs://", "https://dweb.link/ipfs/") ||
+        placeholderImage
+    )
+    setSelectedNft(nft) // Store the selected NFT
+    setShowModal(true)
+  }
+
+  const closeModal = () => {
+    setShowModal(false)
+    setModalImage("")
+    setSelectedNft(null) // Clear the selected NFT
+  }
+
   return (
-    <SectionContainer id="tezos-nft-carousel" title="Ruido Perla NFT Collection">
-      <Container className="flex flex-col items-center p-4">
-      
-            <p>
-              {nfts.length > 0
-                ? `${nfts.length} assets`
-                : `No NFTs found`}
-            </p>
+    <SectionContainer
+      id="tezos-nft-carousel"
+      title="Ruido Perla NFT Collection"
+    >
+      {/* <Container className="flex flex-col items-center p-4"> */}
+      <Row>
+        <p>{nfts.length > 0 ? `${nfts.length} assets` : `No NFTs found`}</p>
+      </Row>
+      {nfts.length > 0 ? (
+        <Swiper
+          modules={[Pagination]}
+          spaceBetween={10}
+          slidesPerView={1}
+          pagination={{ clickable: true }}
+          style={{
+            width: "100%",
+            height: "100%",
+            backgroundColor: "transparent",
+          }}
+        >
+          {nfts.map((nft, index) => {
+            const thumbnailUrl =
+              nft.metadata.thumbnailUri?.replace(
+                "ipfs://",
+                "https://dweb.link/ipfs/"
+              ) || placeholderImage
 
-            {nfts.length > 0 ? (
-              <Swiper
-                modules={[Pagination]}
-                spaceBetween={10}
-                slidesPerView={1}
-                pagination={{ clickable: true }}
-                style={{ width: "100%", height: "100%" , backgroundColor: "transparent"}}
+            // Create a function to handle the click event
+            const handleImageClick = () => {
+              openModal(nft)
+            }
+
+            return (
+              <SwiperSlide key={index}>
+                {/* <Container className="d-flex align-items-center"> */}
+                <Row>
+                  <Col>
+                    <img
+                      src={thumbnailUrl}
+                      alt={nft.metadata?.name || "Unnamed NFT"}
+                      style={{
+                        maxWidth: "80%",
+                        minWidth: "200px",
+                        // maxHeight: ",
+                        marginRight: "20px",
+                        cursor: "pointer", // Add cursor pointer
+                      }}
+                      onClick={handleImageClick} // Call the new function
+                    />
+                  </Col>
+                  <Col className="align-items-center">
+                    {nft.metadata?.attributes && (
+                      <Card style={{ width: "12rem", margin: "10px" }}>
+                        <div className="card-body custom-card-body">
+                          <h3 className="card-title custom-card-title">
+                            {nft.metadata?.name || "Unnamed NFT"}
+                          </h3>
+                          <ul className="list-group list-group-flush custom-list-group">
+                            {nft.metadata.attributes.map((attr, i) => (
+                              <li
+                                key={i}
+                                className="list-group-item custom-list-item"
+                              >
+                                <strong>{attr.name}:</strong> {attr.value}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      </Card>
+                    )}
+                  </Col>
+                </Row>
+                {/* </Container> */}
+                <Row mt-8 centered>
+                  <h3>
+                    Rarity:{" "}
+                    {nft.metadata.attributes.find(
+                      attr => attr.name === "Rarity"
+                    )?.value || "No rarity available"}
+                  </h3>
+
+                  <p>
+                    {nft.metadata?.description || "No description available"}
+                  </p>
+                </Row>
+                <Row style={{ justifyContent: "center" }}>
+                  <Button
+                    href={`${OBJKT_TOKEN_URL}/${COLLECTION_CONTRACT}/${nft.tokenId}`}
+                    target="_blank"
+                    variant="primary"
+                    style={{
+                      fontFamily: "var(--primary-font)",
+                      fontStyle: "italic",
+                      fontWeight: "bold",
+                      fontSize: "1.5rem",
+                      maxWidth: "200px",
+                    }}
+                  >
+                    Buy on Objkt
+                  </Button>
+                </Row>
+              </SwiperSlide>
+            )
+          })}
+        </Swiper>
+      ) : (
+        <p className="text-center text-gray-500">No NFTs found</p>
+      )}
+
+      <Button
+        href={`${process.env.GATSBY_OBJKT_COLLECTION_URL}/${COLLECTION_CONTRACT}`}
+        target="_blank"
+        variant="secondary"
+        style={{ marginTop: "1rem", fontFamily: "var(--primary-font)" }}
+      >
+        View Full Collection on Objkt
+      </Button>
+
+      {/* </Container> */}
+      <Modal show={showModal} onHide={closeModal} centered>
+        <Modal.Body>
+          <img src={modalImage} alt="NFT" style={{ width: "100%" }} />
+        </Modal.Body>
+        <Modal.Footer>
+          {selectedNft && (
+            <>
+              {console.log("Buy Button - selectedNft:", selectedNft)} {/* Log here */}
+              <Button
+                style={{
+                  fontFamily: "var(--primary-font)",
+                  fontSize: "1.5rem",
+                  fontVariant: "italic",
+                  fontWeight: "bold",
+                }}
+                variant="primary"
+                href={`${OBJKT_TOKEN_URL}/${COLLECTION_CONTRACT}/${selectedNft.tokenId}`}
               >
-                {nfts.map((nft, index) => {
-                  const thumbnailUrl =
-                    nft.metadata.thumbnailUri?.replace(
-                      "ipfs://",
-                      "https://dweb.link/ipfs/"
-                    ) || placeholderImage
-                  return (
-                    <SwiperSlide key={index}>
-                      <Container className="d-flex align-items-center">
-                        <img
-                          src={thumbnailUrl}
-                          alt={nft.metadata?.name || "Unnamed NFT"}
-                          style={{
-                            maxWidth: "200px",
-                            maxHeight: "200px",
-                            marginRight: "20px",
-                          }}
-                        />
-
-                        {nft.metadata?.attributes && (
-                          <Card style={{ width: "12rem", margin: "10px" }}>
-                            <div className="card-body custom-card-body">
-                              <h3 className="card-title custom-card-title">
-                                {nft.metadata?.name || "Unnamed NFT"}
-                              </h3>
-                              <ul className="list-group list-group-flush custom-list-group">
-                                {nft.metadata.attributes.map((attr, i) => (
-                                  <li
-                                    key={i}
-                                    className="list-group-item custom-list-item"
-                                  >
-                                    <strong>{attr.name}:</strong> {attr.value}
-                                  </li>
-                                ))}
-                              </ul>
-                            </div>
-                          </Card>
-                        )}
-                      </Container>
-                      <Row mt-8>
-                      <h3 >
-                        Rarity:{" "}
-                        {nft.metadata.attributes.find(
-                          attr => attr.name === "Rarity"
-                        )?.value || "No rarity available"}
-                      </h3>
-                      </Row>
-                      <p>
-                        {nft.metadata?.description || "No description available"}
-                      </p>
-                    </SwiperSlide>
-                  )
-                })}
-              </Swiper>
-            ) : (
-              <p className="text-center text-gray-500">No NFTs found</p>
-            )}
-
-            <Button
-              href={`${process.env.GATSBY_OBJKT_COLLECTION_URL}/${COLLECTION_CONTRACT}`}
-              target="_blank"
-              variant="secondary"
-              style={{ marginTop: "1rem",   fontFamily: "var(--primary-font)" }}
-            >
-              View Full Collection on Objkt
-            </Button>
-         
-           
-      </Container>
+                Buy
+              </Button>
+            </>
+          )}
+          <Button variant="secondary" onClick={closeModal}>
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </SectionContainer>
   )
 }
