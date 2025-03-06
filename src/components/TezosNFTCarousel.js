@@ -5,8 +5,8 @@ import "swiper/css/pagination"
 import { Pagination } from "swiper/modules"
 import SectionContainer from "./sections/SectionContainer"
 import placeholderImage from "../assets/placeholder.jpg"
-import { Container, Button } from "react-bootstrap"
-import WalletConnection from "./WalletConnection"
+import { Container, Button, Stack } from "react-bootstrap"
+// import WalletConnection from "./WalletConnection"
 import { useWallet } from "./WalletContext" // Use WalletContext
 
 const TezosNFTCarousel = () => {
@@ -29,18 +29,20 @@ const TezosNFTCarousel = () => {
   // Fetch NFTs when the wallet is connected
   useEffect(() => {
     if (isConnected && walletAddress) {
-      fetchNFTs(walletAddress)
+      fetchNFTsfromCollection(walletAddress)
     }
   }, [isConnected, walletAddress])
 
-  const fetchNFTs = async walletAddress => {
-    const apiUrl = `${TzKT_API}/v1/tokens/balances?account=${walletAddress}&token.standard=fa2`
+  const fetchNFTsfromCollection = async () => {
+    const apiUrl = `${TzKT_API}v1/tokens?contract=${COLLECTION_CONTRACT}&limit=200`
+    // GET https://api.tzkt.io/v1/tokens?contract=KT1[CollectionAddress]&limit=100
+
     console.log("Fetching NFTs from:", apiUrl)
     try {
-      console.log("Fetching NFTs for:", walletAddress)
+      // console.log("Fetching NFTs for:", walletAddress)
 
       const response = await fetch(
-        `${TzKT_API}v1/tokens/balances?account=${walletAddress}&token.standard=fa2`
+        apiUrl
       )
       // https://api.tzkt.io/v1/tokens/balances?account=${walletAddress}&token.standard=fa2`
       const data = await response.json()
@@ -52,13 +54,8 @@ const TezosNFTCarousel = () => {
         return
       }
 
-      const filteredNFTs = data.filter(
-        nft => nft?.token?.contract?.address === COLLECTION_CONTRACT
-      )
-      console.log("Filtered NFTs:", filteredNFTs)
-
-      const nftsWithImages = filteredNFTs.filter(
-        nft => nft?.token?.metadata?.artifactUri
+      const nftsWithImages = data.filter(
+        nft => nft?.metadata?.artifactUri
       )
       console.log("NFTs with Images:", nftsWithImages)
 
@@ -68,16 +65,17 @@ const TezosNFTCarousel = () => {
     }
   }
 
+  useEffect(() => {
+    fetchNFTsfromCollection()
+  }, [])
+
   return (
-    <SectionContainer id="tezos-nft-carousel" title="Your Ruido Perla NFTs">
+    <SectionContainer id="tezos-nft-carousel" title="Ruido Perla NFT Collection">
       <Container className="flex flex-col items-center p-4">
-        <WalletConnection />
-        {isConnected && walletAddress ? (
-          <>
-            <h2>Connected as: {walletAddress}</h2>
+      
             <p>
               {nfts.length > 0
-                ? `You own ${nfts.length} NFTs`
+                ? `${nfts.length} assets`
                 : `No NFTs found`}
             </p>
 
@@ -87,22 +85,42 @@ const TezosNFTCarousel = () => {
                 spaceBetween={10}
                 slidesPerView={1}
                 pagination={{ clickable: true }}
+                style={{ width: "100%", height: "100%" , backgroundColor: "transparent"}}
               >
                 {nfts.map((nft, index) => {
                   const thumbnailUrl =
-                    nft.token.metadata.thumbnailUri?.replace(
+                    nft.metadata.thumbnailUri?.replace(
                       "ipfs://",
                       "https://dweb.link/ipfs/"
                     ) || placeholderImage
                   return (
                     <SwiperSlide key={index}>
-                      <div className="p-4 shadow-lg rounded-lg bg-white">
+                     <Stack direction="horizontal" className="flex flex-col items-center p-4">
                         <img
                           src={thumbnailUrl}
-                          alt={nft.token.metadata?.name || "Unnamed NFT"}
+                          alt={nft.metadata?.name || "Unnamed NFT"}
                         />
-                        <h3>{nft.token.metadata?.name || "Unnamed NFT"}</h3>
-                      </div>
+                      
+                       
+                         {nft.metadata?.attributes && (
+                          <div>
+                            <h3>Attributes:</h3>
+                            <ul>
+                              {nft.metadata.attributes.map((attr, i) => (
+                                <li key={i}>
+                                  <strong>{attr.name}:</strong> {attr.value}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+
+                     </Stack>
+                     <h3>{nft.metadata?.name || "Unnamed NFT"}</h3>
+                        <p>
+                          {nft.metadata?.description ||
+                            "No description available"}
+                        </p>
                     </SwiperSlide>
                   )
                 })}
@@ -119,10 +137,8 @@ const TezosNFTCarousel = () => {
             >
               View Full Collection on Objkt
             </Button>
-          </>
-        ) : (
-          <p>Please connect your wallet</p>
-        )}
+         
+           
       </Container>
     </SectionContainer>
   )
