@@ -7,7 +7,7 @@ import { useWallet } from "./WalletContext"; // Import WalletContext
 const WalletConnection = () => {
   const { setWalletAddress, setIsConnected, isConnected, beaconWallet, setBeaconWallet } = useWallet();
   const [wallet, setWallet] = useState(null);
-  
+
   const RPC_URL = "https://ghostnet.ecadinfra.com"; // Correct Tezos RPC URL
   const tezos = new TezosToolkit(RPC_URL);
 

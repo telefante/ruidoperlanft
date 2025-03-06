@@ -7,7 +7,7 @@ import { encodeKey } from "@taquito/utils";
 import axios from "axios";
 
 const UploadImageWithWallet = ({ containerRef }) => {
-  const [uploading, setUploading] = useState(false);t
+  const [uploading, setUploading] = useState(false);
   const [ipfsUrl, setIpfsUrl] = useState(null);
   const { isConnected, beaconWallet, walletAddress } = useWallet();
   const [authMessage, setAuthMessage] = useState("");
