@@ -6,7 +6,7 @@ import { Pagination } from "swiper/modules";
 import SectionContainer from "./sections/SectionContainer";
 import placeholderImage from "../assets/placeholder.jpg";
 import { useStaticQuery, graphql } from "gatsby";
-import { Container, Row } from "react-bootstrap";
+import { Container, Row, Button } from "react-bootstrap";
 import WalletConnection from './WalletConnection'; // Import the WalletConnection component
 
 const TezosNFTCarousel = () => {
@@ -14,7 +14,6 @@ const TezosNFTCarousel = () => {
   const [nfts, setNfts] = useState([]);
   const [isConnected, setIsConnected] = useState(false);
 
-  // Check if the code is running in the client
   const isClient = typeof window !== "undefined";
 
   // Fetch contract number and RPC URL from site metadata
@@ -29,7 +28,8 @@ const TezosNFTCarousel = () => {
     }
   `);
   const COLLECTION_CONTRACT = data.site.siteMetadata.contractNumber;
-  const RPC_URL = data.site.siteMetadata.rpcUrl; // Get the RPC URL
+  const RPC_URL = data.site.siteMetadata.rpcUrl;
+  const OBJKT_COLLECTION_URL = `https://objkt.com/asset/${COLLECTION_CONTRACT}`;
 
   // Function to fetch NFTs
   const fetchNFTs = async (walletAddress) => {
@@ -46,7 +46,7 @@ const TezosNFTCarousel = () => {
 
   useEffect(() => {
     if (isConnected && address) {
-      fetchNFTs(address); // Fetch NFTs when connected
+      fetchNFTs(address);
     }
   }, [isConnected, address]);
 
@@ -55,20 +55,23 @@ const TezosNFTCarousel = () => {
   }
 
   return (
-    <SectionContainer id="tezos-nft-carousel" title="Connect to your Ruido Perla NFTs" background={false} isGridLayout={true}>
+    <SectionContainer id="tezos-nft-carousel" title="Your Ruido Perla NFTs" background={false} isGridLayout={true}>
       <Container className="flex flex-col items-center p-4">
         <WalletConnection setAddress={setAddress} setIsConnected={setIsConnected} isConnected={isConnected} />
         {isConnected && address && (
           <>
             <h2>Connected as: {address}</h2>
-            <p style={{ alignItems: 'center' }}>{nfts.length > 0 ? `You already have ${nfts.length} NFTs` : `nothing to show`}</p>
+            <p>{nfts.length > 0 ? `You own ${nfts.length} NFTs` : `No NFTs found`}</p>
+
             <Swiper modules={[Pagination]} spaceBetween={10} slidesPerView={1} pagination={{ clickable: true }} className="w-full max-w-lg mt-4">
               {nfts.length > 0 ? (
                 nfts.map((nft, index) => {
                   const thumbnailUrl = nft.token.metadata.thumbnailUri.replace("ipfs://", "https://dweb.link/ipfs/");
+                  const objktUrl = `https://objkt.com/asset/${COLLECTION_CONTRACT}/${nft.token.id}`;
+
                   return (
                     <SwiperSlide key={index}>
-                      <div className="p-4 shadow-lg rounded-lg">
+                      <div className="p-4 shadow-lg rounded-lg bg-white">
                         <img
                           src={thumbnailUrl}
                           alt={nft.token.metadata.name}
@@ -79,6 +82,25 @@ const TezosNFTCarousel = () => {
                           }}
                         />
                         <h3 className="text-center mt-2 text-lg font-semibold">{nft.token.metadata.name || "Unnamed NFT"}</h3>
+
+                        {/* NFT Attributes */}
+                        {nft.token.metadata.attributes && (
+                          <div className="text-sm mt-2 p-2 bg-gray-100 rounded">
+                            <h4 className="font-semibold">Attributes:</h4>
+                            <ul>
+                              {nft.token.metadata.attributes.map((attr, attrIndex) => (
+                                <li key={attrIndex}>{attr.name}: {attr.value}</li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+
+                        {/* Buy Button */}
+                        <div className="flex justify-center mt-4">
+                          <Button href={objktUrl} target="_blank" variant="primary">
+                            Buy Here
+                          </Button>
+                        </div>
                       </div>
                     </SwiperSlide>
                   );
@@ -87,6 +109,13 @@ const TezosNFTCarousel = () => {
                 <p className="text-center text-gray-500">No NFTs found</p>
               )}
             </Swiper>
+
+            {/* View Collection on Objkt Button */}
+            <div className="mt-6">
+              <Button href={OBJKT_COLLECTION_URL} target="_blank" variant="outline-primary">
+                View Full Collection on Objkt
+              </Button>
+            </div>
           </>
         )}
       </Container>
