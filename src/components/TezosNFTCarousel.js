@@ -5,7 +5,7 @@ import "swiper/css/pagination"
 import { Pagination } from "swiper/modules"
 import SectionContainer from "./sections/SectionContainer"
 import placeholderImage from "../assets/placeholder.jpg"
-import { Container, Button, Card } from "react-bootstrap"
+import { Container, Button, Card, Row } from "react-bootstrap"
 // import WalletConnection from "./WalletConnection"
 import { useWallet } from "./WalletContext" // Use WalletContext
 import "./TezosNFTCarousel.css"
@@ -96,13 +96,13 @@ const TezosNFTCarousel = () => {
                     ) || placeholderImage
                   return (
                     <SwiperSlide key={index}>
-                      <div className="d-flex align-items-center">
+                      <Container className="d-flex align-items-center">
                         <img
                           src={thumbnailUrl}
                           alt={nft.metadata?.name || "Unnamed NFT"}
                           style={{
-                            maxWidth: "400px",
-                            maxHeight: "400px",
+                            maxWidth: "200px",
+                            maxHeight: "200px",
                             marginRight: "20px",
                           }}
                         />
@@ -111,7 +111,7 @@ const TezosNFTCarousel = () => {
                           <Card style={{ width: "12rem", margin: "10px" }}>
                             <div className="card-body custom-card-body">
                               <h3 className="card-title custom-card-title">
-                              {nft.metadata?.name || "Unnamed NFT"}
+                                {nft.metadata?.name || "Unnamed NFT"}
                               </h3>
                               <ul className="list-group list-group-flush custom-list-group">
                                 {nft.metadata.attributes.map((attr, i) => (
@@ -126,8 +126,15 @@ const TezosNFTCarousel = () => {
                             </div>
                           </Card>
                         )}
-                      </div>
-                   
+                      </Container>
+                      <Row mt-8>
+                      <h3 >
+                        Rarity:{" "}
+                        {nft.metadata.attributes.find(
+                          attr => attr.name === "Rarity"
+                        )?.value || "No rarity available"}
+                      </h3>
+                      </Row>
                       <p>
                         {nft.metadata?.description || "No description available"}
                       </p>
