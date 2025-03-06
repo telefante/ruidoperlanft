@@ -27,13 +27,16 @@ const TezosNFTCarousel = () => {
       }
     }
   `);
-  const COLLECTION_CONTRACT = data.site.siteMetadata.contractNumber;
-  const RPC_URL = data.site.siteMetadata.rpcUrl;
-  const OBJKT_COLLECTION_URL = `https://objkt.com/asset/${COLLECTION_CONTRACT}`;
+  const COLLECTION_CONTRACT = process.env.GATSBY_TEZOS_CONTRACT;  //data.site.siteMetadata.contractNumber;
+  const RPC_URL = process.env.GATSBY_TEZOS_RPC_URL; //data.site.siteMetadata.rpcUrl;
+  const OBJKT_COLLECTION_URL = process.env.GATSBY_OBJKT_COLLECTION_URL + "/" + COLLECTION_CONTRACT;
 
   // Function to fetch NFTs
   const fetchNFTs = async (walletAddress) => {
     try {
+      // Fetch token balances for the given wallet address
+      // The query parameter ?account=<walletAddress> filters the response to only include tokens owned by the given wallet
+      // The query parameter ?token.standard=fa2 filters the response to only include tokens with the FA2 standard
       const response = await fetch(`${RPC_URL}/v1/tokens/balances?account=${walletAddress}&token.standard=fa2`);
       const data = await response.json();
       const filteredNFTs = data.filter((nft) => nft.token.contract.address === COLLECTION_CONTRACT);
