@@ -46,6 +46,8 @@ const SimulationSection = ({ account, connectWallet, disconnectWallet }) => {
     }
   };
 
+  const queryFile = "perlin-text.md" // Specify the file name
+
   return (
     <SectionContainer id="simulation" isGridLayout={false}>
       <Row className="align-items-center mb-4">
@@ -71,6 +73,7 @@ const SimulationSection = ({ account, connectWallet, disconnectWallet }) => {
           connectWallet={handleConnectWallet}
           disconnectWallet={disconnectWallet}
           showCaptureButton={true}
+          queryFile={queryFile}
         />
       </div>
     </SectionContainer>

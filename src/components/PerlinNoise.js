@@ -29,11 +29,11 @@ const PerlinNoise = ({
   },
   cameraParams = null,
   showCaptureButton,
-  queryFile
+  queryFile,
 }) => {
   const data = useStaticQuery(graphql`
-    query {
-     markdownRemark(fileAbsolutePath: { regex:  "${queryFile}" }) {
+    query MarkdownQuery($queryFile: String!) {
+      markdownRemark(fileAbsolutePath: { regex: $queryFile }) {
         rawMarkdownBody
       }
       site {
@@ -43,7 +43,7 @@ const PerlinNoise = ({
         }
       }
     }
-  `)  
+  `, { queryFile: queryFile })
 
   
   const mountRef = useRef(null)
