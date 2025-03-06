@@ -32,9 +32,12 @@ const PerlinNoise = ({
   queryFile,
 }) => {
   const data = useStaticQuery(graphql`
-    query MarkdownQuery($queryFile: String!) {
-      markdownRemark(fileAbsolutePath: { regex: $queryFile }) {
-        rawMarkdownBody
+    query {
+      allMarkdownRemark {
+        nodes {
+          fileAbsolutePath
+          rawMarkdownBody
+        }
       }
       site {
         siteMetadata {
@@ -43,7 +46,12 @@ const PerlinNoise = ({
         }
       }
     }
-  `, { queryFile: queryFile })
+  `)
+
+  const text = data.allMarkdownRemark.nodes.find(node =>
+    node.fileAbsolutePath.includes(queryFile)
+  )?.rawMarkdownBody || ""
+
 
   
   const mountRef = useRef(null)
@@ -182,7 +190,7 @@ const PerlinNoise = ({
     const perlin = new Perlin()
     const simplex = createNoise3D()
 
-    const lines = data.markdownRemark.rawMarkdownBody
+    const lines = text//data.markdownRemark.rawMarkdownBody
       .split("\n")
       .filter(line => line.trim())
     let currentIndex = 0
