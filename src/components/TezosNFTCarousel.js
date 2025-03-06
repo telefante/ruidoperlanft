@@ -1,97 +1,157 @@
-import React, { useState, useEffect } from "react";
-import { Swiper, SwiperSlide } from "swiper/react";
-import "swiper/css";
-import "swiper/css/pagination";
-import { Pagination } from "swiper/modules";
-import SectionContainer from "./sections/SectionContainer";
-import placeholderImage from "../assets/placeholder.jpg";
-import { useStaticQuery, graphql } from "gatsby";
-import { Container, Row } from "react-bootstrap";
-import WalletConnection from './WalletConnection'; // Import the WalletConnection component
+import React, { useState, useEffect } from "react"
+import { Swiper, SwiperSlide } from "swiper/react"
+import "swiper/css"
+import "swiper/css/pagination"
+import { Pagination } from "swiper/modules"
+import SectionContainer from "./sections/SectionContainer"
+import placeholderImage from "../assets/placeholder.jpg"
+import { Container, Button, Card } from "react-bootstrap"
+// import WalletConnection from "./WalletConnection"
+import { useWallet } from "./WalletContext" // Use WalletContext
+import "./TezosNFTCarousel.css"
 
 const TezosNFTCarousel = () => {
-  const [address, setAddress] = useState(null);
-  const [nfts, setNfts] = useState([]);
-  const [isConnected, setIsConnected] = useState(false);
+  const { walletAddress, isConnected } = useWallet() // Get wallet state from context
+  const [nfts, setNfts] = useState([])
 
-  // Check if the code is running in the client
-  const isClient = typeof window !== "undefined";
+  // const RPC_URL = process.env.GATSBY_TEZOS_RPC_URL;
+  const TzKT_API = process.env.GATSBY_TZKT_API_URL
+  const COLLECTION_CONTRACT = process.env.GATSBY_TEZOS_CONTRACT
+  console.log("TzKT_API:", TzKT_API)
+  console.log("COLLECTION_CONTRACT:", COLLECTION_CONTRACT)
 
-  // Fetch contract number and RPC URL from site metadata
-  const data = useStaticQuery(graphql`
-    query {
-      site {
-        siteMetadata {
-          contractNumber
-          rpcUrl
-        }
-      }
-    }
-  `);
-  const COLLECTION_CONTRACT = data.site.siteMetadata.contractNumber;
-  const RPC_URL = data.site.siteMetadata.rpcUrl; // Get the RPC URL
-
-  // Function to fetch NFTs
-  const fetchNFTs = async (walletAddress) => {
-    try {
-      const response = await fetch(`${RPC_URL}/v1/tokens/balances?account=${walletAddress}&token.standard=fa2`);
-      const data = await response.json();
-      const filteredNFTs = data.filter((nft) => nft.token.contract.address === COLLECTION_CONTRACT);
-      const nftsWithImages = filteredNFTs.filter((nft) => nft.token.metadata?.artifactUri);
-      setNfts(nftsWithImages);
-    } catch (error) {
-      console.error("Error fetching NFTs: ", error);
-    }
-  };
-
+  // Debugging wallet state
   useEffect(() => {
-    if (isConnected && address) {
-      fetchNFTs(address); // Fetch NFTs when connected
-    }
-  }, [isConnected, address]);
+    console.log("Wallet Connection State Updated:")
+    console.log("Address:", walletAddress)
+    console.log("Is Connected:", isConnected)
+  }, [walletAddress, isConnected])
 
-  if (!isClient) {
-    return <p>Loading...</p>;
+  // Fetch NFTs when the wallet is connected
+  useEffect(() => {
+    if (isConnected && walletAddress) {
+      fetchNFTsfromCollection(walletAddress)
+    }
+  }, [isConnected, walletAddress])
+
+  const fetchNFTsfromCollection = async () => {
+    const apiUrl = `${TzKT_API}v1/tokens?contract=${COLLECTION_CONTRACT}&limit=200`
+    // GET https://api.tzkt.io/v1/tokens?contract=KT1[CollectionAddress]&limit=100
+
+    console.log("Fetching NFTs from:", apiUrl)
+    try {
+      // console.log("Fetching NFTs for:", walletAddress)
+
+      const response = await fetch(
+        apiUrl
+      )
+      // https://api.tzkt.io/v1/tokens/balances?account=${walletAddress}&token.standard=fa2`
+      const data = await response.json()
+
+      console.log("Raw NFT Data:", data)
+
+      if (!Array.isArray(data)) {
+        console.error("Unexpected response format", data)
+        return
+      }
+
+      const nftsWithImages = data.filter(
+        nft => nft?.metadata?.artifactUri
+      )
+      console.log("NFTs with Images:", nftsWithImages)
+
+      setNfts(nftsWithImages)
+    } catch (error) {
+      console.error("Error fetching NFTs:", error)
+    }
   }
 
+  useEffect(() => {
+    fetchNFTsfromCollection()
+  }, [])
+
   return (
-    <SectionContainer id="tezos-nft-carousel" title="Connect to your Ruido Perla NFTs" background={false} isGridLayout={true}>
+    <SectionContainer id="tezos-nft-carousel" title="Ruido Perla NFT Collection">
       <Container className="flex flex-col items-center p-4">
-        <WalletConnection setAddress={setAddress} setIsConnected={setIsConnected} isConnected={isConnected} />
-        {isConnected && address && (
-          <>
-            <h2>Connected as: {address}</h2>
-            <p style={{ alignItems: 'center' }}>{nfts.length > 0 ? `You already have ${nfts.length} NFTs` : `nothing to show`}</p>
-            <Swiper modules={[Pagination]} spaceBetween={10} slidesPerView={1} pagination={{ clickable: true }} className="w-full max-w-lg mt-4">
-              {nfts.length > 0 ? (
-                nfts.map((nft, index) => {
-                  const thumbnailUrl = nft.token.metadata.thumbnailUri.replace("ipfs://", "https://dweb.link/ipfs/");
+      
+            <p>
+              {nfts.length > 0
+                ? `${nfts.length} assets`
+                : `No NFTs found`}
+            </p>
+
+            {nfts.length > 0 ? (
+              <Swiper
+                modules={[Pagination]}
+                spaceBetween={10}
+                slidesPerView={1}
+                pagination={{ clickable: true }}
+                style={{ width: "100%", height: "100%" , backgroundColor: "transparent"}}
+              >
+                {nfts.map((nft, index) => {
+                  const thumbnailUrl =
+                    nft.metadata.thumbnailUri?.replace(
+                      "ipfs://",
+                      "https://dweb.link/ipfs/"
+                    ) || placeholderImage
                   return (
                     <SwiperSlide key={index}>
-                      <div className="p-4 shadow-lg rounded-lg">
+                      <div className="d-flex align-items-center">
                         <img
                           src={thumbnailUrl}
-                          alt={nft.token.metadata.name}
-                          className="w-full h-64 object-cover rounded-md"
-                          onError={(e) => {
-                            e.target.onerror = null;
-                            e.target.src = placeholderImage;
+                          alt={nft.metadata?.name || "Unnamed NFT"}
+                          style={{
+                            maxWidth: "400px",
+                            maxHeight: "400px",
+                            marginRight: "20px",
                           }}
                         />
-                        <h3 className="text-center mt-2 text-lg font-semibold">{nft.token.metadata.name || "Unnamed NFT"}</h3>
+
+                        {nft.metadata?.attributes && (
+                          <Card style={{ width: "12rem", margin: "10px" }}>
+                            <div className="card-body custom-card-body">
+                              <h3 className="card-title custom-card-title">
+                              {nft.metadata?.name || "Unnamed NFT"}
+                              </h3>
+                              <ul className="list-group list-group-flush custom-list-group">
+                                {nft.metadata.attributes.map((attr, i) => (
+                                  <li
+                                    key={i}
+                                    className="list-group-item custom-list-item"
+                                  >
+                                    <strong>{attr.name}:</strong> {attr.value}
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          </Card>
+                        )}
                       </div>
+                   
+                      <p>
+                        {nft.metadata?.description || "No description available"}
+                      </p>
                     </SwiperSlide>
-                  );
-                })
-              ) : (
-                <p className="text-center text-gray-500">No NFTs found</p>
-              )}
-            </Swiper>
-          </>
-        )}
+                  )
+                })}
+              </Swiper>
+            ) : (
+              <p className="text-center text-gray-500">No NFTs found</p>
+            )}
+
+            <Button
+              href={`${process.env.GATSBY_OBJKT_COLLECTION_URL}/${COLLECTION_CONTRACT}`}
+              target="_blank"
+              variant="secondary"
+              style={{ marginTop: "1rem",   fontFamily: "var(--primary-font)" }}
+            >
+              View Full Collection on Objkt
+            </Button>
+         
+           
       </Container>
     </SectionContainer>
-  );
-};
+  )
+}
 
-export default TezosNFTCarousel;
+export default TezosNFTCarousel

@@ -91,10 +91,19 @@ The project follows a standard Gatsby directory structure:
 4.  **Start the development server:**
 
     ```bash
-    gatsby develop
+    sudo NODE_OPTIONS="--max-old-space-size=8192" DEVELOPMENT=true GATSBY_DEVELOPMENT=true gatsby develop 
     ```
 
+
+
     This will start the Gatsby development server, and you can view the site in your browser at `http://localhost:8000`.
+
+    5. Deployment
+
+    - Netfily - Login mit Github -> https://app.netlify.com/sites/ruidoperlanft/overview
+
+    - Deploy on Production when I commit master 
+
 
 ## Usage
 

@@ -16,7 +16,7 @@ module.exports = {
     authorUrl: 'https://luis.negronvangrieken.com',
     siteUrl: `https://ruidoperlanft.netlify.app`,
     // contractNumber: "KT1VsqcpRfzzPCqPiwLXsFKh6BCpEfsJt2yR", // Add your contract number for RuiPerla
-    contractNumber: " KT1Aiyr9Aqc778TRnsYU9vDf1z93yst5D9kM", //contract number for RuiPerla in ghosnet
+    contractNumber: "KT1BjvQ6LQD16FLzb9Snz9TSVbdGUDXkfjq5", //contract number for RuiPerla in ghosnet
     // rpcUrl: "https://ghostnet.api.tez.ie", // Add your RPC URL here
     rpcUrl: "https://ghostnet.tzkt.io/",
   },
