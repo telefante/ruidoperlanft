@@ -98,6 +98,13 @@ The project follows a standard Gatsby directory structure:
 
     This will start the Gatsby development server, and you can view the site in your browser at `http://localhost:8000`.
 
+    5. Deployment
+
+    - Netfily - Login mit Github -> https://app.netlify.com/sites/ruidoperlanft/overview
+
+    - Deploy on Production when I commit master 
+
+
 ## Usage
 
 1.  **Connect your wallet:**
