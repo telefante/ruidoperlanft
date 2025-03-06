@@ -34,13 +34,21 @@ const TezosNFTCarousel = () => {
   // Function to fetch NFTs
   const fetchNFTs = async (walletAddress) => {
     try {
-      // Fetch token balances for the given wallet address
-      // The query parameter ?account=<walletAddress> filters the response to only include tokens owned by the given wallet
-      // The query parameter ?token.standard=fa2 filters the response to only include tokens with the FA2 standard
+      console.log("Fetching NFTs for address:", walletAddress);
+      console.log("RPC_URL:", RPC_URL);
+      console.log("COLLECTION_CONTRACT:", COLLECTION_CONTRACT);
+
       const response = await fetch(`${RPC_URL}/v1/tokens/balances?account=${walletAddress}&token.standard=fa2`);
       const data = await response.json();
+
+      console.log("Raw NFT data:", data);
+
       const filteredNFTs = data.filter((nft) => nft.token.contract.address === COLLECTION_CONTRACT);
+      console.log("Filtered NFTs:", filteredNFTs);
+
       const nftsWithImages = filteredNFTs.filter((nft) => nft.token.metadata?.artifactUri);
+      console.log("NFTs with images:", nftsWithImages);
+
       setNfts(nftsWithImages);
     } catch (error) {
       console.error("Error fetching NFTs: ", error);
@@ -52,6 +60,10 @@ const TezosNFTCarousel = () => {
       fetchNFTs(address);
     }
   }, [isConnected, address]);
+
+  useEffect(() => {
+    console.log("NFTs state:", nfts); // Log the nfts state after it's updated
+  }, [nfts]);
 
   if (!isClient) {
     return <p>Loading...</p>;
@@ -66,9 +78,9 @@ const TezosNFTCarousel = () => {
             <h2>Connected as: {address}</h2>
             <p>{nfts.length > 0 ? `You own ${nfts.length} NFTs` : `No NFTs found`}</p>
 
-            <Swiper modules={[Pagination]} spaceBetween={10} slidesPerView={1} pagination={{ clickable: true }} className="w-full max-w-lg mt-4">
-              {nfts.length > 0 ? (
-                nfts.map((nft, index) => {
+            {nfts.length > 0 ? (
+              <Swiper modules={[Pagination]} spaceBetween={10} slidesPerView={1} pagination={{ clickable: true }} className="w-full max-w-lg mt-4">
+                {nfts.map((nft, index) => {
                   const thumbnailUrl = nft.token.metadata.thumbnailUri.replace("ipfs://", "https://dweb.link/ipfs/");
                   const objktUrl = `https://objkt.com/asset/${COLLECTION_CONTRACT}/${nft.token.id}`;
 
@@ -107,11 +119,11 @@ const TezosNFTCarousel = () => {
                       </div>
                     </SwiperSlide>
                   );
-                })
-              ) : (
-                <p className="text-center text-gray-500">No NFTs found</p>
-              )}
-            </Swiper>
+                })}
+              </Swiper>
+            ) : (
+              <p className="text-center text-gray-500">No NFTs found</p>
+            )}
 
             {/* View Collection on Objkt Button */}
             <div className="mt-6">
