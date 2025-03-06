@@ -1,185 +1,239 @@
-import React, { useState, useEffect, useRef } from "react";
-import { Swiper, SwiperSlide } from "swiper/react";
-import "swiper/css";
-import "swiper/css/pagination";
-import { Pagination } from "swiper/modules";
-import SectionContainer from "./sections/SectionContainer";
-import placeholderImage from "../assets/placeholder.jpg";
-import { useStaticQuery, graphql } from "gatsby";
-
-// ✅ Lazy-load React Bootstrap components to prevent SSR issues
-let Container, Button;
-if (typeof window !== "undefined") {
-  Container = require("react-bootstrap/Container").default;
-  Button = require("react-bootstrap/Button").default;
-}
-
-// ✅ Ensure Beacon SDK only runs in the browser
-const isBrowser = typeof window !== "undefined";
-
-let DAppClient, BeaconEvent;
-if (isBrowser) {
-  ({ DAppClient, BeaconEvent } = require("@airgap/beacon-sdk"));
-}
+import React, { useState, useEffect } from "react"
+import { Swiper, SwiperSlide } from "swiper/react"
+import "swiper/css"
+import "swiper/css/pagination"
+import { Pagination } from "swiper/modules"
+import SectionContainer from "./sections/SectionContainer"
+import placeholderImage from "../assets/placeholder.jpg"
+import { Container, Button, Card, Row, Col, Modal } from "react-bootstrap"
+// import WalletConnection from "./WalletConnection"
+import { useWallet } from "./WalletContext" // Use WalletContext
+import "./TezosNFTCarousel.css"
 
 const TezosNFTCarousel = () => {
-  const [isClient, setIsClient] = useState(false);
-  const [address, setAddress] = useState(null);
-  const [nfts, setNfts] = useState([]);
-  const [isConnected, setIsConnected] = useState(false);
+  const { walletAddress, isConnected } = useWallet() // Get wallet state from context
+  const [nfts, setNfts] = useState([])
+  const [showModal, setShowModal] = useState(false)
+  const [modalImage, setModalImage] = useState("")
+  const [selectedNft, setSelectedNft] = useState(null) // new state
 
-  // ✅ Use useRef to store DAppClient (to avoid multiple instances)
-  const dAppClientRef = useRef(null);
+  // const RPC_URL = process.env.GATSBY_TEZOS_RPC_URL;
+  const TzKT_API = process.env.GATSBY_TZKT_API_URL
+  const COLLECTION_CONTRACT = process.env.GATSBY_TEZOS_CONTRACT
+  const OBJKT_TOKEN_URL = process.env.GATSBY_OBJKT_TOKEN_URL
+  console.log("TzKT_API:", TzKT_API)
+  console.log("COLLECTION_CONTRACT:", COLLECTION_CONTRACT)
 
-  // Fetch contract number from site metadata
-  const data = useStaticQuery(graphql`
-    query {
-      site {
-        siteMetadata {
-          contractNumber
-        }
-      }
+  // Debugging wallet state
+  useEffect(() => {
+    console.log("Wallet Connection State Updated:")
+    console.log("Address:", walletAddress)
+    console.log("Is Connected:", isConnected)
+  }, [walletAddress, isConnected])
+
+  // Fetch NFTs when the wallet is connected
+  useEffect(() => {
+    if (isConnected && walletAddress) {
+      fetchNFTsfromCollection(walletAddress)
     }
-  `);
-  const COLLECTION_CONTRACT = data.site.siteMetadata.contractNumber;
+  }, [isConnected, walletAddress])
+
+  const fetchNFTsfromCollection = async () => {
+    const apiUrl = `${TzKT_API}v1/tokens?contract=${COLLECTION_CONTRACT}&limit=200`
+    // GET https://api.tzkt.io/v1/tokens?contract=KT1[CollectionAddress]&limit=100
+
+    console.log("Fetching NFTs from:", apiUrl)
+    try {
+      // console.log("Fetching NFTs for:", walletAddress)
+
+      const response = await fetch(apiUrl)
+      // https://api.tzkt.io/v1/tokens/balances?account=${walletAddress}&token.standard=fa2`
+      const data = await response.json()
+
+      console.log("Raw NFT Data:", data)
+
+      if (!Array.isArray(data)) {
+        console.error("Unexpected response format", data)
+        return
+      }
+
+      const nftsWithImages = data.filter(nft => nft?.metadata?.artifactUri)
+      console.log("NFTs with Images:", nftsWithImages)
+
+      setNfts(nftsWithImages)
+    } catch (error) {
+      console.error("Error fetching NFTs:", error)
+    }
+  }
 
   useEffect(() => {
-    if (isBrowser) {
-      setIsClient(true);
-    }
-  }, []);
+    fetchNFTsfromCollection()
+  }, [])
 
-  useEffect(() => {
-    if (!isClient || !isBrowser) return;
+  const openModal = nft => {
+    setModalImage(
+      nft.metadata.displayUri?.replace("ipfs://", "https://dweb.link/ipfs/") ||
+        placeholderImage
+    )
+    setSelectedNft(nft) // Store the selected NFT
+    setShowModal(true)
+  }
 
-    // ✅ Initialize Beacon SDK only once
-    if (!dAppClientRef.current) {
-      dAppClientRef.current = new DAppClient({ name: "Ruido Perla NFT Collection" });
-
-      // ✅ Subscribe to active account events
-      dAppClientRef.current.subscribeToEvent(BeaconEvent.ACTIVE_ACCOUNT_SET, async (account) => {
-        console.log("Beacon Account Set:", account.address);
-        setAddress(account.address);
-        setIsConnected(true);
-        fetchNFTs(account.address);
-      });
-    }
-
-    const setupWallet = async () => {
-      const activeAccount = await dAppClientRef.current.getActiveAccount();
-      if (activeAccount) {
-        console.log("Already connected:", activeAccount.address);
-        setAddress(activeAccount.address);
-        setIsConnected(true);
-        fetchNFTs(activeAccount.address);
-      } else {
-        console.log("No active account. User needs to connect.");
-      }
-    };
-
-    setupWallet();
-  }, [isClient]);
-
-  const connectWallet = async () => {
-    try {
-      if (!isBrowser) return;
-      
-      const permissions = await dAppClientRef.current.requestPermissions();
-      console.log("New connection:", permissions.address);
-      setAddress(permissions.address);
-      setIsConnected(true);
-      fetchNFTs(permissions.address);
-    } catch (error) {
-      console.error("Wallet connection failed:", error);
-      alert("An error occurred while connecting to the wallet. Please try again.");
-    }
-  };
-
-  const disconnectWallet = async () => {
-    setAddress(null);
-    setNfts([]);
-    setIsConnected(false);
-    console.log("Wallet disconnected");
-  };
-
-  const fetchNFTs = async (walletAddress) => {
-    try {
-      const response = await fetch(`https://api.tzkt.io/v1/tokens/balances?account=${walletAddress}&token.standard=fa2`);
-      const data = await response.json();
-      const filteredNFTs = data.filter((nft) => nft.token.contract.address === COLLECTION_CONTRACT);
-      const nftsWithImages = filteredNFTs.filter((nft) => nft.token.metadata?.artifactUri);
-      setNfts(nftsWithImages);
-    } catch (error) {
-      console.error("Error fetching NFTs: ", error);
-    }
-  };
-
-  if (!isClient) {
-    return <p>Loading...</p>;
+  const closeModal = () => {
+    setShowModal(false)
+    setModalImage("")
+    setSelectedNft(null) // Clear the selected NFT
   }
 
   return (
-    <SectionContainer id="tezos-nft-carousel" title="Connect to your Ruido Perla NFTs" background={false} isGridLayout={true}>
-      <Container className="flex flex-col items-center p-4">
-        {!address ? (
-          <>
-            <h2>Connect to your Ruido Perla NFTs</h2>
-            <Button
-              style={{
-                fontFamily: 'var(--primary-font)',
-                fontStyle: 'italic',
-                fontSize: '1.6rem',
-                fontWeight: 'bold',
-                backgroundColor: isConnected ? 'green' : 'blue',
-                color: 'white',
-              }}
-              variant="primary"
-              onClick={connectWallet}
-            >
-              {isConnected ? "Connected" : "Connect through your Tezos Wallet"}
-            </Button>
-          </>
-        ) : (
-          <>
-            <h2>Connect to your Ruido Perla NFTs</h2>
-            <Button
-              style={{ fontFamily: 'var(--primary-font)', fontStyle: 'italic', fontSize: '1.2rem' }}
-              variant="danger"
-              onClick={disconnectWallet}
-              className="mt-4"
-            >
-              Disconnect Wallet
-            </Button>
-            <Swiper modules={[Pagination]} spaceBetween={10} slidesPerView={1} pagination={{ clickable: true }} className="w-full max-w-lg mt-4">
-              {nfts.length > 0 ? (
-                nfts.map((nft, index) => {
-                  const thumbnailUrl = nft.token.metadata.thumbnailUri.replace("ipfs://", "https://dweb.link/ipfs/");
-                  return (
-                    <SwiperSlide key={index}>
-                      <div className="p-4 shadow-lg rounded-lg">
-                        <img
-                          src={thumbnailUrl}
-                          alt={nft.token.metadata.name}
-                          className="w-full h-64 object-cover rounded-md"
-                          onError={(e) => {
-                            e.target.onerror = null;
-                            e.target.src = placeholderImage;
-                          }}
-                        />
-                        <h3 className="text-center mt-2 text-lg font-semibold">{nft.token.metadata.name || "Unnamed NFT"}</h3>
-                      </div>
-                    </SwiperSlide>
-                  );
-                })
-              ) : (
-                <p className="text-center text-gray-500">No NFTs found</p>
-              )}
-            </Swiper>
-          </>
-        )}
-      </Container>
-    </SectionContainer>
-  );
-};
+    <SectionContainer
+      id="tezos-nft-carousel"
+      title="Ruido Perla NFT Collection"
+    >
+      {/* <Container className="flex flex-col items-center p-4"> */}
+      <Row>
+        <p>{nfts.length > 0 ? `${nfts.length} assets` : `No NFTs found`}</p>
+      </Row>
+      {nfts.length > 0 ? (
+        <Swiper
+          modules={[Pagination]}
+          spaceBetween={10}
+          slidesPerView={1}
+          pagination={{ clickable: true }}
+          style={{
+            width: "100%",
+            height: "100%",
+            backgroundColor: "transparent",
+          }}
+        >
+          {nfts.map((nft, index) => {
+            const thumbnailUrl =
+              nft.metadata.thumbnailUri?.replace(
+                "ipfs://",
+                "https://dweb.link/ipfs/"
+              ) || placeholderImage
 
-export default TezosNFTCarousel;
+            // Create a function to handle the click event
+            const handleImageClick = () => {
+              openModal(nft)
+            }
+
+            return (
+              <SwiperSlide key={index}>
+                {/* <Container className="d-flex align-items-center"> */}
+                <Row>
+                  <Col>
+                    <img
+                      src={thumbnailUrl}
+                      alt={nft.metadata?.name || "Unnamed NFT"}
+                      style={{
+                        maxWidth: "80%",
+                        minWidth: "200px",
+                        // maxHeight: ",
+                        marginRight: "20px",
+                        cursor: "pointer", // Add cursor pointer
+                      }}
+                      onClick={handleImageClick} // Call the new function
+                    />
+                  </Col>
+                  <Col className="align-items-center">
+                    {nft.metadata?.attributes && (
+                      <Card style={{ width: "12rem", margin: "10px" }}>
+                        <div className="card-body custom-card-body">
+                          <h3 className="card-title custom-card-title">
+                            {nft.metadata?.name || "Unnamed NFT"}
+                          </h3>
+                          <ul className="list-group list-group-flush custom-list-group">
+                            {nft.metadata.attributes.map((attr, i) => (
+                              <li
+                                key={i}
+                                className="list-group-item custom-list-item"
+                              >
+                                <strong>{attr.name}:</strong> {attr.value}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      </Card>
+                    )}
+                  </Col>
+                </Row>
+                {/* </Container> */}
+                <Row mt-8 centered>
+                  <h3>
+                    Rarity:{" "}
+                    {nft.metadata.attributes.find(
+                      attr => attr.name === "Rarity"
+                    )?.value || "No rarity available"}
+                  </h3>
+
+                  <p>
+                    {nft.metadata?.description || "No description available"}
+                  </p>
+                </Row>
+                <Row style={{ justifyContent: "center" }}>
+                  <Button
+                    href={`${OBJKT_TOKEN_URL}/${COLLECTION_CONTRACT}/${nft.tokenId}`}
+                    target="_blank"
+                    variant="primary"
+                    style={{
+                      fontFamily: "var(--primary-font)",
+                      fontStyle: "italic",
+                      fontWeight: "bold",
+                      fontSize: "1.5rem",
+                      maxWidth: "200px",
+                    }}
+                  >
+                    Buy on Objkt
+                  </Button>
+                </Row>
+              </SwiperSlide>
+            )
+          })}
+        </Swiper>
+      ) : (
+        <p className="text-center text-gray-500">No NFTs found</p>
+      )}
+
+      <Button
+        href={`${process.env.GATSBY_OBJKT_COLLECTION_URL}/${COLLECTION_CONTRACT}`}
+        target="_blank"
+        variant="secondary"
+        style={{ marginTop: "1rem", fontFamily: "var(--primary-font)" }}
+      >
+        View Full Collection on Objkt
+      </Button>
+
+      {/* </Container> */}
+      <Modal show={showModal} onHide={closeModal} centered>
+        <Modal.Body>
+          <img src={modalImage} alt="NFT" style={{ width: "100%" }} />
+        </Modal.Body>
+        <Modal.Footer>
+          {selectedNft && (
+            <>
+              {console.log("Buy Button - selectedNft:", selectedNft)} {/* Log here */}
+              <Button
+                style={{
+                  fontFamily: "var(--primary-font)",
+                  fontSize: "1.5rem",
+                  fontVariant: "italic",
+                  fontWeight: "bold",
+                }}
+                variant="primary"
+                href={`${OBJKT_TOKEN_URL}/${COLLECTION_CONTRACT}/${selectedNft.tokenId}`}
+              >
+                Buy
+              </Button>
+            </>
+          )}
+          <Button variant="secondary" onClick={closeModal}>
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
+    </SectionContainer>
+  )
+}
+
+export default TezosNFTCarousel

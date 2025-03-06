@@ -5,10 +5,17 @@ import { Perlin } from "three-noise"
 import { createNoise3D } from "simplex-noise"
 import html2canvas from "html2canvas"
 import { useStaticQuery, graphql } from "gatsby"
-import { Modal, Button, Row, Form, InputGroup, Container } from "react-bootstrap"
-import { mintImage } from "./MintImage" // Ensure this path is correct
-// import { mintImage } from '../images/og-image.jpg'; // Adjust the path as necessary
-// import './PerlinNoise.css' // Import custom CSS for controls
+import {
+  Modal,
+  Button,
+  Row,
+  Container,
+} from "react-bootstrap"
+import PerlinControls from "./PerlinControls" // Import the new controls component
+// import { useContractAddress } from "./ContractContext" // Import the custom hook
+import WalletConnection from "./WalletConnection" // Import the WalletConnection component
+// import { useWallet } from "./WalletContext" // Import the WalletContext
+import UploadImageWithWallet from "./UploadImagewithWallet" // Import the new component
 
 const PerlinNoise = ({
   showControls = true,
@@ -21,26 +28,34 @@ const PerlinNoise = ({
     usePerlin: true,
   },
   cameraParams = null,
-  account,
-  connectWallet,
-  disconnectWallet,
-  showCaptureButton
+
+  showCaptureButton,
 }) => {
   const data = useStaticQuery(graphql`
     query {
       markdownRemark(fileAbsolutePath: { regex: "/perlin-text.md/" }) {
         rawMarkdownBody
       }
+      site {
+        siteMetadata {
+          contractNumber
+          rpcUrl
+        }
+      }
     }
   `)
 
+  // const contractAddress = data.site.siteMetadata.contractNumber //useContractAddress()
+  // const rpcUrl = data.site.siteMetadata.rpcUrl
   const mountRef = useRef(null)
   const containerRef = useRef(null)
   const sceneRef = useRef(null)
   const cameraRef = useRef(null)
   const rendererRef = useRef(null)
   const currentTextRef = useRef("")
-
+  // const [canvas, setCanvas] = useState(null);
+  // const { walletAddress, isConnected } = useWallet()
+  // console.log("walletAddress:", walletAddress)
   const [usePerlin, setUsePerlin] = useState(initialParams.usePerlin)
   const [amplitude, setAmplitude] = useState(initialParams.amplitude)
   const [scale, setScale] = useState(initialParams.scale)
@@ -63,7 +78,7 @@ const PerlinNoise = ({
     lookAt: { x: 0, y: 0, z: 0 },
   })
 
-  const controlsRef = useRef(null)
+  // const controlsRef = useRef(null)
 
   useEffect(() => {
     usePerlinRef.current = usePerlin
@@ -93,7 +108,7 @@ const PerlinNoise = ({
 
     const scene = new THREE.Scene()
     const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000)
-
+  
     if (cameraParams) {
       const { position, lookAt } = cameraParams
       camera.position.set(position.x, position.y, position.z)
@@ -299,200 +314,140 @@ const PerlinNoise = ({
   }, [data, enableOrbit, cameraParams])
 
   useEffect(() => {
-    const mediaQuery = window.matchMedia('(max-width: 768px)');
-    const handleMediaQueryChange = (e) => {
-      setIsMobile(e.matches);
-    };
+    const mediaQuery = window.matchMedia("(max-width: 768px)")
+    const handleMediaQueryChange = e => {
+      setIsMobile(e.matches)
+    }
 
     // Set initial value
-    handleMediaQueryChange(mediaQuery);
-    mediaQuery.addEventListener('change', handleMediaQueryChange);
+    handleMediaQueryChange(mediaQuery)
+    mediaQuery.addEventListener("change", handleMediaQueryChange)
 
     return () => {
-      mediaQuery.removeEventListener('change', handleMediaQueryChange);
-    };
-  }, []);
+      mediaQuery.removeEventListener("change", handleMediaQueryChange)
+    }
+  }, [])
+
+  /**
+   * Captures the current scene within the container reference as a canvas image.
+   * The capture ignores specific elements such as controls and buttons.
+   * The captured image is then converted to a PNG data URL and stored in state,
+   * which triggers a modal to display the image.
+   *
+   * @async
+   * @throws Will log an error if the capture process fails.
+   */
 
   const captureScene = async () => {
-    if (!containerRef.current) return;
-  
+    if (!containerRef.current) return
+
     try {
-      const canvas = await html2canvas(containerRef.current, {
+      const capturedCanvas = await html2canvas(containerRef.current, {
         useCORS: true,
         backgroundColor: null,
         scale: 2,
-        logging: false,
-        ignoreElements: (element) => {
+        logging: true,
+
+        ignoreElements: element => {
           // Exclude the entire controls container and the Minimize Controls button
-          return element.classList.contains("controls") || element.classList.contains("minimize-button"); // Ensure this matches the class of your Minimize Controls button
+          return (
+            element.classList.contains("controls") ||
+            element.classList.contains("minimize-button") ||
+            element.classList.contains("wallet-connection")
+          )
         },
-      });
-  
-      const imageData = canvas.toDataURL("image/png");
-      setCapturedImage(imageData);
-      setShowModal(true);
+      })
+      //  setCanvas(capturedCanvas);
+
+      const imageData = capturedCanvas.toDataURL("image/png")
+      setCapturedImage(imageData)
+      setShowModal(true)
     } catch (error) {
-      console.error("Error capturing scene:", error);
+      console.error("Error capturing scene:", error)
     }
-  };
+  }
 
   const handleClose = () => setShowModal(false)
 
+  /**
+   * Toggle visibility of Perlin noise controls.
+   */
   const toggleControls = () => {
-    setControlsVisible(!controlsVisible);
-  };
+    setControlsVisible(!controlsVisible)
+  }
 
   return (
     <div
       ref={containerRef}
-      style={{ position: "relative", width: "100%", height: "100%" }}
+      style={{
+        position: "relative",
+        width: "100%",
+        height: "100%",
+        backgroundColor: "transparent",
+      }}
     >
+      <WalletConnection />
       <div ref={mountRef} style={{ width: "100%", height: "100%" }} />
-  <Container>
-    <Row>
-      <Button variant="danger"
-        onClick={toggleControls}
-        className="minimize-button"
-        style={{
-          position: "absolute",
-          top: "10px",
-          left: "20px",
-          zIndex: 1000,
-          cursor: "pointer",
-          fontSize: "0.8rem",
-          fontFamily: "var(--primary-font)",
-          width: isMobile ? '90%' : '20%', // Set maxWidth based on mobile detection
-        }}
-      >
-        {controlsVisible ? "Minimize Controls" : "Show Controls"}
-      </Button>
-      </Row>
+      <PerlinControls
+        usePerlin={usePerlin}
+        setUsePerlin={setUsePerlin}
+        amplitude={amplitude}
+        setAmplitude={setAmplitude}
+        scale={scale}
+        setScale={setScale}
+        frequency={frequency}
+        setFrequency={setFrequency}
+        octaves={octaves}
+        setOctaves={setOctaves}
+        showCaptureButton={showCaptureButton}
+        captureScene={captureScene}
+        controlsVisible={controlsVisible}
+        isMobile={isMobile}
+      />
+      <Container>
+        <Row>
+          <Button
+            variant="danger"
+            onClick={toggleControls}
+            className="minimize-button"
+            style={{
+              position: "absolute",
+              top: "10px",
+              left: "20px",
+              zIndex: 1000,
+              cursor: "pointer",
+              fontSize: "0.8rem",
+              fontFamily: "var(--primary-font)",
+              width: isMobile ? "90%" : "20%", // Set maxWidth based on mobile detection
+            }}
+          >
+            {controlsVisible ? "Minimize Controls" : "Show Controls"}
+          </Button>
+        </Row>
 
-      <div
-        style={{
-          position: "absolute",
-          top: "50%",
-          left: "50%",
-          transform: "translate(-50%, -50%)",
-          color: "white",
-          fontSize: "8vw",
-          fontFamily: "var(--primary-font)",
-          fontStyle: "italic",
-          fontWeight: "bold",
-          textAlign: "center",
-          pointerEvents: "none",
-          zIndex: 1000,
-          textShadow: "2px 2px 4px rgba(0,0,0,0.5)",
-          opacity: textOpacity,
-          transition: "opacity 0.5s ease-in-out",
-          letterSpacing: "0.05em",
-        }}
-      >
-        {currentTextRef.current}
-      </div>
-
-      {showControls && (
-        <Container
-          ref={controlsRef}
-          className="controls"
+        <div
           style={{
-            position: 'absolute',
-            top: '50px',
-            left: '20px',
-            width: '80%', // Adjusted for better responsiveness on mobile screens
-            maxWidth: isMobile ? '90%' : '20%', // Set maxWidth based on mobile detection
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            color: "white",
+            fontSize: "8vw",
+            fontFamily: "var(--primary-font)",
+            fontStyle: "italic",
+            fontWeight: "bold",
+            textAlign: "center",
+            pointerEvents: "none",
             zIndex: 1000,
-            backgroundColor: 'rgba(255, 255, 255, 0.8)',
-            padding: '1rem',
-            borderRadius: '8px',
-            fontSize: '0.8rem',
-            fontFamily: 'var(--primary-font)',
-            opacity: controlsVisible ? 1 : 0,
-            transform: controlsVisible ? 'scale(1)' : 'scale(0.8)',
-            transition: 'opacity 0.5s ease, transform 0.5s ease',
-            pointerEvents: controlsVisible ? 'auto' : 'none',
+            textShadow: "2px 2px 4px rgba(0,0,0,0.5)",
+            opacity: textOpacity,
+            transition: "opacity 0.5s ease-in-out",
+            letterSpacing: "0.05em",
           }}
         >
-          <Form>
-            <Form.Group controlId="usePerlin">
-              <Form.Check 
-                type="checkbox"
-                label="Use Perlin Noise (uncheck for Simplex)"
-                checked={usePerlin}
-                onChange={e => setUsePerlin(e.target.checked)}
-                style={{ fontFamily: 'var(--primary-font)' }}
-              />
-            </Form.Group>
-
-            {usePerlin && (
-              <>
-                <Form.Group controlId="frequency">
-                  <Form.Label>Frequency: {frequency}</Form.Label>
-                  <InputGroup>
-                    <Form.Control
-                      type="range"
-                      min="0.5"
-                      max="10"
-                      step="0.5"
-                      value={frequency}
-                      onChange={e => setFrequency(parseFloat(e.target.value))}
-                    />
-                  </InputGroup>
-                </Form.Group>
-                <Form.Group controlId="octaves">
-                  <Form.Label>Octaves: {octaves}</Form.Label>
-                  <InputGroup>
-                    <Form.Control
-                      type="range"
-                      min="1"
-                      max="4"
-                      step="1"
-                      value={octaves}
-                      onChange={e => setOctaves(parseInt(e.target.value))}
-                    />
-                  </InputGroup>
-                </Form.Group>
-              </>
-            )}
-
-            <Form.Group controlId="amplitude">
-              <Form.Label>Amplitude: {amplitude}</Form.Label>
-              <InputGroup>
-                <Form.Control
-                  type="range"
-                  min="0"
-                  max="30"
-                  step="0.1"
-                  value={amplitude}
-                  onChange={e => setAmplitude(parseFloat(e.target.value))}
-                />
-              </InputGroup>
-            </Form.Group>
-
-            <Form.Group controlId="scale">
-              <Form.Label>Noise Scale: {scale}</Form.Label>
-              <InputGroup>
-                <Form.Control
-                  type="range"
-                  min="0.001"
-                  max="0.1"
-                  step="0.001"
-                  value={scale}
-                  onChange={e => setScale(parseFloat(e.target.value))}
-                />
-              </InputGroup>
-            </Form.Group>
-
-            {showCaptureButton && (
-              <Button variant="danger" onClick={captureScene} style={{ marginTop: '10px' }}>
-                Capture Scene
-              </Button>
-            )}
-          </Form>
-        </Container>
-      
-      )}
-        </Container>
+          {currentTextRef.current}
+        </div>
+      </Container>
 
       <Modal show={showModal} onHide={handleClose} size="lg">
         <Modal.Header closeButton>
@@ -505,7 +460,7 @@ const PerlinNoise = ({
               fontStyle: "italic",
             }}
           >
-            Mint this ?
+            Mint this?
           </Modal.Title>
         </Modal.Header>
         <Modal.Body style={{ backgroundColor: "black" }}>
@@ -517,30 +472,15 @@ const PerlinNoise = ({
             />
           )}
         </Modal.Body>
-        <Modal.Footer style={{ backgroundColor: 'black', fontFamily:'var(--primary-font)', alignItems:'center', justifyContent:'center' }}>
-          {/* <Button variant="secondary" onClick={handleClose}>
-            Close
-          </Button> */}
-          <Button 
-            variant="primary" 
-            
-            onClick={async () => {
-              try {
-                const wallet = await connectWallet(); // Function to connect to the wallet
-                const imageData = capturedImage; // The image data to be minted
-                const contractAddress = "your_tezos_contract_address"; // Replace with your contract address
-                
-                // Call the mint function on your Tezos contract
-                await mintImage(wallet, contractAddress, imageData); // Use capturedImage as imageData
-                alert("Image minted successfully!");
-              } catch (error) {
-                console.error("Error minting image:", error);
-                alert("Failed to mint image: " + error.message); // Provide more context in the alert
-              }
-            }}
-          >
-            Mint Image
-          </Button>
+        <Modal.Footer
+          style={{
+            backgroundColor: "black",
+            fontFamily: "var(--primary-font)",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <UploadImageWithWallet containerRef={containerRef} />
         </Modal.Footer>
       </Modal>
     </div>
