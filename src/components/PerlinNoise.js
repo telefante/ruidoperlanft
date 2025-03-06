@@ -33,7 +33,7 @@ const PerlinNoise = ({
 }) => {
   const data = useStaticQuery(graphql`
     query {
-      markdownRemark(fileAbsolutePath: { regex: "/perlin-text.md/" }) {
+     markdownRemark(fileAbsolutePath: { regex: "/intro.md/" }) {
         rawMarkdownBody
       }
       site {
@@ -43,7 +43,7 @@ const PerlinNoise = ({
         }
       }
     }
-  `)
+  `)  
 
   
   const mountRef = useRef(null)

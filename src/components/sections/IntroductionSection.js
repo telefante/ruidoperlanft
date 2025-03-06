@@ -30,7 +30,7 @@ const IntroductionSection = () => {
 
   return (
     <SectionContainer id="introduction" isGridLayout={false}>
-       <section>
+       {/* <section>
             <p>
               Discover the digital installation of „Ruido Perla NFT," where
               simulation and art converge in a globally accessible web portal.
@@ -38,7 +38,7 @@ const IntroductionSection = () => {
               NFT experience, offering an interactive dimension that invites
               active user participation.
             </p>
-          </section>
+          </section> */}
       {/* Full viewport width and height container */}
       <div style={{ 
         width: '100vw', 
@@ -49,7 +49,7 @@ const IntroductionSection = () => {
       }}>
         <PerlinNoise 
           showControls={false}
-          enableOrbit={false}
+          enableOrbit={true}
           initialParams={surfaceParams}
           cameraParams={cameraParams}
           showCaptureButton={false}

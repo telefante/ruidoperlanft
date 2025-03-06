@@ -1,32 +1,14 @@
 ---
-title: "Perlin Text Animation"
+title: "Intro Text"
 ---
 
-Analogy, emulation
-similarities at the distance
-how do I assemble 
-with the non-Sense?
-Navigate the noise
-The perlin noise 
-Pearl 
-pearl
-pearl in 
-pearl in noise 
-What a beautiful coincidence 
-To find that pearl
-In the folds of the landscape
-Which are singing
-functions of the unknown
-showing their apparent disorder
-I am attracted to that space
-that produces ghosts
-creates memories
-speculative memories
-mysticism
-and attraction
-the unknown
-and the attraction
-contemplate
-and
-emigrate
-and simulate 
+Discover the digital 
+installation of „Ruido Perla NFT," 
+where simulation and art 
+converge in a globally accessible 
+web portal.
+Explore generative landscapes 
+and poetic texts that complement the
+NFT experience, 
+offering an interactive dimension 
+that invites active user participation.
