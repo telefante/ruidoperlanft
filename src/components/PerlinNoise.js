@@ -45,17 +45,14 @@ const PerlinNoise = ({
     }
   `)
 
-  // const contractAddress = data.site.siteMetadata.contractNumber //useContractAddress()
-  // const rpcUrl = data.site.siteMetadata.rpcUrl
+  
   const mountRef = useRef(null)
   const containerRef = useRef(null)
   const sceneRef = useRef(null)
   const cameraRef = useRef(null)
   const rendererRef = useRef(null)
   const currentTextRef = useRef("")
-  // const [canvas, setCanvas] = useState(null);
-  // const { walletAddress, isConnected } = useWallet()
-  // console.log("walletAddress:", walletAddress)
+ 
   const [usePerlin, setUsePerlin] = useState(initialParams.usePerlin)
   const [amplitude, setAmplitude] = useState(initialParams.amplitude)
   const [scale, setScale] = useState(initialParams.scale)
@@ -386,24 +383,27 @@ const PerlinNoise = ({
         backgroundColor: "transparent",
       }}
     >
-      <WalletConnection />
+      {/* <WalletConnection /> */}
       <div ref={mountRef} style={{ width: "100%", height: "100%" }} />
-      <PerlinControls
-        usePerlin={usePerlin}
-        setUsePerlin={setUsePerlin}
-        amplitude={amplitude}
-        setAmplitude={setAmplitude}
-        scale={scale}
-        setScale={setScale}
-        frequency={frequency}
-        setFrequency={setFrequency}
-        octaves={octaves}
-        setOctaves={setOctaves}
-        showCaptureButton={showCaptureButton}
-        captureScene={captureScene}
-        controlsVisible={controlsVisible}
-        isMobile={isMobile}
-      />
+      {showControls && (
+       <PerlinControls
+       usePerlin={usePerlin}
+       setUsePerlin={setUsePerlin}
+       amplitude={amplitude}
+       setAmplitude={setAmplitude}
+       scale={scale}
+       setScale={setScale}
+       frequency={frequency}
+       setFrequency={setFrequency}
+       octaves={octaves}
+       setOctaves={setOctaves}
+       showCaptureButton={showCaptureButton}
+       captureScene={captureScene}
+       controlsVisible={controlsVisible}
+       isMobile={isMobile}
+     />
+      )}
+      
       <Container>
         <Row>
           <Button

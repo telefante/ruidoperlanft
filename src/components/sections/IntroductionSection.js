@@ -28,9 +28,6 @@ const IntroductionSection = () => {
       lookAt: { x: -0.00, y: 90.13, z: 0.00 }
     };
 
-   
-   
-
   return (
     <SectionContainer id="introduction" isGridLayout={false}>
        <section>
@@ -51,7 +48,7 @@ const IntroductionSection = () => {
         marginBottom: '0px' // Add space for controls
       }}>
         <PerlinNoise 
-          showControls={true}
+          showControls={false}
           enableOrbit={false}
           initialParams={surfaceParams}
           cameraParams={cameraParams}
