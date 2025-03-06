@@ -136,9 +136,9 @@ const TezosNFTCarousel = () => {
                       onClick={handleImageClick} // Call the new function
                     />
                   </Col>
-                  <Col className="align-items-center">
+                  <Col >
                     {nft.metadata?.attributes && (
-                      <Card style={{ width: "12rem", margin: "10px" }}>
+                      <Card style={{ width: "18rem", margin: "10px", backgroundColor: "transparent", color: "var(--secondary-color)" }}>
                         <div className="card-body custom-card-body">
                           <h3 className="card-title custom-card-title">
                             {nft.metadata?.name || "Unnamed NFT"}
@@ -166,10 +166,11 @@ const TezosNFTCarousel = () => {
                       attr => attr.name === "Rarity"
                     )?.value || "No rarity available"}
                   </h3>
-
-                  <p>
-                    {nft.metadata?.description || "No description available"}
-                  </p>
+                  <div style={{ display: "flex", justifyContent: "center" }}>
+    <p style={{ maxWidth: "50vw", textAlign: "center" }}>
+      {nft.metadata?.description || "No description available"}
+    </p>
+  </div>
                 </Row>
                 <Row style={{ justifyContent: "center" }}>
                   <Button
