@@ -96,20 +96,29 @@ const TezosNFTCarousel = () => {
                     ) || placeholderImage
                   return (
                     <SwiperSlide key={index}>
-                      <Container className="flex flex-col items-center p-2">
+                      <div className="d-flex align-items-center">
                         <img
                           src={thumbnailUrl}
                           alt={nft.metadata?.name || "Unnamed NFT"}
-                          // style={{ maxWidth: "200px", maxHeight: "200px" }} // Adjust size as needed
+                          style={{
+                            maxWidth: "400px",
+                            maxHeight: "400px",
+                            marginRight: "20px",
+                          }}
                         />
 
                         {nft.metadata?.attributes && (
                           <Card style={{ width: "12rem", margin: "10px" }}>
                             <div className="card-body custom-card-body">
-                              <h5 className="card-title custom-card-title">Attributes:</h5>
+                              <h3 className="card-title custom-card-title">
+                              {nft.metadata?.name || "Unnamed NFT"}
+                              </h3>
                               <ul className="list-group list-group-flush custom-list-group">
                                 {nft.metadata.attributes.map((attr, i) => (
-                                  <li key={i} className="list-group-item custom-list-item">
+                                  <li
+                                    key={i}
+                                    className="list-group-item custom-list-item"
+                                  >
                                     <strong>{attr.name}:</strong> {attr.value}
                                   </li>
                                 ))}
@@ -117,8 +126,8 @@ const TezosNFTCarousel = () => {
                             </div>
                           </Card>
                         )}
-                      </Container>
-                      <h3>{nft.metadata?.name || "Unnamed NFT"}</h3>
+                      </div>
+                   
                       <p>
                         {nft.metadata?.description || "No description available"}
                       </p>
