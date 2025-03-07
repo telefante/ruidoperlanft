@@ -3,22 +3,24 @@ import { Navbar, Nav, Container } from "react-bootstrap";
 import styled from "styled-components";
 import "./navbar.css";
 
-// Add styled component for mobile nav items
+// Styled component for mobile-friendly navbar collapse
 const StyledNavbarCollapse = styled(Navbar.Collapse)`
-  @media (max-width: 991px) {
-    background: rgba(0, 0, 0);
-    margin: 0 -12px;  // Compensate for container padding
+  @media (max-width: 720px) {
+    background: rgba(0, 0, 0, 0.9);
     padding: 1rem;
     border-radius: 0 0 8px 8px;
+    text-align: center;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
 
     .nav-link-custom {
       padding: 0.75rem 1rem !important;
-      color: white !important;
-      text-align: center;
-      transition: background-color 0.3s ease;
+      color: #eee !important;
+      transition: background-color 0.3s ease, color 0.3s ease;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 
       &:hover {
         background-color: rgba(255, 255, 255, 0.1);
+        color: #fff !important;
       }
     }
   }
@@ -29,7 +31,6 @@ const sections = [
   { name: "nfts", path: "tezos-nft-carousel" },
   { name: "simulation", path: "simulation" },
   { name: "philosophy", path: "installation" },
-  // { name: "assets", path: "assets" },
   { name: "documentation", path: "about" },
 ];
 
@@ -39,12 +40,10 @@ const CustomNavbar = () => {
 
   useEffect(() => {
     const handleScroll = () => {
-      if (typeof window !== "undefined") {
-        if (window.scrollY > 50) {
-          setScrolled(true);
-        } else {
-          setScrolled(false);
-        }
+      if (window.scrollY > 50) {
+        setScrolled(true);
+      } else {
+        setScrolled(false);
       }
     };
 
@@ -54,15 +53,22 @@ const CustomNavbar = () => {
 
   return (
     <Navbar 
-      expand="lg" 
+      expand="lg"
       className={`custom-navbar fixed-top ${scrolled ? "scrolled" : ""}`}
       collapseOnSelect
       expanded={expanded}
-      onToggle={(expanded) => setExpanded(expanded)}
+      onToggle={setExpanded}
     >
-      <Container>
-        <Navbar.Brand href="#" className="brand-title">Ruido Perla NFT Collection</Navbar.Brand>
+      <Container fluid className="d-flex justify-content-between align-items-center">
+        {/* Brand Title */}
+        <Navbar.Brand href="#" className="brand-title" >
+          Ruido Perla NFT Collection
+        </Navbar.Brand>
+
+        {/* Hamburger Toggle Icon */}
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
+
+        {/* Collapsible Navbar Content */}
         <StyledNavbarCollapse id="basic-navbar-nav">
           <Nav className="ms-auto">
             {sections.map((section, index) => (
@@ -70,6 +76,7 @@ const CustomNavbar = () => {
                 key={index}
                 href={`#${section.path}`}
                 className="nav-link-custom"
+                onClick={() => setExpanded(false)} // Close navbar when clicking on a link
               >
                 {section.name}
               </Nav.Link>
