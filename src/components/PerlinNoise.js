@@ -30,6 +30,7 @@ const PerlinNoise = ({
   cameraParams = null,
   showCaptureButton,
   queryFile,
+  fontSize = "8vw", //default font size
 }) => {
   const data = useStaticQuery(graphql`
     query {
@@ -197,12 +198,25 @@ const PerlinNoise = ({
 
     const updateText = () => {
       setTextOpacity(0)
+      // Every 500ms, fade out the current text and then update to the next line.
+      // This creates a continuous scrolling effect.
       setTimeout(() => {
-        currentTextRef.current = lines[currentIndex]
-        setTextOpacity(1)
-        currentIndex = (currentIndex + 1) % lines.length
+        // Fade out the current text
+        setTextOpacity(0)
+
+        // After the fade out, update the current text to the next line
+        setTimeout(() => {
+          currentTextRef.current = lines[currentIndex]
+          // Fade in the new text
+          setTextOpacity(1)
+
+          // Move to the next line
+          currentIndex = (currentIndex + 1) % lines.length
+        }, 500)
       }, 500)
     }
+
+    updateText() // Call immediately when the component loads
 
     const textInterval = setInterval(updateText, 5000)
 
@@ -409,6 +423,7 @@ const PerlinNoise = ({
        captureScene={captureScene}
        controlsVisible={controlsVisible}
        isMobile={isMobile}
+       fontSize={fontSize}
      />
       )}
       
@@ -440,7 +455,7 @@ const PerlinNoise = ({
             left: "50%",
             transform: "translate(-50%, -50%)",
             color: "white",
-            fontSize: "8vw",
+            fontSize: "{fontSize}",
             fontFamily: "var(--primary-font)",
             fontStyle: "italic",
             fontWeight: "bold",
