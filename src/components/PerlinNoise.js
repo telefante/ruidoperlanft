@@ -11,6 +11,7 @@ import PerlinControls from "./PerlinControls" // Import the new controls compone
 import WalletConnection from "./WalletConnection" // Import the WalletConnection component
 // import { useWallet } from "./WalletContext" // Import the WalletContext
 import UploadImageWithWallet from "./UploadImagewithWallet" // Import the new component
+import NFTVerification from "./NFTVerification"; // Import NFT Verification
 
 const PerlinNoise = ({
   showControls = true,
@@ -44,12 +45,17 @@ const PerlinNoise = ({
     }
   `)
 
+  
+
+
   const text =
     data.allMarkdownRemark.nodes.find(node =>
       node.fileAbsolutePath.includes(queryFile)
     )?.rawMarkdownBody || ""
 
   const mountRef = useRef(null)
+  const [accessGranted, setAccessGranted] = useState(false); // NEW: NFT Access State
+
   const containerRef = useRef(null)
   const sceneRef = useRef(null)
   const cameraRef = useRef(null)
@@ -409,9 +415,11 @@ const PerlinNoise = ({
         backgroundColor: "transparent",
       }}
     >
-      {/* <WalletConnection /> */}
+      <WalletConnection /> {/* Wallet Connection */}
+      <NFTVerification setAccessGranted={setAccessGranted} /> {/* NFT Verification */}
+
       <div ref={mountRef} style={{ width: "100%", height: "100%" }} />
-      {showControls && (
+      {showControls && accessGranted && ( // Only show if NFT is owned
         <PerlinControls
           usePerlin={usePerlin}
           setUsePerlin={setUsePerlin}
@@ -429,6 +437,11 @@ const PerlinNoise = ({
           isMobile={isMobile}
           fontSize={fontSize}
         />
+      )}
+       {!accessGranted && (
+        <p style={{ color: "red", textAlign: "center", marginTop: "20px" }}>
+          Access restricted: You need to own the NFT to control the simulation.
+        </p>
       )}
 
       <Container>
