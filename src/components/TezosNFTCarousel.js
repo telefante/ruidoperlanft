@@ -91,9 +91,11 @@ const TezosNFTCarousel = () => {
       title="Ruido Perla NFT Collection"
     >
       {/* <Container className="flex flex-col items-center p-4"> */}
-      <Row>
-        <p>{nfts.length > 0 ? `${nfts.length} assets` : `No NFTs found`}</p>
-      </Row>
+      <Container flex >
+        {/* <p>{nfts.length > 0 ? `${nfts.length} assets` : `No NFTs found`}</p> */}
+    
+
+      </Container>
       {nfts.length > 0 ? (
         <Swiper
           modules={[Pagination]}
@@ -188,6 +190,15 @@ const TezosNFTCarousel = () => {
                   >
                     Buy on Objkt
                   </Button>
+
+                  <Button m-4
+        href={`${process.env.GATSBY_OBJKT_COLLECTION_URL}/${COLLECTION_CONTRACT}`}
+        target="_blank"
+        variant="secondary"
+        style={{ marginTop: "1rem", fontFamily: "var(--primary-font)", maxWidth: "200px", marginLeft: "20px" }} 
+      >
+        View Full Collection on Objkt
+      </Button>
                 </Row>
               </SwiperSlide>
             )
@@ -197,15 +208,7 @@ const TezosNFTCarousel = () => {
         <p className="text-center text-gray-500">No NFTs found</p>
       )}
 
-      <Button
-        href={`${process.env.GATSBY_OBJKT_COLLECTION_URL}/${COLLECTION_CONTRACT}`}
-        target="_blank"
-        variant="secondary"
-        style={{ marginTop: "1rem", fontFamily: "var(--primary-font)" }}
-      >
-        View Full Collection on Objkt
-      </Button>
-
+   
       {/* </Container> */}
       <Modal show={showModal} onHide={closeModal} centered>
         <Modal.Body>
