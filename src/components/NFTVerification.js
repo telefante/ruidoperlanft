@@ -86,23 +86,40 @@ const NFTVerification = ({ setAccessGranted }) => {
     // Primary check: TzKT API (checks ANY NFT in collection)
     const checkNFTOwnershipTzKT = async (address) => {
         const apiUrl = `https://api.tzkt.io/v1/tokens/balances?account=${address}&token.contract=${contractAddress}`;
-        const response = await fetch(apiUrl);
-        const data = await response.json();
-        return data.length > 0; // If there's any entry, the user owns at least one NFT
+        console.log("TzKT API Request:", apiUrl); // Log the API request
+        try {
+            const response = await fetch(apiUrl);
+            const data = await response.json();
+            console.log("TzKT API Response:", data); // Log the API response
+            return data.length > 0; // If there's any entry, the user owns at least one NFT
+        } catch (error) {
+            console.error("TzKT API Error:", error);
+            return false;
+        }
     };
 
     // Fallback check: Objkt.com GraphQL API
     const checkNFTOwnershipObjkt = async (address) => {
         const query = gql`
             query {
-                token_holder(where: { holder_address: { _eq: "${address}" }, fa2_id: { _eq: "${contractAddress}" } }) {
+                token_holder(
+                    where: {
+                        holder_address: { _eq: "${address}" }
+                        token: { fa_contract: { _eq: "${contractAddress}" } }
+                    }
+                ) {
                     quantity
                 }
             }
         `;
+    
         try {
             const data = await request(objktapi, query);
-            return data.token_holder.length > 0; // If any results, user owns an NFT
+            
+            // Sum all the `quantity` values to get the total NFT count
+            const totalNFTsOwned = data.token_holder.reduce((sum, holder) => sum + holder.quantity, 0);
+    
+            return totalNFTsOwned > 0; // Return true if at least 1 NFT is owned
         } catch (error) {
             console.error("Objkt API Error:", error);
             return false;
