@@ -2,10 +2,13 @@ import React, { useState, useEffect } from "react";
 import { request, gql } from "graphql-request";
 import { useWallet } from "./WalletContext";
 
+const objktapi = process.env.GATSBY_OBJKT_GRAPHQL_URL=https://data.ghostnet.objkt.com/v3/graphql
+const COLLECTION_CONTRACT = process.env.GATSBY_TEZOS_CONTRACT
+  
 
-const contractAddress = "KT1...YourNFTContract"; // Replace with your NFT contract address
-const tokenId = "1234"; // Replace with your specific NFT ID
-const objktGraphQL = "https://data.objkt.com/v3/graphql"; // Objkt API Endpoint
+const contractAddress = COLLECTION_CONTRACT; // Replace with your NFT contract address
+const tokenId = "1"; // Replace with your specific NFT ID
+const objktGraphQL = objktapi; // Objkt API Endpoint
 
 const NFTVerification = ({ setAccessGranted }) => {
     const { walletAddress } = useWallet();
