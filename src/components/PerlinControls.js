@@ -86,7 +86,7 @@ const PerlinControls = ({
             <Form.Control
               type="range"
               min="0"
-              max="30"
+              max="100"
               step="0.1"
               value={amplitude}
               onChange={e => setAmplitude(parseFloat(e.target.value))}

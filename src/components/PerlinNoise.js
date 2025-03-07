@@ -25,7 +25,7 @@ const PerlinNoise = ({
   cameraParams = null,
   showCaptureButton,
   queryFile,
-  fontSize = "8vw", //default font size
+  fontSize
 }) => {
   const data = useStaticQuery(graphql`
     query {
@@ -478,7 +478,7 @@ const PerlinNoise = ({
             left: "50%",
             transform: "translate(-50%, -50%)",
             color: "white",
-            fontSize: "{fontSize}",
+            fontSize: `${fontSize}`,
             fontFamily: "var(--primary-font)",
             fontStyle: "italic",
             fontWeight: "bold",

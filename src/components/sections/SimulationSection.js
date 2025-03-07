@@ -74,6 +74,7 @@ const SimulationSection = ({ account, connectWallet, disconnectWallet }) => {
           disconnectWallet={disconnectWallet}
           showCaptureButton={false}
           queryFile={queryFile}
+          fontSize="8vw"
         />
       </div>
     </SectionContainer>
