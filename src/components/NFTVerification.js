@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { request, gql } from "graphql-request";
-import { useWallet } from "../WalletContext";
+import { useWallet } from "./WalletContext";
+
 
 const contractAddress = "KT1...YourNFTContract"; // Replace with your NFT contract address
 const tokenId = "1234"; // Replace with your specific NFT ID
