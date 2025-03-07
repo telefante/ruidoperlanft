@@ -8,9 +8,17 @@
 
 .custom-list-group {
   font-size: 0.8em !important;
+ 
 }
 
 .custom-list-item {
   font-size: 0.8em !important;
   padding: 0.5em !important;
+  background: none !important;
+  color: white !important;
+  border: none !important;
+}
+
+.card {
+  border: none; /* Removes the border/line */
 }

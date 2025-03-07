@@ -123,6 +123,7 @@ const TezosNFTCarousel = () => {
                 {/* <Container className="d-flex align-items-center"> */}
                 <Row>
                   <Col>
+                    <h2>{nft.metadata?.name || "Unnamed NFT"}</h2>
                     <img
                       src={thumbnailUrl}
                       alt={nft.metadata?.name || "Unnamed NFT"}
@@ -138,10 +139,10 @@ const TezosNFTCarousel = () => {
                   </Col>
                   <Col >
                     {nft.metadata?.attributes && (
-                      <Card style={{ width: "18rem", margin: "10px", backgroundColor: "transparent", color: "var(--secondary-color)" }}>
-                        <div className="card-body custom-card-body">
+                      <Card noborder style={{ width: "18rem", margin: "10px", backgroundColor: "transparent" }}>
+                        <div className="card-body custom-card-body" >
                           <h3 className="card-title custom-card-title">
-                            {nft.metadata?.name || "Unnamed NFT"}
+                           attributes
                           </h3>
                           <ul className="list-group list-group-flush custom-list-group">
                             {nft.metadata.attributes.map((attr, i) => (
