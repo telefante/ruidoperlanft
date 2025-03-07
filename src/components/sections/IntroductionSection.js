@@ -11,7 +11,17 @@ const IntroductionSection = () => {
     frequency: 2,
     octaves: 2,
     usePerlin: true,
-    showControls: false
+    showControls: false,
+    colors: {
+      solid: {
+        color: 0x00ffff,    // Neon green for solid mesh
+        opacity: 0.3        // Semi-transparent
+      },
+      wireframe: {
+        color: 0x0000ff,    // Black for wireframe
+        opacity: 1.0        // More visible wireframe
+      }
+    }
   };
 
   
@@ -24,8 +34,9 @@ const IntroductionSection = () => {
 
     // Define camera initialization parameters
     const cameraParams = {
-      position: { x: -0.00, y: 190.13, z: 0.00 },
-      lookAt: { x: -0.00, y: 90.13, z: 0.00 }
+      position: { x: -0.1332018946871437, y: 91.24420810533678, z: -1.653409036452902 },
+      lookAt: { x: 0.01380516776622312, y: -8.739033492597855, z: 0.170908086977136 }
+  
     };
 
     const queryFile = "intro.md" // Specify the file name

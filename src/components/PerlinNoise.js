@@ -5,12 +5,7 @@ import { Perlin } from "three-noise"
 import { createNoise3D } from "simplex-noise"
 import html2canvas from "html2canvas"
 import { useStaticQuery, graphql } from "gatsby"
-import {
-  Modal,
-  Button,
-  Row,
-  Container,
-} from "react-bootstrap"
+import { Modal, Button, Row, Container } from "react-bootstrap"
 import PerlinControls from "./PerlinControls" // Import the new controls component
 // import { useContractAddress } from "./ContractContext" // Import the custom hook
 import WalletConnection from "./WalletConnection" // Import the WalletConnection component
@@ -49,19 +44,18 @@ const PerlinNoise = ({
     }
   `)
 
-  const text = data.allMarkdownRemark.nodes.find(node =>
-    node.fileAbsolutePath.includes(queryFile)
-  )?.rawMarkdownBody || ""
+  const text =
+    data.allMarkdownRemark.nodes.find(node =>
+      node.fileAbsolutePath.includes(queryFile)
+    )?.rawMarkdownBody || ""
 
-
-  
   const mountRef = useRef(null)
   const containerRef = useRef(null)
   const sceneRef = useRef(null)
   const cameraRef = useRef(null)
   const rendererRef = useRef(null)
   const currentTextRef = useRef("")
- 
+
   const [usePerlin, setUsePerlin] = useState(initialParams.usePerlin)
   const [amplitude, setAmplitude] = useState(initialParams.amplitude)
   const [scale, setScale] = useState(initialParams.scale)
@@ -114,7 +108,7 @@ const PerlinNoise = ({
 
     const scene = new THREE.Scene()
     const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000)
-  
+
     if (cameraParams) {
       const { position, lookAt } = cameraParams
       camera.position.set(position.x, position.y, position.z)
@@ -191,7 +185,7 @@ const PerlinNoise = ({
     const perlin = new Perlin()
     const simplex = createNoise3D()
 
-    const lines = text//data.markdownRemark.rawMarkdownBody
+    const lines = text //data.markdownRemark.rawMarkdownBody
       .split("\n")
       .filter(line => line.trim())
     let currentIndex = 0
@@ -257,6 +251,13 @@ const PerlinNoise = ({
       if (controls.enabled) {
         renderer.domElement.style.cursor = "grab"
       }
+
+      console.log("position", camera.position)
+      const direction = new THREE.Vector3()
+      camera.getWorldDirection(direction)
+      const lookAtPoint = new THREE.Vector3()
+      lookAtPoint.addVectors(camera.position, direction.multiplyScalar(100))
+      console.log("lookAt", lookAtPoint)
     }
 
     renderer.domElement.addEventListener("pointermove", onPointerMove)
@@ -267,6 +268,9 @@ const PerlinNoise = ({
     camera.getWorldDirection(direction)
     const lookAtPoint = new THREE.Vector3()
     lookAtPoint.addVectors(camera.position, direction.multiplyScalar(100))
+
+    console.log("position", camera.position)
+    // console.log("lookAt", camera.lookAt)
 
     cameraSetupRef.current = {
       position: {
@@ -408,25 +412,25 @@ const PerlinNoise = ({
       {/* <WalletConnection /> */}
       <div ref={mountRef} style={{ width: "100%", height: "100%" }} />
       {showControls && (
-       <PerlinControls
-       usePerlin={usePerlin}
-       setUsePerlin={setUsePerlin}
-       amplitude={amplitude}
-       setAmplitude={setAmplitude}
-       scale={scale}
-       setScale={setScale}
-       frequency={frequency}
-       setFrequency={setFrequency}
-       octaves={octaves}
-       setOctaves={setOctaves}
-       showCaptureButton={showCaptureButton}
-       captureScene={captureScene}
-       controlsVisible={controlsVisible}
-       isMobile={isMobile}
-       fontSize={fontSize}
-     />
+        <PerlinControls
+          usePerlin={usePerlin}
+          setUsePerlin={setUsePerlin}
+          amplitude={amplitude}
+          setAmplitude={setAmplitude}
+          scale={scale}
+          setScale={setScale}
+          frequency={frequency}
+          setFrequency={setFrequency}
+          octaves={octaves}
+          setOctaves={setOctaves}
+          showCaptureButton={showCaptureButton}
+          captureScene={captureScene}
+          controlsVisible={controlsVisible}
+          isMobile={isMobile}
+          fontSize={fontSize}
+        />
       )}
-      
+
       <Container>
         <Row>
           <Button
