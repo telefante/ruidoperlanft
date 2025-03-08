@@ -18,13 +18,13 @@ const IndexPage = () => {
   return (
     <Layout>
       <WalletProvider>
-      <ContractProvider>
-        <IntroductionSection />
-        <InstallationSection />
-        <TezosNFTCarousel />
-        <SimulationSection />
-        <AboutSection />
-      </ContractProvider>
+        <ContractProvider>
+          <IntroductionSection />
+          <TezosNFTCarousel />
+          <SimulationSection />
+          <InstallationSection />
+          <AboutSection />
+        </ContractProvider>
       </WalletProvider>
     </Layout>
   )

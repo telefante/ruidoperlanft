@@ -68,8 +68,8 @@ const CarouselWrapper = styled.div`
 `
 
 const InstallationSection = () => {
-  const [showModal, setShowModal] = useState(false);
-  
+  const [showModal, setShowModal] = useState(false)
+
   const data = useStaticQuery(graphql`
     query {
       allFile(
@@ -129,21 +129,21 @@ const InstallationSection = () => {
     >
       <OverlappingContainer>
         <TextOverlay>
-          <h2 className="simulation-title">Philosophy</h2>
-          <section style={{ 
-            textAlign: 'justify', 
-            lineHeight: '1.1',
-            letterSpacing: '0.02em',
-            hyphens: 'auto'
-          }}>
-            <p>
-              Ruido Perla explores the poetics of the unpredictable, where
-              the digital and physical merge in a dialogue between randomness
-              and structure. Its name comes from the Perlin noise algorithm, a
-              system that generates chaotic landscapes inspired by nature, and
-              from the pearl, a rare and accidental discovery.
-            </p>
-            <Button 
+          <Row className="align-items-center mb-4">
+            <Col xs={12} md={3}>
+              <h2 className="simulation-title">concept</h2>
+            </Col>
+          </Row>
+          <section
+            style={{
+              textAlign: "justify",
+              lineHeight: "1.1",
+              letterSpacing: "0.02em",
+              hyphens: "auto",
+            }}
+          >
+            <p>Ruido Perla explores the poetics of the unpredictable ....</p>
+            <Button
               variant="outline-light"
               className="mt-3"
               onClick={() => setShowModal(true)}
@@ -159,20 +159,22 @@ const InstallationSection = () => {
             centered
           >
             <Modal.Header closeButton>
-              <Modal.Title style={{ fontFamily: 'var(--primary-font)' }}>Motivation for Ruido Perla</Modal.Title>
+              <Modal.Title style={{ fontFamily: "var(--primary-font)" }}>
+                concept for Ruido Perla
+              </Modal.Title>
             </Modal.Header>
             <Modal.Body>
-              <p style={{ color: 'black' }}>
-                Ruido Perla explores the poetics of the unpredictable, where
-                the digital and physical merge in a dialogue between randomness
-                and structure. Its name comes from the Perlin noise algorithm, a
+              <p style={{ color: "black" }}>
+                Ruido Perla explores the poetics of the unpredictable, where the
+                digital and physical merge in a dialogue between randomness and
+                structure. Its name comes from the Perlin noise algorithm, a
                 system that generates chaotic landscapes inspired by nature, and
                 from the pearl, a rare and accidental discovery. Here, noise is
                 not chaos but a method of creation. This process intensifies in
-                the connection between virtual algorithmic motion and
-                the mechanized movement of seeds and shamanic maracas, creating
-                tension between the programmed and the organic. In its NFT
-                form, Ruido Perla becomes a platform for digital exploration,
+                the connection between virtual algorithmic motion and the
+                mechanized movement of seeds and shamanic maracas, creating
+                tension between the programmed and the organic. In its NFT form,
+                Ruido Perla becomes a platform for digital exploration,
                 capturing unique moments of this interplay between code, matter,
                 and sound.
               </p>

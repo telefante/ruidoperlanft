@@ -16,7 +16,7 @@
     
 .brand-title {
     color: white !important;
-    font-size: clamp(2.2rem, 1vw, 2rem); 
+    font-size: clamp(1.2rem, 1vw, 6rem); 
 }
   
 /* Mobile styles */
