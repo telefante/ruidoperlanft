@@ -2,13 +2,12 @@
 title: "Intro Text"
 ---
 
-Discover the digital 
-installation of „Ruido Perla NFT," 
-where simulation and art 
-converge in a globally accessible 
-web portal.
-Explore generative landscapes 
-and poetic texts that complement the
-NFT experience, 
-offering an interactive dimension 
-that invites active user participation.
+ruido perla
+ruido is noise
+perla is pearl 
+perlin noise 
+a algorithhmic approach
+to generate terrain  
+landscapes 
+welcome to the collection 
+of that Pearl in noise ...
