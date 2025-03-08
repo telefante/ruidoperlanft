@@ -1,10 +1,12 @@
-import React from "react";
+import React, { useState } from "react";
 import { Row, Col } from "react-bootstrap";
 import SectionContainer from "./SectionContainer";
 
 import PerlinNoise from "../PerlinNoise";
 
 const SimulationSection = ({ account, connectWallet, disconnectWallet }) => {
+   const [controlsVisible, setControlsVisible] = useState(true); // Define the state
+  
   // Define surface parameters for simulation
   const surfaceParams = {
     amplitude: 20,      // Larger amplitude for more dramatic waves
@@ -75,6 +77,8 @@ const SimulationSection = ({ account, connectWallet, disconnectWallet }) => {
           showCaptureButton={false}
           queryFile={queryFile}
           fontSize="8vw"
+          controlsVisible={controlsVisible} // Pass the state
+          setControlsVisible={setControlsVisible} // Pass the setter function
         />
       </div>
     </SectionContainer>
