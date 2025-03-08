@@ -8,57 +8,75 @@ const CACHE_KEY = "nftOwnershipCache";
 const CACHE_EXPIRY = 5 * 60 * 1000; // Cache for 5 minutes
 
 const NFTVerification = ({ setAccessGranted }) => {
-  const { walletAddress } = useWallet();
+  const { walletAddress, isConnected } = useWallet();
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (!walletAddress) return;
+    console.log("🟡 useEffect triggered in NFTVerification.");
+    console.log("📌 Wallet Address:", walletAddress);
+    console.log("📌 Wallet Connected:", isConnected);
+
+    if (!walletAddress || !isConnected) {
+        console.log("❌ No wallet connected. Denying access.");
+        setAccessGranted(false);
+        return;
+    }
+
     verifyOwnership(walletAddress);
-  }, [walletAddress]);
+}, [walletAddress, isConnected]);
+
+
 
   const verifyOwnership = async (address) => {
+    console.log("🟡 Verifying NFT ownership for wallet:", address);
     setLoading(true);
     const cachedData = getCachedOwnership(address);
 
     if (cachedData !== null) {
-      console.log("✅ Using cached NFT verification result");
-      setAccessGranted(cachedData);
-      setSuccess(cachedData);
-      setLoading(false);
-      return;
+        console.log("✅ Using cached NFT verification:", cachedData);
+        setAccessGranted(cachedData);
+        setSuccess(cachedData);
+        setLoading(false);
+        return;
     }
 
     try {
-      const ownsNFT = await checkNFTOwnershipTzKT(address);
-      if (ownsNFT) {
-        cacheOwnership(address, true);
-        setAccessGranted(true);
-        setSuccess(true);
-        setLoading(false);
-        return;
-      }
+        console.log("📡 Checking TzKT API...");
+        const ownsNFT = await checkNFTOwnershipTzKT(address);
+        console.log("🔍 TzKT API Result:", ownsNFT);
+        
+        if (ownsNFT) {
+            cacheOwnership(address, true);
+            setAccessGranted(true);
+            setSuccess(true);
+            setLoading(false);
+            return;
+        }
 
-      // Fallback to Objkt GraphQL API
-      const ownsNFTObjkt = await checkNFTOwnershipObjkt(address);
-      if (ownsNFTObjkt) {
-        cacheOwnership(address, true);
-        setAccessGranted(true);
-        setSuccess(true);
-        setLoading(false);
-        return;
-      }
+        console.log("📡 Checking Objkt API...");
+        const ownsNFTObjkt = await checkNFTOwnershipObjkt(address);
+        console.log("🔍 Objkt API Result:", ownsNFTObjkt);
 
-      cacheOwnership(address, false);
-      setAccessGranted(false);
-      setError("You do not own an NFT from this collection.");
+        if (ownsNFTObjkt) {
+            cacheOwnership(address, true);
+            setAccessGranted(true);
+            setSuccess(true);
+            setLoading(false);
+            return;
+        }
+
+        console.log("❌ No NFTs found in either API.");
+        cacheOwnership(address, false);
+        setAccessGranted(false);
+        setError("You do not own an NFT from this collection.");
     } catch (err) {
-      console.error("Error verifying NFT ownership:", err);
-      setError("Failed to verify NFT ownership.");
+        console.error("⚠️ Error verifying NFT ownership:", err);
+        setError("Failed to verify NFT ownership.");
     }
     setLoading(false);
-  };
+};
 
   // Check local storage cache
   const getCachedOwnership = (address) => {

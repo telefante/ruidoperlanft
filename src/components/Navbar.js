@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { Navbar, Nav, Container } from "react-bootstrap";
 import styled from "styled-components";
 import "./navbar.css";
+import WalletConnection from "./WalletConnection"; // Import WalletConnection
+
 
 // Styled component for mobile-friendly navbar collapse
 const StyledNavbarCollapse = styled(Navbar.Collapse)`
@@ -81,6 +83,7 @@ const CustomNavbar = () => {
                 {section.name}
               </Nav.Link>
             ))}
+            <WalletConnection /> {/* Add WalletConnection here */}
           </Nav>
         </StyledNavbarCollapse>
       </Container>
