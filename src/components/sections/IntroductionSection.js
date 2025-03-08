@@ -1,9 +1,10 @@
-import React from "react";
-// import { Row, Col } from "react-bootstrap";
+import React, { useState } from "react";
 import SectionContainer from "./SectionContainer";
 import PerlinNoise from "../PerlinNoise";
 
 const IntroductionSection = () => {
+  const [controlsVisible, setControlsVisible] = useState(false); // Define the state
+
   // Define surface parameters for introduction
   const surfaceParams = {
     amplitude: 15,
@@ -14,60 +15,40 @@ const IntroductionSection = () => {
     showControls: false,
     colors: {
       solid: {
-        color: 0x00ffff,    // Neon green for solid mesh
-        opacity: 0.3        // Semi-transparent
+        color: 0x00ffff,
+        opacity: 0.3
       },
       wireframe: {
-        color: 0x0000ff,    // Black for wireframe
-        opacity: 1.0        // More visible wireframe
+        color: 0x0000ff,
+        opacity: 1.0
       }
     }
   };
 
-  
-  // Define camera initialization parameters
-  // const cameraParams = {
-  //         position: { x: 0.00, y: 100.00, z: 200.00 },
-  //         lookAt: { x: 0.00, y: 55.28, z: 110.56 }
+  const cameraParams = {
+    position: { x: -0.1332018946871437, y: 91.24420810533678, z: -1.653409036452902 },
+    lookAt: { x: 0.01380516776622312, y: -8.739033492597855, z: 0.170908086977136 }
+  };
 
-  // };
-
-    // Define camera initialization parameters
-    const cameraParams = {
-      position: { x: -0.1332018946871437, y: 91.24420810533678, z: -1.653409036452902 },
-      lookAt: { x: 0.01380516776622312, y: -8.739033492597855, z: 0.170908086977136 }
-  
-    };
-
-    const queryFile = "intro.md" // Specify the file name
-
+  const queryFile = "intro.md";
 
   return (
     <SectionContainer id="introduction" isGridLayout={false}>
-       {/* <section>
-            <p>
-              Discover the digital installation of „Ruido Perla NFT," where
-              simulation and art converge in a globally accessible web portal.
-              Explore generative landscapes and poetic texts that complement the
-              NFT experience, offering an interactive dimension that invites
-              active user participation.
-            </p>
-          </section> */}
-      {/* Full viewport width and height container */}
       <div style={{ 
         width: '100vw', 
         height: '66vh',
         marginLeft: 'calc(-50vw + 50%)', 
         marginRight: 'calc(-50vw + 50%)',
-        marginBottom: '0px' // Add space for controls
+        marginBottom: '0px'
       }}>
         <PerlinNoise 
-          showControls={false}
           enableOrbit={true}
           initialParams={surfaceParams}
           cameraParams={cameraParams}
           showCaptureButton={false}
-          queryFile={queryFile} // Pass the queryFile prop
+          queryFile={queryFile}
+          controlsVisible={controlsVisible} // Pass the state
+          setControlsVisible={setControlsVisible} // Pass the setter function
         />
       </div>
     </SectionContainer>

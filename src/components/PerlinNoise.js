@@ -26,7 +26,9 @@ const PerlinNoise = ({
   cameraParams = null,
   showCaptureButton,
   queryFile,
-  fontSize
+  fontSize,
+  controlsVisible, // Receive the state
+  setControlsVisible, // Receive the setter function
 }) => {
   const data = useStaticQuery(graphql`
     query {
@@ -70,7 +72,7 @@ const PerlinNoise = ({
   const [textOpacity, setTextOpacity] = useState(1)
   const [capturedImage, setCapturedImage] = useState(null)
   const [showModal, setShowModal] = useState(false)
-  const [controlsVisible, setControlsVisible] = useState(true)
+  // const [controlsVisible, setControlsVisible] = useState(true); // Remove this line
   const [isMobile, setIsMobile] = useState(false)
 
   const usePerlinRef = useRef(usePerlin)
@@ -402,7 +404,7 @@ const PerlinNoise = ({
    * Toggle visibility of Perlin noise controls.
    */
   const toggleControls = () => {
-    setControlsVisible(!controlsVisible)
+    setControlsVisible(!controlsVisible); // Use the setter function from props
   }
 
   return (
@@ -433,7 +435,7 @@ const PerlinNoise = ({
           setOctaves={setOctaves}
           showCaptureButton={showCaptureButton}
           captureScene={captureScene}
-          controlsVisible={controlsVisible}
+          controlsVisible={controlsVisible} // Use the state from props
           isMobile={isMobile}
           fontSize={fontSize}
         />
@@ -446,23 +448,25 @@ const PerlinNoise = ({
 
       <Container>
         <Row>
-          <Button
-            variant="danger"
-            onClick={toggleControls}
-            className="minimize-button"
-            style={{
-              position: "absolute",
-              top: "10px",
-              left: "20px",
-              zIndex: 1000,
-              cursor: "pointer",
-              fontSize: "0.8rem",
-              fontFamily: "var(--primary-font)",
-              width: isMobile ? "90%" : "20%", // Set maxWidth based on mobile detection
-            }}
-          >
-            {controlsVisible ? "Minimize Controls" : "Show Controls"}
-          </Button>
+          {controlsVisible && (
+            <Button
+              variant="danger"
+              onClick={toggleControls}
+              className="minimize-button"
+              style={{
+                position: "absolute",
+                top: "10px",
+                left: "20px",
+                zIndex: 1000,
+                cursor: "pointer",
+                fontSize: "0.8rem",
+                fontFamily: "var(--primary-font)",
+                width: isMobile ? "90%" : "20%", // Set maxWidth based on mobile detection
+              }}
+            >
+              {controlsVisible ? "Minimize Controls" : "Show Controls"}
+            </Button>
+          )}
         </Row>
         <Row>
           <div
