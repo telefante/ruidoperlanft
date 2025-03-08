@@ -29,7 +29,7 @@ const StyledNavbarCollapse = styled(Navbar.Collapse)`
 const sections = [
   { name: "hello", path: "introduction" },
   { name: "collection", path: "tezos-nft-carousel" },
-  { name: "simulation", path: "simulation" },
+  { name: "poetry", path: "simulation" },
   { name: "concept", path: "installation" },
   { name: "documentation", path: "about" },
 ];

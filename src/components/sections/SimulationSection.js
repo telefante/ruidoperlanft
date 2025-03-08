@@ -54,7 +54,7 @@ const SimulationSection = ({ account, connectWallet, disconnectWallet }) => {
     <SectionContainer id="simulation" isGridLayout={false}>
       <Row className="align-items-center mb-4">
         <Col xs={12} md={3}>
-          <h2 className="simulation-title">Simulation</h2>
+          <h2 className="simulation-title">Poetry & Simulation</h2>
         </Col>
       </Row>
       
