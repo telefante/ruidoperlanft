@@ -30,7 +30,7 @@ const sections = [
   { name: "hello", path: "introduction" },
   { name: "collection", path: "tezos-nft-carousel" },
   { name: "simulation", path: "simulation" },
-  { name: "philosophy", path: "installation" },
+  { name: "concept", path: "installation" },
   { name: "documentation", path: "about" },
 ];
 

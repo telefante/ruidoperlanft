@@ -1,107 +1,110 @@
-import React, { useState, useEffect } from "react"
-import { Swiper, SwiperSlide } from "swiper/react"
-import "swiper/css"
-import "swiper/css/pagination"
-import { Pagination } from "swiper/modules"
-import SectionContainer from "./sections/SectionContainer"
-import placeholderImage from "../assets/placeholder.jpg"
-import { Container, Button, Card, Row, Col, Modal } from "react-bootstrap"
+import React, { useState, useEffect } from "react";
+import { Swiper, SwiperSlide } from "swiper/react";
+import "swiper/css";
+import "swiper/css/pagination";
+import "swiper/css/navigation"; // Import navigation styles
+import { Pagination, Navigation } from "swiper/modules"; // Import Navigation module
+import SectionContainer from "./sections/SectionContainer";
+import placeholderImage from "../assets/placeholder.jpg";
+import { Container, Button, Card, Row, Col, Modal } from "react-bootstrap";
 // import WalletConnection from "./WalletConnection"
-import { useWallet } from "./WalletContext" // Use WalletContext
-import "./TezosNFTCarousel.css"
+import { useWallet } from "./WalletContext"; // Use WalletContext
+import "./TezosNFTCarousel.css";
 
 const TezosNFTCarousel = () => {
-  const { walletAddress, isConnected } = useWallet() // Get wallet state from context
-  const [nfts, setNfts] = useState([])
-  const [showModal, setShowModal] = useState(false)
-  const [modalImage, setModalImage] = useState("")
-  const [selectedNft, setSelectedNft] = useState(null) // new state
+  const { walletAddress, isConnected } = useWallet(); // Get wallet state from context
+  const [nfts, setNfts] = useState([]);
+  const [showModal, setShowModal] = useState(false);
+  const [modalImage, setModalImage] = useState("");
+  const [selectedNft, setSelectedNft] = useState(null); // new state
 
   // const RPC_URL = process.env.GATSBY_TEZOS_RPC_URL;
-  const TzKT_API = process.env.GATSBY_TZKT_API_URL
-  const COLLECTION_CONTRACT = process.env.GATSBY_TEZOS_CONTRACT
-  const OBJKT_TOKEN_URL = process.env.GATSBY_OBJKT_TOKEN_URL
-  console.log("TzKT_API:", TzKT_API)
-  console.log("COLLECTION_CONTRACT:", COLLECTION_CONTRACT)
+  const TzKT_API = process.env.GATSBY_TZKT_API_URL;
+  const COLLECTION_CONTRACT = process.env.GATSBY_TEZOS_CONTRACT;
+  const OBJKT_TOKEN_URL = process.env.GATSBY_OBJKT_TOKEN_URL;
+  console.log("TzKT_API:", TzKT_API);
+  console.log("COLLECTION_CONTRACT:", COLLECTION_CONTRACT);
 
   // Debugging wallet state
   useEffect(() => {
-    console.log("Wallet Connection State Updated:")
-    console.log("Address:", walletAddress)
-    console.log("Is Connected:", isConnected)
-  }, [walletAddress, isConnected])
+    console.log("Wallet Connection State Updated:");
+    console.log("Address:", walletAddress);
+    console.log("Is Connected:", isConnected);
+  }, [walletAddress, isConnected]);
 
   // Fetch NFTs when the wallet is connected
   useEffect(() => {
     if (isConnected && walletAddress) {
-      fetchNFTsfromCollection(walletAddress)
+      fetchNFTsfromCollection(walletAddress);
     }
-  }, [isConnected, walletAddress])
+  }, [isConnected, walletAddress]);
 
   const fetchNFTsfromCollection = async () => {
-    const apiUrl = `${TzKT_API}v1/tokens?contract=${COLLECTION_CONTRACT}&limit=200`
+    const apiUrl = `${TzKT_API}v1/tokens?contract=${COLLECTION_CONTRACT}&limit=200`;
     // GET https://api.tzkt.io/v1/tokens?contract=KT1[CollectionAddress]&limit=100
 
-    console.log("Fetching NFTs from:", apiUrl)
+    console.log("Fetching NFTs from:", apiUrl);
     try {
       // console.log("Fetching NFTs for:", walletAddress)
 
-      const response = await fetch(apiUrl)
+      const response = await fetch(apiUrl);
       // https://api.tzkt.io/v1/tokens/balances?account=${walletAddress}&token.standard=fa2`
-      const data = await response.json()
+      const data = await response.json();
 
-      console.log("Raw NFT Data:", data)
+      console.log("Raw NFT Data:", data);
 
       if (!Array.isArray(data)) {
-        console.error("Unexpected response format", data)
-        return
+        console.error("Unexpected response format", data);
+        return;
       }
 
-      const nftsWithImages = data.filter(nft => nft?.metadata?.artifactUri)
-      console.log("NFTs with Images:", nftsWithImages)
+      const nftsWithImages = data.filter((nft) => nft?.metadata?.artifactUri);
+      console.log("NFTs with Images:", nftsWithImages);
 
-      setNfts(nftsWithImages)
+      setNfts(nftsWithImages);
     } catch (error) {
-      console.error("Error fetching NFTs:", error)
+      console.error("Error fetching NFTs:", error);
     }
-  }
+  };
 
   useEffect(() => {
-    fetchNFTsfromCollection()
-  }, [])
+    fetchNFTsfromCollection();
+  }, []);
 
-  const openModal = nft => {
+  const openModal = (nft) => {
     setModalImage(
       nft.metadata.displayUri?.replace("ipfs://", "https://dweb.link/ipfs/") ||
         placeholderImage
-    )
-    setSelectedNft(nft) // Store the selected NFT
-    setShowModal(true)
-  }
+    );
+    setSelectedNft(nft); // Store the selected NFT
+    setShowModal(true);
+  };
 
   const closeModal = () => {
-    setShowModal(false)
-    setModalImage("")
-    setSelectedNft(null) // Clear the selected NFT
-  }
+    setShowModal(false);
+    setModalImage("");
+    setSelectedNft(null); // Clear the selected NFT
+  };
 
   return (
-    <SectionContainer
-      id="tezos-nft-carousel"
-      title="Collection"
-    >
+    <SectionContainer id="tezos-nft-carousel">
+      <Row className="align-items-center mb-4">
+        <Col xs={12} md={3}>
+          <h2 className="simulation-title">Collection</h2>
+        </Col>
+      </Row>
       {/* <Container className="flex flex-col items-center p-4"> */}
-      <Container flex >
-        {/* <p>{nfts.length > 0 ? `${nfts.length} assets` : `No NFTs found`}</p> */}
-    
+      {/* <Container flex > */}
+      {/* <p>{nfts.length > 0 ? `${nfts.length} assets` : `No NFTs found`}</p> */}
 
-      </Container>
+      {/* </Container> */}
       {nfts.length > 0 ? (
         <Swiper
-          modules={[Pagination]}
+          modules={[Pagination, Navigation]} // Add Navigation to modules
           spaceBetween={10}
           slidesPerView={1}
           pagination={{ clickable: true }}
+          navigation={true} // Enable navigation arrows
           style={{
             width: "100%",
             height: "100%",
@@ -113,12 +116,12 @@ const TezosNFTCarousel = () => {
               nft.metadata.thumbnailUri?.replace(
                 "ipfs://",
                 "https://dweb.link/ipfs/"
-              ) || placeholderImage
+              ) || placeholderImage;
 
             // Create a function to handle the click event
             const handleImageClick = () => {
-              openModal(nft)
-            }
+              openModal(nft);
+            };
 
             return (
               <SwiperSlide key={index}>
@@ -139,12 +142,19 @@ const TezosNFTCarousel = () => {
                       onClick={handleImageClick} // Call the new function
                     />
                   </Col>
-                  <Col >
+                  <Col>
                     {nft.metadata?.attributes && (
-                      <Card noborder style={{ width: "18rem", margin: "10px", backgroundColor: "transparent" }}>
-                        <div className="card-body custom-card-body" >
+                      <Card
+                        noborder
+                        style={{
+                          width: "18rem",
+                          margin: "10px",
+                          backgroundColor: "transparent",
+                        }}
+                      >
+                        <div className="card-body custom-card-body">
                           <h3 className="card-title custom-card-title">
-                           attributes
+                            attributes
                           </h3>
                           <ul className="list-group list-group-flush custom-list-group">
                             {nft.metadata.attributes.map((attr, i) => (
@@ -166,14 +176,14 @@ const TezosNFTCarousel = () => {
                   <h3>
                     Rarity:{" "}
                     {nft.metadata.attributes.find(
-                      attr => attr.name === "Rarity"
+                      (attr) => attr.name === "Rarity"
                     )?.value || "No rarity available"}
                   </h3>
                   <div style={{ display: "flex", justifyContent: "center" }}>
-    <p style={{ maxWidth: "50vw", textAlign: "center" }}>
-      {nft.metadata?.description || "No description available"}
-    </p>
-  </div>
+                    <p style={{ maxWidth: "50vw", textAlign: "center" }}>
+                      {nft.metadata?.description || "No description available"}
+                    </p>
+                  </div>
                 </Row>
                 <Row style={{ justifyContent: "center" }}>
                   <Button
@@ -191,24 +201,29 @@ const TezosNFTCarousel = () => {
                     Buy on Objkt
                   </Button>
 
-                  <Button m-4
-        href={`${process.env.GATSBY_OBJKT_COLLECTION_URL}/${COLLECTION_CONTRACT}`}
-        target="_blank"
-        variant="secondary"
-        style={{ marginTop: "1rem", fontFamily: "var(--primary-font)", maxWidth: "200px", marginLeft: "20px" }} 
-      >
-        View Full Collection on Objkt
-      </Button>
+                  <Button
+                    m-4
+                    href={`${process.env.GATSBY_OBJKT_COLLECTION_URL}/${COLLECTION_CONTRACT}`}
+                    target="_blank"
+                    variant="secondary"
+                    style={{
+                      marginTop: "1rem",
+                      fontFamily: "var(--primary-font)",
+                      maxWidth: "200px",
+                      marginLeft: "20px",
+                    }}
+                  >
+                    View Full Collection on Objkt
+                  </Button>
                 </Row>
               </SwiperSlide>
-            )
+            );
           })}
         </Swiper>
       ) : (
         <p className="text-center text-gray-500">No NFTs found</p>
       )}
 
-   
       {/* </Container> */}
       <Modal show={showModal} onHide={closeModal} centered>
         <Modal.Body>
@@ -217,7 +232,8 @@ const TezosNFTCarousel = () => {
         <Modal.Footer>
           {selectedNft && (
             <>
-              {console.log("Buy Button - selectedNft:", selectedNft)} {/* Log here */}
+              {console.log("Buy Button - selectedNft:", selectedNft)}{" "}
+              {/* Log here */}
               <Button
                 style={{
                   fontFamily: "var(--primary-font)",
@@ -238,7 +254,7 @@ const TezosNFTCarousel = () => {
         </Modal.Footer>
       </Modal>
     </SectionContainer>
-  )
-}
+  );
+};
 
-export default TezosNFTCarousel
+export default TezosNFTCarousel;
