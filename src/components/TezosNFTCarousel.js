@@ -6,7 +6,7 @@ import "swiper/css/navigation" // Import navigation styles
 import { Pagination, Navigation } from "swiper/modules" // Import Navigation module
 import SectionContainer from "./sections/SectionContainer"
 import placeholderImage from "../assets/placeholder.jpg"
-import {  Button, Card, Row, Col, Modal } from "react-bootstrap"
+import { Button, Card, Row, Col, Modal } from "react-bootstrap"
 // import WalletConnection from "./WalletConnection"
 import { useWallet } from "./WalletContext" // Use WalletContext
 import "./TezosNFTCarousel.css"
@@ -14,7 +14,8 @@ import styled from "styled-components"
 
 const DescriptionText = styled.p`
   max-width: 50vw;
-  text-align: center;
+  text-align: justify;
+  font-size: 1.2rem;
   @media (max-width: 768px) {
     max-width: 90vw;
   }
@@ -102,6 +103,7 @@ const TezosNFTCarousel = () => {
           <h2 className="simulation-title">Collection</h2>
         </Col>
       </Row>
+     
       {/* <Container className="flex flex-col items-center p-4"> */}
       {/* <Container flex > */}
       {/* <p>{nfts.length > 0 ? `${nfts.length} assets` : `No NFTs found`}</p> */}
@@ -195,6 +197,28 @@ const TezosNFTCarousel = () => {
                   </div>
                 </Row>
                 <Row style={{ justifyContent: "center" }}>
+                <Row className="align-items-center mb-4">
+        <DescriptionText>
+          <p>
+             🟢{" "}
+            <strong>Legendary (1/1)</strong> → Singular moments of entropy,
+            never repeated. 
+            🔵 <strong>Rare (Limited Editions)</strong> → Echoes
+            of complexity, held in scarce iterations. ⚪{" "}
+            <strong>Common (Small Batch)</strong> → A fleeting glimpse into the
+            infinite, yet still finite. Holding one grants you private access to
+            an exclusive generative simulation, where landscapes reshape and
+            dissolve in real time. Limited Supply. No Second Chances. 👉{" "}
+            <a
+              href="https://objkt.com"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Collect Now on Objkt.com
+            </a>
+          </p>
+        </DescriptionText>
+      </Row>
                   <Button
                     href={`${OBJKT_TOKEN_URL}/${COLLECTION_CONTRACT}/${nft.tokenId}`}
                     target="_blank"
