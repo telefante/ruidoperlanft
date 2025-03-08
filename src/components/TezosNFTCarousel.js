@@ -88,7 +88,7 @@ const TezosNFTCarousel = () => {
   return (
     <SectionContainer
       id="tezos-nft-carousel"
-      title="Ruido Perla NFT Collection"
+      title="Collection"
     >
       {/* <Container className="flex flex-col items-center p-4"> */}
       <Container flex >
