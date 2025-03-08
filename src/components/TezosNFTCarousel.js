@@ -6,7 +6,7 @@ import "swiper/css/navigation" // Import navigation styles
 import { Pagination, Navigation } from "swiper/modules" // Import Navigation module
 import SectionContainer from "./sections/SectionContainer"
 import placeholderImage from "../assets/placeholder.jpg"
-import { Container, Button, Card, Row, Col, Modal } from "react-bootstrap"
+import {  Button, Card, Row, Col, Modal } from "react-bootstrap"
 // import WalletConnection from "./WalletConnection"
 import { useWallet } from "./WalletContext" // Use WalletContext
 import "./TezosNFTCarousel.css"
