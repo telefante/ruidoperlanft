@@ -83,6 +83,7 @@ const CustomNavbar = () => {
                 {section.name}
               </Nav.Link>
             ))}
+            <WalletConnection /> {/* Add WalletConnection here */}
           </Nav>
         </StyledNavbarCollapse>
       </Container>

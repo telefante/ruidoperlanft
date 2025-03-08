@@ -8,7 +8,6 @@ import { useStaticQuery, graphql } from "gatsby"
 import { Modal, Button, Row, Container } from "react-bootstrap"
 import PerlinControls from "./PerlinControls" // Import the new controls component
 // import { useContractAddress } from "./ContractContext" // Import the custom hook
-import WalletConnection from "./WalletConnection" // Import the WalletConnection component
 // import { useWallet } from "./WalletContext" // Import the WalletContext
 import UploadImageWithWallet from "./UploadImagewithWallet" // Import the new component
 import NFTVerification from "./NFTVerification"; // Import NFT Verification
@@ -417,7 +416,7 @@ const PerlinNoise = ({
         backgroundColor: "transparent",
       }}
     >
-      <WalletConnection /> {/* Wallet Connection */}
+      {/* <WalletConnection />  Wallet Connection  // REMOVE */}
       <NFTVerification setAccessGranted={setAccessGranted} /> {/* NFT Verification */}
 
       <div ref={mountRef} style={{ width: "100%", height: "100%" }} />
