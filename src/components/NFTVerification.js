@@ -8,15 +8,18 @@ const CACHE_KEY = "nftOwnershipCache";
 const CACHE_EXPIRY = 5 * 60 * 1000; // Cache for 5 minutes
 
 const NFTVerification = ({ setAccessGranted }) => {
-  const { walletAddress } = useWallet();
+  const { walletAddress, isConnected } = useWallet();
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (!walletAddress) return;
+    if (!walletAddress || !isConnected) {
+      setAccessGranted(false); // Ensure access is denied if wallet is disconnected or no address
+      return;
+    }
     verifyOwnership(walletAddress);
-  }, [walletAddress]);
+  }, [walletAddress, isConnected]);
 
   const verifyOwnership = async (address) => {
     setLoading(true);

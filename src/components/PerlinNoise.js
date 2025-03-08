@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from "react"
+import React, { useRef, useEffect, useState, useContext } from "react" // Import useContext
 import * as THREE from "three"
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls"
 import { Perlin } from "three-noise"
@@ -7,8 +7,7 @@ import html2canvas from "html2canvas"
 import { useStaticQuery, graphql } from "gatsby"
 import { Modal, Button, Row, Container } from "react-bootstrap"
 import PerlinControls from "./PerlinControls" // Import the new controls component
-// import { useContractAddress } from "./ContractContext" // Import the custom hook
-// import { useWallet } from "./WalletContext" // Import the WalletContext
+import { WalletContext } from "./WalletContext"; // Import the WalletContext
 import UploadImageWithWallet from "./UploadImagewithWallet" // Import the new component
 import NFTVerification from "./NFTVerification"; // Import NFT Verification
 
@@ -56,6 +55,8 @@ const PerlinNoise = ({
 
   const mountRef = useRef(null)
   const [accessGranted, setAccessGranted] = useState(false); // NEW: NFT Access State
+  const { walletAddress, isConnected } = useContext(WalletContext); // Get wallet info from context
+
 
   const containerRef = useRef(null)
   const sceneRef = useRef(null)
@@ -357,6 +358,16 @@ const PerlinNoise = ({
       mediaQuery.removeEventListener("change", handleMediaQueryChange)
     }
   }, [])
+
+  useEffect(() => {
+    if (walletAddress && isConnected) {
+      // Wallet is connected, now verify NFT ownership
+      setAccessGranted(false); // Reset access
+      // NFTVerification({ setAccessGranted });
+    } else {
+      setAccessGranted(false); // No access if no wallet
+    }
+  }, [walletAddress, isConnected]);
 
   /**
    * Captures the current scene within the container reference as a canvas image.
