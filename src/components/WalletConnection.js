@@ -33,25 +33,31 @@ const WalletConnection = () => {
   }, []);
 
   const connectWallet = async () => {
-    console.log("Connecting wallet...");
-    if (!beaconWallet) return;
+    console.log("🔄 Connecting wallet...");
+    if (!beaconWallet) {
+        console.error("❌ Beacon Wallet instance is missing.");
+        return;
+    }
 
     try {
-      await beaconWallet.requestPermissions({
-        network: {
-          type: "ghostnet",
-          rpcUrl: RPC_URL,
-        },
-      });
+        await beaconWallet.requestPermissions({
+            network: { type: "ghostnet", rpcUrl: RPC_URL },
+        });
 
-      const address = await beaconWallet.getPKH();
-      setWalletAddress(address);
-      setIsConnected(true);
-      console.log("Connected wallet address:", address);
+        const address = await beaconWallet.getPKH();
+        console.log("✅ Wallet Connected:", address);
+        
+        setWalletAddress(address); // 🚀 Ensure Context Updates
+        setIsConnected(true);
+        
+        console.log("🔄 WalletContext Updated in WalletConnection.js", {
+            address,
+            isConnected: true,
+        });
     } catch (error) {
-      console.error("❌ Wallet connection failed:", error);
+        console.error("❌ Wallet connection failed:", error);
     }
-  };
+};
 
   const disconnectWallet = async () => {
     if (!beaconWallet) return;
