@@ -6,7 +6,7 @@ import "swiper/css/navigation" // Import navigation styles
 import { Pagination, Navigation } from "swiper/modules" // Import Navigation module
 import SectionContainer from "./sections/SectionContainer"
 import placeholderImage from "../assets/placeholder.jpg"
-import { Button, Card, Row, Col, Modal } from "react-bootstrap"
+import { Button, Card, Row, Col, Modal, Container } from "react-bootstrap"
 // import WalletConnection from "./WalletConnection"
 import { useWallet } from "./WalletContext" // Use WalletContext
 import "./TezosNFTCarousel.css"
@@ -15,7 +15,7 @@ import styled from "styled-components"
 const DescriptionText = styled.p`
   max-width: 50vw;
   text-align: justify;
-  font-size: 1.2rem;
+  font-size: 1.0rem;
   @media (max-width: 768px) {
     max-width: 90vw;
   }
@@ -103,156 +103,162 @@ const TezosNFTCarousel = () => {
           <h2 className="simulation-title">Collection</h2>
         </Col>
       </Row>
-     
+
       {/* <Container className="flex flex-col items-center p-4"> */}
       {/* <Container flex > */}
       {/* <p>{nfts.length > 0 ? `${nfts.length} assets` : `No NFTs found`}</p> */}
 
       {/* </Container> */}
       {nfts.length > 0 ? (
-        <Swiper
-          modules={[Pagination, Navigation]} // Add Navigation to modules
-          spaceBetween={10}
-          slidesPerView={1}
-          pagination={{ clickable: true }}
-          navigation={true} // Enable navigation arrows
-          style={{
-            width: "100%",
-            height: "100%",
-            backgroundColor: "transparent",
-          }}
-        >
-          {nfts.map((nft, index) => {
-            const thumbnailUrl =
-              nft.metadata.thumbnailUri?.replace(
-                "ipfs://",
-                "https://dweb.link/ipfs/"
-              ) || placeholderImage
+        <Container>
+          <Swiper
+            modules={[Pagination, Navigation]} // Add Navigation to modules
+            spaceBetween={10}
+            slidesPerView={1}
+            pagination={{ clickable: true }}
+            navigation={true} // Enable navigation arrows
+            style={{
+              width: "100%",
+              height: "100%",
+              backgroundColor: "transparent",
+            }}
+          >
+            {nfts.map((nft, index) => {
+              const thumbnailUrl =
+                nft.metadata.thumbnailUri?.replace(
+                  "ipfs://",
+                  "https://dweb.link/ipfs/"
+                ) || placeholderImage
 
-            // Create a function to handle the click event
-            const handleImageClick = () => {
-              openModal(nft)
-            }
+              // Create a function to handle the click event
+              const handleImageClick = () => {
+                openModal(nft)
+              }
 
-            return (
-              <SwiperSlide key={index}>
-                {/* <Container className="d-flex align-items-center"> */}
-                <Row>
-                  <Col>
-                    <h2>{nft.metadata?.name || "Unnamed NFT"}</h2>
-                    <img
-                      src={thumbnailUrl}
-                      alt={nft.metadata?.name || "Unnamed NFT"}
-                      style={{
-                        maxWidth: "80%",
-                        minWidth: "200px",
-                        // maxHeight: ",
-                        marginRight: "20px",
-                        cursor: "pointer", // Add cursor pointer
-                      }}
-                      onClick={handleImageClick} // Call the new function
-                    />
-                  </Col>
-                  <Col>
-                    {nft.metadata?.attributes && (
-                      <Card
-                        noborder
+              return (
+                <SwiperSlide key={index}>
+                  <Row className="align-items-center mb-4">
+                    <DescriptionText>
+                      <p>
+                        👉 Ruido Perla is more than a collection—it is an
+                        evolving digital extension of an installation. These
+                        generative NFTs are not just static images but keys
+                        unlocking access to a ongoing process.
+                      </p>
+                    </DescriptionText>
+                  </Row>
+                  {/* <Container className="d-flex align-items-center"> */}
+                  <Row>
+                    <Col>
+                      <h2>{nft.metadata?.name || "Unnamed NFT"}</h2>
+                      <img
+                        src={thumbnailUrl}
+                        alt={nft.metadata?.name || "Unnamed NFT"}
                         style={{
-                          width: "18rem",
-                          margin: "10px",
-                          backgroundColor: "transparent",
+                          maxWidth: "80%",
+                          minWidth: "200px",
+                          // maxHeight: ",
+                          marginRight: "20px",
+                          cursor: "pointer", // Add cursor pointer
                         }}
-                      >
-                        <div className="card-body custom-card-body">
-                          <h3 className="card-title custom-card-title">
-                            attributes
-                          </h3>
-                          <ul className="list-group list-group-flush custom-list-group">
-                            {nft.metadata.attributes.map((attr, i) => (
-                              <li
-                                key={i}
-                                className="list-group-item custom-list-item"
-                              >
-                                <strong>{attr.name}:</strong> {attr.value}
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      </Card>
-                    )}
-                  </Col>
-                </Row>
-                {/* </Container> */}
-                <Row mt-8 centered>
-                  <h3>
-                    Rarity:{" "}
-                    {nft.metadata.attributes.find(
-                      attr => attr.name === "Rarity"
-                    )?.value || "No rarity available"}
-                  </h3>
+                        onClick={handleImageClick} // Call the new function
+                      />
+                    </Col>
+                    <Col>
+                      {nft.metadata?.attributes && (
+                        <Card
+                          noborder
+                          style={{
+                            width: "18rem",
+                            margin: "10px",
+                            backgroundColor: "transparent",
+                          }}
+                        >
+                          <div className="card-body custom-card-body">
+                            <h3 className="card-title custom-card-title">
+                              attributes
+                            </h3>
+                            <ul className="list-group list-group-flush custom-list-group">
+                              {nft.metadata.attributes.map((attr, i) => (
+                                <li
+                                  key={i}
+                                  className="list-group-item custom-list-item"
+                                >
+                                  <strong>{attr.name}:</strong> {attr.value}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        </Card>
+                      )}
+                    </Col>
+                  </Row>
+                  {/* </Container> */}
+                  <Row mt-8 centered>
+                    <h3>
+                      Rarity:{" "}
+                      {nft.metadata.attributes.find(
+                        attr => attr.name === "Rarity"
+                      )?.value || "No rarity available"}
+                    </h3>
+                    <div style={{ display: "flex", justifyContent: "center" }}>
+                      <DescriptionText>
+                        {nft.metadata?.description ||
+                          "No description available"}
+                      </DescriptionText>
+                    </div>
+                  </Row>
+
                   <div style={{ display: "flex", justifyContent: "center" }}>
                     <DescriptionText>
-                      {nft.metadata?.description || "No description available"}
+                      <p>
+                        🟢 <strong>Legendary (1/1)</strong> → Singular moments
+                        of entropy, never repeated. 🔵{" "}
+                        <strong>Rare (Limited Editions)</strong> → Echoes of
+                        complexity, held in scarce iterations. ⚪{" "}
+                        <strong>Common (Small Batch)</strong> → A fleeting
+                        glimpse into the infinite, yet still finite. Holding one
+                        grants you private access to an exclusive generative
+                        simulation, where landscapes reshape and dissolve in
+                        real time. Limited Supply. No Second Chances. 👉{" "}
+                      </p>
+                      <Row>
+                        <Button
+                          href={`${OBJKT_TOKEN_URL}/${COLLECTION_CONTRACT}/${nft.tokenId}`}
+                          target="_blank"
+                          variant="primary"
+                          style={{
+                            fontFamily: "var(--primary-font)",
+                            fontStyle: "italic",
+                            fontWeight: "bold",
+                            fontSize: "1.5rem",
+                            maxWidth: "200px",
+                          }}
+                        >
+                          Collect now on Objkt
+                        </Button>
+                      </Row>
                     </DescriptionText>
                   </div>
-                </Row>
-                <Row style={{ justifyContent: "center" }}>
-                <Row className="align-items-center mb-4">
-        <DescriptionText>
-          <p>
-             🟢{" "}
-            <strong>Legendary (1/1)</strong> → Singular moments of entropy,
-            never repeated. 
-            🔵 <strong>Rare (Limited Editions)</strong> → Echoes
-            of complexity, held in scarce iterations. ⚪{" "}
-            <strong>Common (Small Batch)</strong> → A fleeting glimpse into the
-            infinite, yet still finite. Holding one grants you private access to
-            an exclusive generative simulation, where landscapes reshape and
-            dissolve in real time. Limited Supply. No Second Chances. 👉{" "}
-            <a
-              href="https://objkt.com"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Collect Now on Objkt.com
-            </a>
-          </p>
-        </DescriptionText>
-      </Row>
-                  <Button
-                    href={`${OBJKT_TOKEN_URL}/${COLLECTION_CONTRACT}/${nft.tokenId}`}
-                    target="_blank"
-                    variant="primary"
-                    style={{
-                      fontFamily: "var(--primary-font)",
-                      fontStyle: "italic",
-                      fontWeight: "bold",
-                      fontSize: "1.5rem",
-                      maxWidth: "200px",
-                    }}
-                  >
-                    Buy on Objkt
-                  </Button>
-
-                  <Button
-                    m-4
-                    href={`${process.env.GATSBY_OBJKT_COLLECTION_URL}/${COLLECTION_CONTRACT}`}
-                    target="_blank"
-                    variant="secondary"
-                    style={{
-                      marginTop: "1rem",
-                      fontFamily: "var(--primary-font)",
-                      maxWidth: "200px",
-                      marginLeft: "20px",
-                    }}
-                  >
-                    View Full Collection on Objkt
-                  </Button>
-                </Row>
-              </SwiperSlide>
-            )
-          })}
-        </Swiper>
+                </SwiperSlide>
+              )
+            })}
+          </Swiper>
+          <Button
+            m-4
+            href={`${process.env.GATSBY_OBJKT_COLLECTION_URL}/${COLLECTION_CONTRACT}`}
+            target="_blank"
+            variant="secondary"
+            style={{
+              marginTop: "1rem",
+              fontFamily: "var(--primary-font)",
+              maxWidth: "200px",
+              marginLeft: "20px",
+            }}
+          >
+            View Full Collection on Objkt
+          </Button>
+        </Container>
       ) : (
         <p className="text-center text-gray-500">No NFTs found</p>
       )}
