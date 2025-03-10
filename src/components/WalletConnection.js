@@ -9,6 +9,8 @@ const WalletConnection = () => {
   const [wallet, setWallet] = useState(null);
 
   const RPC_URL = "https://ghostnet.ecadinfra.com"; // Correct Tezos RPC URL
+  const TYPE = process.env.GATSBY_NETWORK_TYPE; // Correct Tezos network type
+ 
   const tezos = new TezosToolkit(RPC_URL);
 
   useEffect(() => {
@@ -41,7 +43,7 @@ const WalletConnection = () => {
 
     try {
         await beaconWallet.requestPermissions({
-            network: { type: "ghostnet", rpcUrl: RPC_URL },
+            network: { type: TYPE, rpcUrl: RPC_URL },
         });
 
         const address = await beaconWallet.getPKH();
