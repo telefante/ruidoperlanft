@@ -10,15 +10,15 @@ const WalletConnection = () => {
 
   const RPC_URL = "https://ghostnet.ecadinfra.com"; // Correct Tezos RPC URL
   // for mainnet https://mainnet.tezos.ecadinfra.com/
-  const TYPE = process.env.GATSBY_NETWORK_TYPE; // Correct Tezos network type
- 
+  const NETWORK_TYPE = process.env.GATSBY_NETWORK_TYPE; // Correct Tezos network type
+ console.log("TYPE:", NETWORK_TYPE);
   const tezos = new TezosToolkit(RPC_URL);
 
   useEffect(() => {
     const initTezos = async () => {
       const walletInstance = new BeaconWallet({
         name: "Ruido Perla NFTs",
-        preferredNetwork: "ghostnet",
+        preferredNetwork: NETWORK_TYPE,
       });
 
       tezos.setWalletProvider(walletInstance);
@@ -44,7 +44,7 @@ const WalletConnection = () => {
 
     try {
         await beaconWallet.requestPermissions({
-            network: { type: TYPE, rpcUrl: RPC_URL },
+            network: { type: NETWORK_TYPE, rpcUrl: RPC_URL },
         });
 
         const address = await beaconWallet.getPKH();
