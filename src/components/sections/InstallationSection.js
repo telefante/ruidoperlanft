@@ -6,6 +6,17 @@ import styled from "styled-components"
 import SectionContainer from "./SectionContainer"
 
 // Add styled components
+
+
+const DescriptionText = styled.p`
+  max-width: 50vw;
+  text-align: justify;
+  font-size: 1.0rem;
+  @media (max-width: 768px) {
+    max-width: 90vw;
+  }
+`
+
 const StyledCarousel = styled(Carousel)`
   .carousel-inner {
     background: transparent;
@@ -99,7 +110,10 @@ const InstallationSection = () => {
     }
   `)
 
-  console.log("Image data:", data)
+  // console.log("Image data:", data)
+
+  const COLLECTION_CONTRACT = process.env.GATSBY_TEZOS_CONTRACT
+  // const OBJKT_TOKEN_URL = process.env.GATSBY_OBJKT_TOKEN_URL
 
   // Check if we have any images
   if (!data.allFile.edges.length) {
@@ -152,6 +166,36 @@ const InstallationSection = () => {
             </Button>
           </section>
 
+          <Row className="align-items-center mb-4">
+            <DescriptionText>
+              <p>
+                👉 These NFTs are more than digital artifacts; they are
+                fragments of an ever-changing landscape. Each one is a unique
+                translation of the installation’s essence, existing only once in
+                its current form before the next permutation takes shape.
+                Collectors don’t just own an artwork—they gain access to a
+                continuous, evolving digital simulation, available only to
+                holders.
+              </p>
+            </DescriptionText>
+          </Row>
+          <Row>
+            <Button
+               href={`${process.env.GATSBY_OBJKT_COLLECTION_URL}/${COLLECTION_CONTRACT}`}
+              target="_blank"
+              variant="primary"
+              style={{
+                fontFamily: "var(--primary-font)",
+                fontStyle: "italic",
+                fontWeight: "bold",
+                fontSize: "1.5rem",
+                maxWidth: "200px",
+              }}
+            >
+              Collect now on Objkt
+            </Button>
+          </Row>
+
           <Modal
             show={showModal}
             onHide={() => setShowModal(false)}
@@ -165,18 +209,11 @@ const InstallationSection = () => {
             </Modal.Header>
             <Modal.Body>
               <p style={{ color: "black" }}>
-                Ruido Perla explores the poetics of the unpredictable, where the
-                digital and physical merge in a dialogue between randomness and
-                structure. Its name comes from the Perlin noise algorithm, a
-                system that generates chaotic landscapes inspired by nature, and
-                from the pearl, a rare and accidental discovery. Here, noise is
-                not chaos but a method of creation. This process intensifies in
-                the connection between virtual algorithmic motion and the
-                mechanized movement of seeds and shamanic maracas, creating
-                tension between the programmed and the organic. In its NFT form,
-                Ruido Perla becomes a platform for digital exploration,
-                capturing unique moments of this interplay between code, matter,
-                and sound.
+                Its name comes from the Perlin noise algorithm, a system that
+                generates chaotic landscapes inspired by nature, and from the
+                pearl, a rare and accidental discovery. From the tangible to the
+                generative, from the physical to the ephemeral—Ruido Perla blurs
+                the boundaries between installation art and digital evolution.
               </p>
             </Modal.Body>
           </Modal>

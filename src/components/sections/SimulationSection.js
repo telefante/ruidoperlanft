@@ -1,11 +1,12 @@
 import React, { useState } from "react"
-import { Row, Col } from "react-bootstrap"
+import { Row, Col, Button } from "react-bootstrap"
 import SectionContainer from "./SectionContainer"
 import styled from "styled-components"
 import PerlinNoise from "../PerlinNoise"
 
 const SimulationSection = ({ account, connectWallet, disconnectWallet }) => {
   const [controlsVisible, setControlsVisible] = useState(true) // Define the state
+  const COLLECTION_CONTRACT = process.env.GATSBY_TEZOS_CONTRACT
 
   // Define surface parameters for simulation
   const surfaceParams = {
@@ -70,6 +71,7 @@ const SimulationSection = ({ account, connectWallet, disconnectWallet }) => {
       </Row>
 
       <DescriptionText>
+     
         <p>
           From the tangible to the generative, from the physical to the
           ephemeral—Ruido Perla blurs the boundaries between installation art
@@ -80,7 +82,25 @@ const SimulationSection = ({ account, connectWallet, disconnectWallet }) => {
           just own an artwork—they gain access to a continuous, evolving digital
           simulation, available only to holders.
         </p>
+      
       </DescriptionText>
+      <Row>
+            <Button
+               href={`${process.env.GATSBY_OBJKT_COLLECTION_URL}/${COLLECTION_CONTRACT}`}
+              target="_blank"
+              variant="primary"
+              style={{
+                fontFamily: "var(--primary-font)",
+                fontStyle: "italic",
+                fontWeight: "bold",
+                fontSize: "1.2rem",
+                maxWidth: "200px",
+              }}
+            >
+              Collect now
+            </Button>
+          </Row>
+     
 
       {/* Full viewport width and height container */}
       <div
