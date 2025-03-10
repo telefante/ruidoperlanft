@@ -396,26 +396,25 @@ const PerlinNoise = ({
     >
       <NFTVerification setAccessGranted={setAccessGranted} />
       <div ref={mountRef} style={{ width: "100%", height: "100%" }} />
-      {showControls &&
-        accessGranted && (
-          <PerlinControls
-            usePerlin={usePerlin}
-            setUsePerlin={setUsePerlin}
-            amplitude={amplitude}
-            setAmplitude={setAmplitude}
-            scale={scale}
-            setScale={setScale}
-            frequency={frequency}
-            setFrequency={setFrequency}
-            octaves={octaves}
-            setOctaves={setOctaves}
-            showCaptureButton={showCaptureButton}
-            captureScene={captureScene}
-            controlsVisible={controlsVisible}
-            isMobile={isMobile}
-            fontSize={fontSize}
-          />
-        )}
+      {accessGranted && showControls && (
+        <PerlinControls
+          usePerlin={usePerlin}
+          setUsePerlin={setUsePerlin}
+          amplitude={amplitude}
+          setAmplitude={setAmplitude}
+          scale={scale}
+          setScale={setScale}
+          frequency={frequency}
+          setFrequency={setFrequency}
+          octaves={octaves}
+          setOctaves={setOctaves}
+          showCaptureButton={showCaptureButton}
+          captureScene={captureScene}
+          controlsVisible={controlsVisible}
+          isMobile={isMobile}
+          fontSize={fontSize}
+        />
+      )}
       {!accessGranted && (
         <p style={{ color: "red", textAlign: "center", marginTop: "20px" }}>
           Access restricted: You need to own the NFT to control the simulation.

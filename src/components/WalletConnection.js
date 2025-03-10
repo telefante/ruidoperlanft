@@ -9,6 +9,7 @@ const WalletConnection = () => {
   const [wallet, setWallet] = useState(null);
 
   const RPC_URL = "https://ghostnet.ecadinfra.com"; // Correct Tezos RPC URL
+  // for mainnet https://mainnet.tezos.ecadinfra.com/
   const TYPE = process.env.GATSBY_NETWORK_TYPE; // Correct Tezos network type
  
   const tezos = new TezosToolkit(RPC_URL);
