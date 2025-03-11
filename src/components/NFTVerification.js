@@ -25,7 +25,7 @@ const NFTVerification = ({ setAccessGranted }) => {
     }
 
     verifyOwnership(walletAddress);
-}, [walletAddress, isConnected]);
+}, [walletAddress, isConnected, setAccessGranted]);
 
 
 
