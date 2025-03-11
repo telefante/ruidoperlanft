@@ -7,7 +7,7 @@ const objktapi =
   process.env.GATSBY_OBJKT_GRAPHQL_URL ||
   "https://data.ghostnet.objkt.com/v3/graphql"
 const contractAddress =
-  process.env.GATSBY_TEZOS_CONTRACT || "KT1...YourContract"
+  process.env.GATSBY_TEZOS_CONTRACT
 const CACHE_KEY = "nftOwnershipCache"
 const CACHE_EXPIRY = 5 * 60 * 1000 // Cache for 5 minutes
 
@@ -136,7 +136,7 @@ const NFTVerification = ({ setAccessGranted }) => {
         }
       }
     `
-    console.log("Objkt API Request:", query)
+    // console.log("Objkt API Request:", query)
     try {
       const data = await request(objktapi, query)
       console.log("Objkt API Response:", data)
@@ -163,6 +163,13 @@ const NFTVerification = ({ setAccessGranted }) => {
           <h3> Congratulations! you are a collector of Ruido Perla</h3>
          
         </Row>
+        </Container>
+      )}
+      {!success && (
+        <Container>
+          <Row>
+            <h3>become a collector of Ruido Perla to play with the simulation.</h3>
+          </Row>
         </Container>
       )}
       {error && <p style={{ color: "red" }}>{error}</p>}

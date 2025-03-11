@@ -64,11 +64,11 @@ const WalletConnection = () => {
   return (
     <div className="wallet-connection">
       {isConnected ? (
-        <Button variant="danger" onClick={disconnectWallet}>
+        <Button variant="danger" onClick={disconnectWallet} style={{fontFamily: "var(--primary-font)"}}>
           Disconnect Wallet
         </Button>
       ) : (
-        <Button variant="primary" onClick={connectWallet}>
+        <Button variant="primary"  style={{fontFamily: "var(--primary-font)"}} onClick={connectWallet}>
           Connect Wallet
         </Button>
       )}

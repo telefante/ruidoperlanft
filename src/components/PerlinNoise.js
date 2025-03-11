@@ -415,11 +415,11 @@ const PerlinNoise = ({
           fontSize={fontSize}
         />
       )}
-      {!accessGranted && (
+      {/* {!accessGranted && (
         <p style={{ color: "red", textAlign: "center", marginTop: "20px" }}>
           Access restricted: You need to own the NFT to control the simulation.
         </p>
-      )}
+      )} */}
       <Container>
         <Row>
           {controlsVisible && (
