@@ -160,7 +160,7 @@ const NFTVerification = ({ setAccessGranted }) => {
       {success && (
         <Container>
         <Row>
-          <h3> Congratulations! you are a collector of Ruido Perla</h3>
+          <h3> Congratulations! you are already a Ruido Perla's collector</h3>
          
         </Row>
         </Container>

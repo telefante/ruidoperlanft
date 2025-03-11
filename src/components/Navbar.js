@@ -65,6 +65,7 @@ const CustomNavbar = () => {
         {/* Brand Title */}
         <Navbar.Brand href="#" className="brand-title" >
           Ruido Perla NFT Collection
+          <WalletConnection /> {/* Add WalletConnection here */}
         </Navbar.Brand>
 
         {/* Hamburger Toggle Icon */}
@@ -83,7 +84,7 @@ const CustomNavbar = () => {
                 {section.name}
               </Nav.Link>
             ))}
-            <WalletConnection /> {/* Add WalletConnection here */}
+           
           </Nav>
         </StyledNavbarCollapse>
       </Container>

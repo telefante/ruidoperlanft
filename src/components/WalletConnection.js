@@ -64,7 +64,7 @@ const WalletConnection = () => {
   return (
     <div className="wallet-connection">
       {isConnected ? (
-        <Button variant="danger" onClick={disconnectWallet} style={{fontFamily: "var(--primary-font)"}}>
+        <Button variant="danger"  style={{fontFamily: "var(--primary-font)"}} onClick={disconnectWallet} >
           Disconnect Wallet
         </Button>
       ) : (
