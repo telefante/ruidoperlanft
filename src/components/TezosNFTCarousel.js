@@ -15,7 +15,7 @@ import styled from "styled-components"
 const DescriptionText = styled.p`
   max-width: 50vw;
   text-align: justify;
-  font-size: 1.0rem;
+  font-size: 1rem;
   @media (max-width: 768px) {
     max-width: 90vw;
   }
@@ -110,7 +110,7 @@ const TezosNFTCarousel = () => {
 
       {/* </Container> */}
       {nfts.length > 0 ? (
-        <Container>
+        <Container className="flex flex-col items-center p-4">
           <Swiper
             modules={[Pagination, Navigation]} // Add Navigation to modules
             spaceBetween={10}
@@ -137,17 +137,7 @@ const TezosNFTCarousel = () => {
 
               return (
                 <SwiperSlide key={index}>
-                  <Row className="align-items-center mb-4">
-                    <DescriptionText>
-                      <p>
-                        👉 Ruido Perla is more than a collection—it is an
-                        evolving digital extension of an installation. These
-                        generative NFTs are not just static images but keys
-                        unlocking access to a ongoing process.
-                      </p>
-                    </DescriptionText>
-                  </Row>
-                  {/* <Container className="d-flex align-items-center"> */}
+                
                   <Row>
                     <Col>
                       <h2>{nft.metadata?.name || "Unnamed NFT"}</h2>
@@ -193,7 +183,7 @@ const TezosNFTCarousel = () => {
                       )}
                     </Col>
                   </Row>
-                  {/* </Container> */}
+             
                   <Row mt-8 centered>
                     <h3>
                       Rarity:{" "}
@@ -210,54 +200,63 @@ const TezosNFTCarousel = () => {
                   </Row>
 
                   <div style={{ display: "flex", justifyContent: "center" }}>
-                    <DescriptionText>
-                      <p>
-                        🟢 <strong>Legendary (1/1)</strong> → Singular moments
-                        of entropy, never repeated. 🔵{" "}
-                        <strong>Rare (Limited Editions)</strong> → Echoes of
-                        complexity, held in scarce iterations. ⚪{" "}
-                        <strong>Common (Small Batch)</strong> → A fleeting
-                        glimpse into the infinite, yet still finite. Holding one
-                        grants you private access to an exclusive generative
-                        simulation, where landscapes reshape and dissolve in
-                        real time. Limited Supply. No Second Chances. 👉{" "}
-                      </p>
-                      <Row>
-                        <Button
-                          href={`${OBJKT_TOKEN_URL}/${COLLECTION_CONTRACT}/${nft.tokenId}`}
-                          target="_blank"
-                          variant="primary"
-                          style={{
-                            fontFamily: "var(--primary-font)",
-                            fontStyle: "italic",
-                            fontWeight: "bold",
-                            fontSize: "1.5rem",
-                            maxWidth: "200px",
-                          }}
-                        >
-                          Collect now on Objkt
-                        </Button>
-                      </Row>
-                    </DescriptionText>
+                    <Row>
+                      <Button
+                        href={`${OBJKT_TOKEN_URL}/${COLLECTION_CONTRACT}/${nft.tokenId}`}
+                        target="_blank"
+                        variant="primary"
+                        style={{
+                          fontFamily: "var(--primary-font)",
+                          fontStyle: "italic",
+                          fontWeight: "bold",
+                          fontSize: "1.5rem",
+                          maxWidth: "200px",
+                        }}
+                      >
+                        Collect now on Objkt
+                      </Button>
+                    </Row>
                   </div>
                 </SwiperSlide>
               )
             })}
           </Swiper>
-          <Button
-            m-4
-            href={`${process.env.GATSBY_OBJKT_COLLECTION_URL}/${COLLECTION_CONTRACT}`}
-            target="_blank"
-            variant="secondary"
-            style={{
-              marginTop: "1rem",
-              fontFamily: "var(--primary-font)",
-              maxWidth: "200px",
-              marginLeft: "20px",
-            }}
-          >
-            View Full Collection on Objkt
-          </Button>
+          <div style={{ display: "flex", justifyContent: "center" }}>
+            <DescriptionText>
+              <Row className="align-items-center mb-4">
+                👉 Ruido Perla is more than a collection—it is an evolving
+                digital extension of an installation. These generative NFTs are
+                not just static images but keys unlocking access to a ongoing
+                process.
+              </Row>
+              🟢 <strong>Legendary (1/1)</strong> → Singular moments of entropy,
+              never repeated.
+              <br /> 🔵 <strong>Rare (Limited Editions)</strong> → Echoes of
+              complexity, held in scarce iterations.
+              <br /> ⚪ <strong>Common (Small Batch)</strong> → A fleeting
+              glimpse into the infinite, yet still finite. Holding one grants
+              you private access to an exclusive generative simulation, where
+              landscapes reshape and dissolve in real time. Limited Supply. No
+              Second Chances. 👉{" "}
+              </DescriptionText>
+           <Row>
+            <Button
+              m-4
+              href={`${process.env.GATSBY_OBJKT_COLLECTION_URL}/${COLLECTION_CONTRACT}`}
+              target="_blank"
+              variant="secondary"
+              style={{
+                marginTop: "1rem",
+                fontFamily: "var(--primary-font)",
+                maxWidth: "200px",
+                marginLeft: "20px"
+              }}
+            >
+              View Full Collection on Objkt
+            </Button>
+          </Row>
+           
+          </div>
         </Container>
       ) : (
         <p className="text-center text-gray-500">No NFTs found</p>

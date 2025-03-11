@@ -54,9 +54,9 @@ const SimulationSection = ({ account, connectWallet, disconnectWallet }) => {
   const queryFile = "perlin-text.md" // Specify the file name
 
   const DescriptionText = styled.p`
-    max-width: 50vw;
+    max-width: 80vw;
     text-align: justify;
-    font-size: 1rem;
+    font-size: 1.2rem;
     @media (max-width: 768px) {
       max-width: 90vw;
     }
@@ -71,36 +71,29 @@ const SimulationSection = ({ account, connectWallet, disconnectWallet }) => {
       </Row>
 
       <DescriptionText>
-     
-        <p>
-          From the tangible to the generative, from the physical to the
-          ephemeral—Ruido Perla blurs the boundaries between installation art
-          and digital evolution. These NFTs are more than digital artifacts;
-          they are fragments of an ever-changing landscape. 
+        
+          Ruido Perla is a unique NFT collection of poetry and digital
+          simulation 
           <br />
-          Collectors don’t
-          just own an artwork—they gain access to a continuous, evolving digital
-          simulation, available only to holders.
-        </p>
-      
+          Collectors don’t just own an artwork— they gain access to control thesimulation.
+       
       </DescriptionText>
       <Row>
-            <Button
-               href={`${process.env.GATSBY_OBJKT_COLLECTION_URL}/${COLLECTION_CONTRACT}`}
-              target="_blank"
-              variant="primary"
-              style={{
-                fontFamily: "var(--primary-font)",
-                fontStyle: "italic",
-                fontWeight: "bold",
-                fontSize: "1.2rem",
-                maxWidth: "200px",
-              }}
-            >
-              Collect now
-            </Button>
-          </Row>
-     
+        <Button
+          href={`${process.env.GATSBY_OBJKT_COLLECTION_URL}/${COLLECTION_CONTRACT}`}
+          target="_blank"
+          variant="primary"
+          style={{
+            fontFamily: "var(--primary-font)",
+            fontStyle: "italic",
+            fontWeight: "bold",
+            fontSize: "1.2rem",
+            maxWidth: "200px",
+          }}
+        >
+          Collect now
+        </Button>
+      </Row>
 
       {/* Full viewport width and height container */}
       <div
