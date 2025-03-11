@@ -7,7 +7,6 @@ import SectionContainer from "./SectionContainer"
 
 // Add styled components
 
-
 const DescriptionText = styled.p`
   max-width: 50vw;
   text-align: justify;
@@ -115,25 +114,7 @@ const InstallationSection = () => {
   const COLLECTION_CONTRACT = process.env.GATSBY_TEZOS_CONTRACT
   // const OBJKT_TOKEN_URL = process.env.GATSBY_OBJKT_TOKEN_URL
 
-  // Check if we have any images
-  if (!data.allFile.edges.length) {
-    return (
-      <SectionContainer
-        id="installation"
-        title="Installation"
-        isGridLayout={true}
-      >
-        <Row className="justify-content-center">
-          <Col>
-            <p>
-              No installation images found. Please add images to the
-              static/images/ directory.
-            </p>
-          </Col>
-        </Row>
-      </SectionContainer>
-    )
-  }
+ 
 
   return (
     <SectionContainer
@@ -141,14 +122,14 @@ const InstallationSection = () => {
       title="Installation"
       isGridLayout={true}
     >
-      <OverlappingContainer>
-        <TextOverlay>
+      {/* <OverlappingContainer> */}
+        {/* <TextOverlay> */}
           <Row className="align-items-center mb-4">
-            <Col xs={12} md={3}>
+            <Col xs={12} md={6}>
               <h2 className="simulation-title">concept</h2>
             </Col>
           </Row>
-          <section
+          {/* <section
             style={{
               textAlign: "justify",
               lineHeight: "1.1",
@@ -156,15 +137,16 @@ const InstallationSection = () => {
               hyphens: "auto",
             }}
           >
-            <p>Ruido Perla explores the poetics of the unpredictable ....</p>
+            <p>Ruido Perla explores the poetics of the unpredictable ....</p> */}
             <Button
-              variant="outline-light"
+              variant="danger"
+              style={{ fontFamily: "var(--primary-font)" }}
               className="mt-3"
               onClick={() => setShowModal(true)}
             >
-              Read More
+              read whitepaper
             </Button>
-          </section>
+          {/* </section> */}
 
           <Row className="align-items-center mb-4">
             <DescriptionText>
@@ -183,13 +165,14 @@ const InstallationSection = () => {
             <Button
                href={`${process.env.GATSBY_OBJKT_COLLECTION_URL}/${COLLECTION_CONTRACT}`}
               target="_blank"
-              variant="primary"
+              variant="danger"
               style={{
                 fontFamily: "var(--primary-font)",
                 fontStyle: "italic",
                 fontWeight: "bold",
                 fontSize: "1.5rem",
                 maxWidth: "200px",
+                margin: "10 auto",
               }}
             >
               Collect now on Objkt
@@ -204,7 +187,7 @@ const InstallationSection = () => {
           >
             <Modal.Header closeButton>
               <Modal.Title style={{ fontFamily: "var(--primary-font)" }}>
-                concept for Ruido Perla
+                whitepaper coming soon ..
               </Modal.Title>
             </Modal.Header>
             <Modal.Body>
@@ -217,7 +200,7 @@ const InstallationSection = () => {
               </p>
             </Modal.Body>
           </Modal>
-        </TextOverlay>
+        {/* </TextOverlay> */}
 
         <CarouselWrapper>
           <StyledCarousel
@@ -244,7 +227,7 @@ const InstallationSection = () => {
             ))}
           </StyledCarousel>
         </CarouselWrapper>
-      </OverlappingContainer>
+      {/* </OverlappingContainer> */}
     </SectionContainer>
   )
 }
