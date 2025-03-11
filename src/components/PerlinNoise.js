@@ -422,7 +422,7 @@ const PerlinNoise = ({
       )} */}
       <Container>
         <Row>
-          {controlsVisible && (
+          {controlsVisible && accessGranted && (
             <Button
               variant="danger"
               onClick={toggleControls}
