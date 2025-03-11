@@ -241,9 +241,8 @@ const TezosNFTCarousel = () => {
                 process.
               </Row>
              
-              🟢 <strong>Legendary (1/1)</strong> → Singular moments of entropy,
-              never repeated.
-              <br /> 🔵 <strong>Rare (Limited Editions)</strong> → Echoes of
+              🟢 <strong>Legendary (1/1)</strong> → Singular moments of entropy - it gives you some secret powers
+              <br /> 🔵 <strong>Rare (very Limited Editions)</strong> → Echoes of
               complexity, held in scarce iterations.
               <br /> ⚪ <strong>Common (Small Batch)</strong> → A fleeting
               glimpse into the infinite, yet still finite. Holding one grants
