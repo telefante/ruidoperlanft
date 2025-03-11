@@ -5,8 +5,15 @@ const WalletContext = createContext();
 
 export const WalletProvider = ({ children }) => {
   const [walletAddress, setWalletAddress] = useState(null);
-  const [beaconWallet, setBeaconWallet] = useState(new BeaconWallet({ name: "Ruido Perla NFTs" }));
   const [isConnected, setIsConnected] = useState(false);
+
+  // Initialize BeaconWallet with preferredNetwork
+  const [beaconWallet, setBeaconWallet] = useState(
+    new BeaconWallet({
+      name: "Ruido Perla NFTs",
+      preferredNetwork: "ghostnet", // Set the correct network here
+    })
+  );
 
   // Restore Wallet Connection on Page Load
   useEffect(() => {
@@ -23,18 +30,30 @@ export const WalletProvider = ({ children }) => {
         }
       } catch (error) {
         console.error("❌ Error restoring wallet:", error);
+        // Consider *not* resetting the state here, or logging more details
+        // setWalletAddress(null);
+        // setIsConnected(false);
       }
     };
 
     restoreWallet();
-  }, []); // Run once when the component mounts
+  }, [beaconWallet]); // Run once when the component mounts, and when beaconWallet changes
 
   useEffect(() => {
     console.log("🟡 WalletContext State Updated:", { walletAddress, isConnected });
   }, [walletAddress, isConnected]);
 
   return (
-    <WalletContext.Provider value={{ walletAddress, setWalletAddress, beaconWallet, setBeaconWallet, isConnected, setIsConnected }}>
+    <WalletContext.Provider
+      value={{
+        walletAddress,
+        setWalletAddress,
+        beaconWallet,
+        setBeaconWallet,
+        isConnected,
+        setIsConnected,
+      }}
+    >
       {children}
     </WalletContext.Provider>
   );
