@@ -74,6 +74,6 @@ export const useWallet = () => {
     };
   }
 
-  console.log("🔄 WalletContext Updated in useWallet():", context);
+  // console.log("🔄 WalletContext Updated in useWallet():", context);
   return context;
 };
