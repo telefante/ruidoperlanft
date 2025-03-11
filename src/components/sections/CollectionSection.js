@@ -5,7 +5,7 @@ import { Row, Col } from "react-bootstrap"
 
 const CollectionSection = () => {
   return (
-    <SectionContainer id="tezos-nft-carousel">
+    <SectionContainer id="collection">
       <Row className="align-items-center mb-4">
         <Col xs={12} md={3}>
           <h2 className="simulation-title">Collection</h2>
