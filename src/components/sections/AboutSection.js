@@ -111,7 +111,7 @@ const AboutSection = () => {
           </>
         )}
         <TextOverlay>
-          <h2 className="simulation-title">community</h2>
+          <h2 className="simulation-title">Installation</h2>
           <section>
             <p>
               Gain behind-the-scenes insight into the creative process of „Ruido

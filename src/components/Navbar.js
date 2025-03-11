@@ -33,7 +33,7 @@ const sections = [
   { name: "collection", path: "tezos-nft-carousel" },
   { name: "poetry", path: "simulation" },
   { name: "whitepaper", path: "installation" },
-  { name: "documentation", path: "about" },
+  { name: "installation", path: "about" },
 ];
 
 const CustomNavbar = () => {
