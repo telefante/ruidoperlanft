@@ -21,6 +21,12 @@ const DescriptionText = styled.p`
   }
 `
 
+// Custom styles for navigation buttons
+const NavigationButton = styled.div`
+  color: white; /* Change the color here */
+  
+`;
+
 const TezosNFTCarousel = () => {
   const { walletAddress, isConnected } = useWallet() // Get wallet state from context
   const [nfts, setNfts] = useState([])
@@ -116,13 +122,18 @@ const TezosNFTCarousel = () => {
             spaceBetween={10}
             slidesPerView={1}
             pagination={{ clickable: true }}
-            navigation={true} // Enable navigation arrows
+            navigation={{
+              nextEl: '.swiper-button-next',
+              prevEl: '.swiper-button-prev',
+            }} // Enable navigation arrows and specify custom classes
             style={{
               width: "100%",
               height: "100%",
               backgroundColor: "transparent",
             }}
           >
+           <NavigationButton className="swiper-button-prev" />
+           <NavigationButton className="swiper-button-next" />
             {nfts.map((nft, index) => {
               const thumbnailUrl =
                 nft.metadata.thumbnailUri?.replace(
@@ -229,6 +240,7 @@ const TezosNFTCarousel = () => {
                 not just static images but keys unlocking access to a ongoing
                 process.
               </Row>
+             
               🟢 <strong>Legendary (1/1)</strong> → Singular moments of entropy,
               never repeated.
               <br /> 🔵 <strong>Rare (Limited Editions)</strong> → Echoes of
@@ -238,7 +250,9 @@ const TezosNFTCarousel = () => {
               you private access to an exclusive generative simulation, where
               landscapes reshape and dissolve in real time. Limited Supply. No
               Second Chances. 👉{" "}
-              </DescriptionText>
+          
+          
+       
            <Row>
             <Button
               m-4
@@ -255,6 +269,7 @@ const TezosNFTCarousel = () => {
               View Full Collection on Objkt
             </Button>
           </Row>
+          </DescriptionText>
            
           </div>
         </Container>
