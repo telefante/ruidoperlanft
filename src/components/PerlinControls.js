@@ -1,5 +1,4 @@
 import React from "react";
-import { Form, InputGroup, Button, Container, Row } from "react-bootstrap";
 
 const PerlinControls = ({
   usePerlin,
@@ -18,104 +17,154 @@ const PerlinControls = ({
   isMobile,
 }) => {
   return (
-    <Container
+    <div
       className="controls"
       style={{
-        position: 'absolute',
-        top: '50px',
-        left: '20px',
-        width: '80%', // Adjusted for better responsiveness on mobile screens
-        maxWidth: isMobile ? '90%' : '20%', // Set maxWidth based on mobile detection
+        position: "absolute",
+        top: "10px",
+        right: "10px",
+        backgroundColor: "rgba(0, 0, 0, 0.5)",
+        padding: "10px",
+        borderRadius: "5px",
         zIndex: 1000,
-        backgroundColor: 'rgba(255, 255, 255, 0.8)',
-        padding: '1rem',
-        borderRadius: '8px',
-        fontSize: '0.8rem',
-        fontFamily: 'var(--primary-font)',
-        opacity: controlsVisible ? 1 : 0,
-        transform: controlsVisible ? 'scale(1)' : 'scale(0.8)',
-        transition: 'opacity 0.5s ease, transform 0.5s ease',
-        pointerEvents: controlsVisible ? 'auto' : 'none',
+        width: isMobile ? "90%" : "20%",
+        fontFamily: "var(--primary-font)",
       }}
     >
-      <Form>
-        <Form.Group controlId="usePerlin">
-          <Form.Check 
+      <h2
+        style={{
+          color: "white",
+          fontSize: "1.2rem",
+          marginBottom: "10px",
+          textAlign: "center",
+        }}
+      >
+        Perlin Noise Controls
+      </h2>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+        }}
+      >
+        <label
+          style={{
+            color: "white",
+            fontSize: "0.9rem",
+            marginBottom: "5px",
+          }}
+        >
+          Use Perlin Noise:
+          <input
             type="checkbox"
-            label="Use Perlin Noise (uncheck for Simplex)"
             checked={usePerlin}
             onChange={e => setUsePerlin(e.target.checked)}
-            style={{ fontFamily: 'var(--primary-font)' }}
+            style={{ marginLeft: "5px" }}
           />
-        </Form.Group>
-
-        {usePerlin && (
-          <>
-            <Form.Group controlId="frequency">
-              <Form.Label>Frequency: {frequency}</Form.Label>
-              <InputGroup>
-                <Form.Control
-                  type="range"
-                  min="0.5"
-                  max="10"
-                  step="0.5"
-                  value={frequency}
-                  onChange={e => setFrequency(parseFloat(e.target.value))}
-                />
-              </InputGroup>
-            </Form.Group>
-            <Form.Group controlId="octaves">
-              <Form.Label>Octaves: {octaves}</Form.Label>
-              <InputGroup>
-                <Form.Control
-                  type="range"
-                  min="1"
-                  max="4"
-                  step="1"
-                  value={octaves}
-                  onChange={e => setOctaves(parseInt(e.target.value))}
-                />
-              </InputGroup>
-            </Form.Group>
-          </>
-        )}
-
-        <Form.Group controlId="amplitude">
-          <Form.Label>Amplitude: {amplitude}</Form.Label>
-          <InputGroup>
-            <Form.Control
-              type="range"
-              min="0"
-              max="100"
-              step="0.1"
-              value={amplitude}
-              onChange={e => setAmplitude(parseFloat(e.target.value))}
-            />
-          </InputGroup>
-        </Form.Group>
-
-        <Form.Group controlId="scale">
-          <Form.Label>Noise Scale: {scale}</Form.Label>
-          <InputGroup>
-            <Form.Control
-              type="range"
-              min="0.001"
-              max="0.1"
-              step="0.001"
-              value={scale}
-              onChange={e => setScale(parseFloat(e.target.value))}
-            />
-          </InputGroup>
-        </Form.Group>
-
+        </label>
+        <label
+          style={{
+            color: "white",
+            fontSize: "0.9rem",
+            marginBottom: "5px",
+          }}
+        >
+          Amplitude:
+          <input
+            type="range"
+            min="1"
+            max="25"
+            step="0.5"
+            value={amplitude}
+            onChange={e => setAmplitude(parseFloat(e.target.value))}
+            style={{ width: "100%" }}
+          />
+          <span style={{ fontSize: "0.8rem", color: "white" }}>
+            {amplitude}
+          </span>
+        </label>
+        <label
+          style={{
+            color: "white",
+            fontSize: "0.9rem",
+            marginBottom: "5px",
+          }}
+        >
+          Scale:
+          <input
+            type="range"
+            min="0.001"
+            max="0.015"
+            step="0.001"
+            value={scale}
+            onChange={e => setScale(parseFloat(e.target.value))}
+            style={{ width: "100%" }}
+          />
+          <span style={{ fontSize: "0.8rem", color: "white" }}>{scale}</span>
+        </label>
+        <label
+          style={{
+            color: "white",
+            fontSize: "0.9rem",
+            marginBottom: "5px",
+          }}
+        >
+          Frequency:
+          <input
+            type="range"
+            min="1"
+            max="5"
+            step="0.5"
+            value={frequency}
+            onChange={e => setFrequency(parseFloat(e.target.value))}
+            style={{ width: "100%" }}
+          />
+          <span style={{ fontSize: "0.8rem", color: "white" }}>
+            {frequency}
+          </span>
+        </label>
+        <label
+          style={{
+            color: "white",
+            fontSize: "0.9rem",
+            marginBottom: "5px",
+          }}
+        >
+          Octaves:
+          <input
+            type="range"
+            min="1"
+            max="5"
+            step="1"
+            value={octaves}
+            onChange={e => setOctaves(parseInt(e.target.value, 10))}
+            style={{ width: "100%" }}
+          />
+          <span style={{ fontSize: "0.8rem", color: "white" }}>
+            {octaves}
+          </span>
+        </label>
         {showCaptureButton && (
-          <Button variant="danger" onClick={captureScene} style={{ marginTop: '10px' }}>
-            Capture and Mint
-          </Button>
+          <button
+            onClick={captureScene}
+            style={{
+              backgroundColor: "#61dafb",
+              color: "black",
+              border: "none",
+              padding: "8px 16px",
+              borderRadius: "5px",
+              cursor: "pointer",
+              fontSize: "1rem",
+              marginTop: "10px",
+            }}
+          >
+            Capture Scene
+          </button>
         )}
-      </Form>
-    </Container>
+      </div>
+    </div>
   );
 };
 
-export default PerlinControls; 
+export default PerlinControls;
