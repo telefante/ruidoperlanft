@@ -5,7 +5,8 @@ import InstallationSection from "../components/sections/InstallationSection"
 import SimulationSection from "../components/sections/SimulationSection"
 // import AssetsSection from "../components/sections/AssetsSection";
 import AboutSection from "../components/sections/AboutSection"
-import TezosNFTCarousel from "../components/TezosNFTCarousel"
+// import TezosNFTCarousel from "../components/TezosNFTCarousel"
+import CollectionSection from "../components/sections/CollectionSection"
 import { ContractProvider } from "../components/ContractContext" // Adjust the path as necessary
 import { WalletProvider } from "../components/WalletContext"
 // Debug: Log Components
@@ -20,7 +21,7 @@ const IndexPage = () => {
       <WalletProvider>
         <ContractProvider>
           <IntroductionSection />
-          <TezosNFTCarousel />
+         <CollectionSection />
           <SimulationSection />
           <InstallationSection />
           <AboutSection />

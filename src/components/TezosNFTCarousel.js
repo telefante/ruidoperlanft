@@ -4,7 +4,6 @@ import "swiper/css"
 import "swiper/css/pagination"
 import "swiper/css/navigation" // Import navigation styles
 import { Pagination, Navigation } from "swiper/modules" // Import Navigation module
-import SectionContainer from "./sections/SectionContainer"
 import placeholderImage from "../assets/placeholder.jpg"
 import { Button, Card, Row, Col, Modal, Container } from "react-bootstrap"
 // import WalletConnection from "./WalletConnection"
@@ -24,8 +23,7 @@ const DescriptionText = styled.p`
 // Custom styles for navigation buttons
 const NavigationButton = styled.div`
   color: white; /* Change the color here */
-  
-`;
+`
 
 const TezosNFTCarousel = () => {
   const { walletAddress, isConnected } = useWallet() // Get wallet state from context
@@ -103,18 +101,7 @@ const TezosNFTCarousel = () => {
   }
 
   return (
-    <SectionContainer id="tezos-nft-carousel">
-      <Row className="align-items-center mb-4">
-        <Col xs={12} md={3}>
-          <h2 className="simulation-title">Collection</h2>
-        </Col>
-      </Row>
-
-      {/* <Container className="flex flex-col items-center p-4"> */}
-      {/* <Container flex > */}
-      {/* <p>{nfts.length > 0 ? `${nfts.length} assets` : `No NFTs found`}</p> */}
-
-      {/* </Container> */}
+    <Container className="flex flex-col items-center p-4">
       {nfts.length > 0 ? (
         <Container className="flex flex-col items-center p-4">
           <Swiper
@@ -123,8 +110,8 @@ const TezosNFTCarousel = () => {
             slidesPerView={1}
             pagination={{ clickable: true }}
             navigation={{
-              nextEl: '.swiper-button-next',
-              prevEl: '.swiper-button-prev',
+              nextEl: ".swiper-button-next",
+              prevEl: ".swiper-button-prev",
             }} // Enable navigation arrows and specify custom classes
             style={{
               width: "100%",
@@ -132,8 +119,8 @@ const TezosNFTCarousel = () => {
               backgroundColor: "transparent",
             }}
           >
-           <NavigationButton className="swiper-button-prev" />
-           <NavigationButton className="swiper-button-next" />
+            <NavigationButton className="swiper-button-prev" />
+            <NavigationButton className="swiper-button-next" />
             {nfts.map((nft, index) => {
               const thumbnailUrl =
                 nft.metadata.thumbnailUri?.replace(
@@ -148,7 +135,6 @@ const TezosNFTCarousel = () => {
 
               return (
                 <SwiperSlide key={index}>
-                
                   <Row>
                     <Col>
                       <h2>{nft.metadata?.name || "Unnamed NFT"}</h2>
@@ -194,7 +180,6 @@ const TezosNFTCarousel = () => {
                       )}
                     </Col>
                   </Row>
-             
                   <Row mt-8 centered>
                     <h3>
                       Rarity:{" "}
@@ -209,7 +194,6 @@ const TezosNFTCarousel = () => {
                       </DescriptionText>
                     </div>
                   </Row>
-
                   <div style={{ display: "flex", justifyContent: "center" }}>
                     <Row>
                       <Button
@@ -240,43 +224,39 @@ const TezosNFTCarousel = () => {
                 not just static images but keys unlocking access to a ongoing
                 process.
               </Row>
-             
-              🟢 <strong>Legendary (1/1)</strong> → Singular moments of entropy - it gives you some secret powers
-              <br /> 🔵 <strong>Rare (very Limited Editions)</strong> → Echoes of
+              🟢
+              <strong>Legendary (1/1)</strong> → Singular moments of entropy - it
+              gives you some secret powers
+              <br /> 🔵
+              <strong>Rare (very Limited Editions)</strong> → Echoes of
               complexity, held in scarce iterations.
-              <br /> ⚪ <strong>Common (Small Batch)</strong> → A fleeting
-              glimpse into the infinite, yet still finite. Holding one grants
-              you private access to an exclusive generative simulation, where
-              landscapes reshape and dissolve in real time. Limited Supply. No
-              Second Chances. 👉{" "}
-          
-          
-       
-           <Row>
-            <Button
-              m-4
-              href={`${process.env.GATSBY_OBJKT_COLLECTION_URL}/${COLLECTION_CONTRACT}`}
-              target="_blank"
-              variant="secondary"
-              style={{
-                marginTop: "1rem",
-                fontFamily: "var(--primary-font)",
-                maxWidth: "200px",
-                marginLeft: "20px"
-              }}
-            >
-              View Full Collection on Objkt
-            </Button>
-          </Row>
-          </DescriptionText>
-           
+              <br /> ⚪
+              <strong>Common (Small Batch)</strong> → A fleeting glimpse into the
+              infinite, yet still finite. Holding one grants you private access
+              to an exclusive generative simulation, where landscapes reshape
+              and dissolve in real time. Limited Supply. No Second Chances. 👉
+              <Row>
+                <Button
+                  m-4
+                  href={`${process.env.GATSBY_OBJKT_COLLECTION_URL}/${COLLECTION_CONTRACT}`}
+                  target="_blank"
+                  variant="secondary"
+                  style={{
+                    marginTop: "1rem",
+                    fontFamily: "var(--primary-font)",
+                    maxWidth: "200px",
+                    marginLeft: "20px",
+                  }}
+                >
+                  View Full Collection on Objkt
+                </Button>
+              </Row>
+            </DescriptionText>
           </div>
         </Container>
       ) : (
         <p className="text-center text-gray-500">No NFTs found</p>
       )}
-
-      {/* </Container> */}
       <Modal show={showModal} onHide={closeModal} centered>
         <Modal.Body>
           <img src={modalImage} alt="NFT" style={{ width: "100%" }} />
@@ -305,7 +285,7 @@ const TezosNFTCarousel = () => {
           </Button>
         </Modal.Footer>
       </Modal>
-    </SectionContainer>
+    </Container>
   )
 }
 
