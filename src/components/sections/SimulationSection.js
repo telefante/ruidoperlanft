@@ -3,10 +3,14 @@ import { Row, Col, Button } from "react-bootstrap"
 import SectionContainer from "./SectionContainer"
 import styled from "styled-components"
 import PerlinNoise from "../PerlinNoise"
+import { useTracking } from "../../contexts/TrackingContext"
+
+
 
 const SimulationSection = ({ account, connectWallet, disconnectWallet }) => {
   const [controlsVisible, setControlsVisible] = useState(true) // Define the state
   const COLLECTION_CONTRACT = process.env.GATSBY_TEZOS_CONTRACT
+  const { trackEvent } = useTracking()
 
   // Define surface parameters for simulation
   const surfaceParams = {
@@ -62,6 +66,11 @@ const SimulationSection = ({ account, connectWallet, disconnectWallet }) => {
     }
   `
 
+  const handleCollectNowClick = (url) => {
+    console.log("Clicked on Collection: ", url)
+    trackEvent(`clicked on Collection in section simulation`);
+  }
+
   return (
     <SectionContainer id="simulation" isGridLayout={false}>
       <Row className="align-items-center mb-4">
@@ -79,6 +88,7 @@ const SimulationSection = ({ account, connectWallet, disconnectWallet }) => {
        
       </DescriptionText>
       <Row>
+        
         <Button
           href={`${process.env.GATSBY_OBJKT_COLLECTION_URL}/${COLLECTION_CONTRACT}`}
           target="_blank"
@@ -90,6 +100,7 @@ const SimulationSection = ({ account, connectWallet, disconnectWallet }) => {
             fontSize: "1.2rem",
             maxWidth: "200px",
           }}
+          onClick={handleCollectNowClick(`${process.env.GATSBY_OBJKT_COLLECTION_URL}/${COLLECTION_CONTRACT}`)}
         >
           Collect now
         </Button>

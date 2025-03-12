@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, use } from "react";
 import { Navbar, Nav, Container, Row } from "react-bootstrap";
 import styled from "styled-components";
 import "./navbar.css";
 import WalletConnection from "./WalletConnection"; // Import WalletConnection
+import { useTracking } from "../contexts/TrackingContext"
+ 
 
 
 // Styled component for mobile-friendly navbar collapse
@@ -53,6 +55,15 @@ const CustomNavbar = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  const { trackEvent } = useTracking()
+  const handleNavLinkClick = (sectionName) => {
+    console.log("Clicked section: ", sectionName);
+    trackEvent(`Section:  ${sectionName}`);
+    
+    setExpanded(false); // Close navbar when clicking on a link
+  };
+
+
   return (
     <Navbar 
       expand="lg"
@@ -81,7 +92,7 @@ const CustomNavbar = () => {
                 key={index}
                 href={`#${section.path}`}
                 className="nav-link-custom"
-                onClick={() => setExpanded(false)} // Close navbar when clicking on a link
+                onClick={() => handleNavLinkClick(section.name)}
               >
                 {section.name}
               </Nav.Link>
