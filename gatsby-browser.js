@@ -11,7 +11,6 @@ import "bootstrap/dist/css/bootstrap.min.css"
 import "./src/styles/global.css" // Custom global styles (optional)
 import { TrackingProvider } from "./src/contexts/TrackingContext"
 // import "./src/styles/beacon.css";  // ✅ Import global Beacon styles
-
 import { WalletProvider } from "./src/components/WalletContext"
 
 export const onInitialClientRender = () => {
@@ -23,9 +22,8 @@ export const onInitialClientRender = () => {
   document.body.appendChild(script)
 }
 
-export const wrapRootElement = ({ element }) => {
-  return
-  ;<TrackingProvider>
-    <WalletProvider>{element}</WalletProvider>;
-  </TrackingProvider>
-}
+export const wrapRootElement = ({ element }) => (
+  <WalletProvider>
+    <TrackingProvider>{element}</TrackingProvider>
+  </WalletProvider>
+);
