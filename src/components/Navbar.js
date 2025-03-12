@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Navbar, Nav, Container } from "react-bootstrap";
+import { Navbar, Nav, Container, Row } from "react-bootstrap";
 import styled from "styled-components";
 import "./navbar.css";
 import WalletConnection from "./WalletConnection"; // Import WalletConnection
@@ -65,9 +65,11 @@ const CustomNavbar = () => {
         {/* Brand Title */}
         <Navbar.Brand href="#" className="brand-title" >
           Ruido Perla NFT Collection
-          <WalletConnection /> {/* Add WalletConnection here */}
+         
         </Navbar.Brand>
-
+        <Row>
+          <WalletConnection /> {/* Add WalletConnection here */}
+          </Row>
         {/* Hamburger Toggle Icon */}
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
 
