@@ -138,14 +138,7 @@ const InstallationSection = () => {
             }}
           >
             <p>Ruido Perla explores the poetics of the unpredictable ....</p> */}
-            <Button
-              variant="danger"
-              style={{ fontFamily: "var(--primary-font)" }}
-              className="mt-3"
-              onClick={() => setShowModal(true)}
-            >
-              read whitepaper
-            </Button>
+          
           {/* </section> */}
 
           <Row className="align-items-center mb-4">
@@ -160,6 +153,15 @@ const InstallationSection = () => {
                 holders.
               </p>
             </DescriptionText>
+            <Button
+              variant="danger"
+              style={{ fontFamily: "var(--primary-font)",maxWidth: "200px" }}
+              className="mt-3"
+              // onClick={() => setShowModal(true)}
+              href="/Whitepaper.pdf" target="_blank"
+            >
+              read whitepaper
+            </Button>
           </Row>
           <Row>
             <Button
