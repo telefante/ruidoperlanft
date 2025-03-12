@@ -4,7 +4,7 @@ import styled from "styled-components";
 import "./navbar.css";
 import WalletConnection from "./WalletConnection"; // Import WalletConnection
 import { useTracking } from "../contexts/TrackingContext"
- 
+import HamburgerIcon from "./HamburgerIcon"; // Import HamburgerIcon
 
 
 // Styled component for mobile-friendly navbar collapse
@@ -41,6 +41,7 @@ const sections = [
 const CustomNavbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const [expanded, setExpanded] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -82,7 +83,9 @@ const CustomNavbar = () => {
           <WalletConnection /> {/* Add WalletConnection here */}
           </Row>
         {/* Hamburger Toggle Icon */}
-        <Navbar.Toggle aria-controls="basic-navbar-nav" />
+        <Navbar.Toggle aria-controls="basic-navbar-nav" style={{ border: 'none' }}>
+        <HamburgerIcon isOpen={isOpen} toggle={() => setIsOpen(!isOpen)} />
+        </Navbar.Toggle>
 
         {/* Collapsible Navbar Content */}
         <StyledNavbarCollapse id="basic-navbar-nav">
