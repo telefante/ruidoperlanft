@@ -4,6 +4,8 @@ import { GatsbyImage, getImage } from "gatsby-plugin-image"
 import { Row, Col, Carousel, Modal, Button } from "react-bootstrap"
 import styled from "styled-components"
 import SectionContainer from "./SectionContainer"
+import { useTracking } from "../../contexts/TrackingContext"
+
 
 // Add styled components
 
@@ -79,6 +81,14 @@ const CarouselWrapper = styled.div`
 
 const InstallationSection = () => {
   const [showModal, setShowModal] = useState(false)
+   const { trackEvent } = useTracking()
+
+   const handleCollectNowClick = (url) => {
+    // console.log("Clicked on Collection: ", url)
+    trackEvent(`clicked on Collection in section Whitepaper`);
+  }
+
+
 
   const data = useStaticQuery(graphql`
     query {
@@ -159,6 +169,7 @@ const InstallationSection = () => {
               className="mt-3"
               // onClick={() => setShowModal(true)}
               href="/Whitepaper.pdf" target="_blank"
+              onClick={trackEvent(`clicked on Whitepaper in section Whitepaper`)}
             >
               read whitepaper
             </Button>
@@ -176,6 +187,7 @@ const InstallationSection = () => {
                 maxWidth: "200px",
                 margin: "10 auto",
               }}
+              onClick={handleCollectNowClick()}
             >
               Collect now on Objkt
             </Button>
