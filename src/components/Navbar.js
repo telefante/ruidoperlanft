@@ -41,6 +41,7 @@ const sections = [
 const CustomNavbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const [expanded, setExpanded] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -82,8 +83,8 @@ const CustomNavbar = () => {
           <WalletConnection /> {/* Add WalletConnection here */}
           </Row>
         {/* Hamburger Toggle Icon */}
-        <Navbar.Toggle aria-controls="basic-navbar-nav">
-          <HamburgerIcon isOpen={expanded} toggle={() => setExpanded(!expanded)} />
+        <Navbar.Toggle aria-controls="basic-navbar-nav" style={{ border: 'none' }}>
+        <HamburgerIcon isOpen={isOpen} toggle={() => setIsOpen(!isOpen)} />
         </Navbar.Toggle>
 
         {/* Collapsible Navbar Content */}

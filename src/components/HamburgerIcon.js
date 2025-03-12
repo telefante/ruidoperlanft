@@ -5,19 +5,48 @@ const HamburgerIcon = ({ isOpen, toggle }) => {
   return (
     <button 
       onClick={toggle} 
-      className="w-10 h-10 flex flex-col justify-between p-2 focus:outline-none"
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "space-between",
+        width: "40px",
+        height: "32px",
+        padding: "4px",
+        border: "none",
+        background: "transparent",
+        cursor: "pointer"
+      }}
     >
+      {/* Top Line */}
       <motion.div
-        animate={{ rotate: isOpen ? 45 : 0, y: isOpen ? 8 : 0 }}
-        className="bg-black h-1 w-8 rounded transition-all"
+        initial={{ rotate: 0, y: 0 }}
+        animate={isOpen ? { rotate: 45, y: 12 } : { rotate: 0, y: 0 }}
+        transition={{ duration: 0.3,   type: "spring",
+            stiffness: 200,
+            damping: 10,
+            mass: 1,
+            bounce: 0.5 }}
+        style={{ backgroundColor: "white", height: "4px", width: "32px", borderRadius: "4px" }}
       />
+      
+      {/* Middle Line (disappears when open) */}
       <motion.div
-        animate={{ opacity: isOpen ? 0 : 1 }}
-        className="bg-black h-1 w-8 rounded transition-all"
+        initial={{ opacity: 1 }}
+        animate={isOpen ? { opacity: 0 } : { opacity: 1 }}
+        transition={{ duration: 0.3, ease: "easeInOut" }}
+        style={{ backgroundColor: "white", height: "4px", width: "18px", borderRadius: "4px" }}
       />
+      
+      {/* Bottom Line */}
       <motion.div
-        animate={{ rotate: isOpen ? -45 : 0, y: isOpen ? -8 : 0 }}
-        className="bg-black h-1 w-8 rounded transition-all"
+        initial={{ rotate: 0, y: 0 }}
+        animate={isOpen ? { rotate: -45, y: -6 } : { rotate: 0, y: 0 }}
+        transition={{ duration: 0.3, type: "spring",
+            stiffness: 200,
+            damping: 10,
+            mass: 1,
+            bounce: 0.5}}
+        style={{ backgroundColor: "white", height: "4px", width: "32px", borderRadius: "4px" }}
       />
     </button>
   );
