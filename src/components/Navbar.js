@@ -57,7 +57,9 @@ const CustomNavbar = () => {
 
   const { trackEvent } = useTracking()
   const handleNavLinkClick = (sectionName) => {
-    trackEvent("Clicked section: ", { name: sectionName });
+    console.log("Clicked section: ", sectionName);
+    trackEvent(`Section:  ${sectionName}`);
+    
     setExpanded(false); // Close navbar when clicking on a link
   };
 
