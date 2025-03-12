@@ -6,7 +6,7 @@
 
 // You can delete this file if you're not using it
 
-import React, { useEffect, useState } from "react";
+import React from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./src/styles/global.css";
 import { TrackingProvider } from "./src/contexts/TrackingContext";
@@ -22,15 +22,9 @@ export const onInitialClientRender = () => {
 };
 
 export const wrapRootElement = ({ element }) => {
-  const [isClient, setIsClient] = useState(false);
-
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-
   return (
-    <WalletProvider>
-      {isClient ? <TrackingProvider>{element}</TrackingProvider> : element}
-    </WalletProvider>
+    <TrackingProvider>
+      <WalletProvider>{element}</WalletProvider>
+    </TrackingProvider>
   );
 };
