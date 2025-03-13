@@ -406,40 +406,16 @@ const PerlinNoise = ({
           setFrequency={setFrequency}
           octaves={octaves}
           setOctaves={setOctaves}
-          showCaptureButton={showCaptureButton}
+          showCaptureButton={accessGranted}
           captureScene={captureScene}
           controlsVisible={controlsVisible}
           isMobile={isMobile}
           fontSize={fontSize}
         />
       )}
-      {/* {!accessGranted && (
-        <p style={{ color: "red", textAlign: "center", marginTop: "20px" }}>
-          Access restricted: You need to own the NFT to control the simulation.
-        </p>
-      )} */}
+   
       <Container>
-        <Row>
-          {controlsVisible && accessGranted && (
-            <Button
-              variant="danger"
-              onClick={toggleControls}
-              className="minimize-button"
-              style={{
-                position: "absolute",
-                top: "10px",
-                left: "20px",
-                zIndex: 1000,
-                cursor: "pointer",
-                fontSize: "0.8rem",
-                fontFamily: "var(--primary-font)",
-                width: isMobile ? "90%" : "20%",
-              }}
-            >
-              {controlsVisible ? "Minimize Controls" : "Show Controls"}
-            </Button>
-          )}
-        </Row>
+      
         <Row>
           <div
             style={{
@@ -466,7 +442,7 @@ const PerlinNoise = ({
             top: "50%",
             left: "50%",
             transform: "translate(-50%, -50%)",
-            color: "white",
+            color: "var(--primary-color)",
             fontSize: `${fontSize}`,
             fontFamily: "var(--primary-font)",
             fontStyle: "italic",
@@ -474,7 +450,7 @@ const PerlinNoise = ({
             textAlign: "center",
             pointerEvents: "none",
             zIndex: 1000,
-            textShadow: "2px 2px 4px rgba(0,0,0,0.5)",
+            textShadow: "2px 2px 4px rgba(47, 0, 255, 0.5)",
             opacity: textOpacity,
             transition: "opacity 0.5s ease-in-out",
             letterSpacing: "0.05em",
