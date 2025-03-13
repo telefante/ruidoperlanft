@@ -1,7 +1,7 @@
 import React, { useRef, useState } from "react"
 import * as lighthouse from "@lighthouse-web3/sdk"
 import html2canvas from "html2canvas"
-import { Button, Form, Container } from "react-bootstrap"
+import { Button, Form, Container, Modal } from "react-bootstrap"
 import { useWallet } from "./WalletContext" // Import the useWallet hook
 
 const Html2CanvasUploader = ({ containerRef }) => {
@@ -13,11 +13,31 @@ const Html2CanvasUploader = ({ containerRef }) => {
   const [uploading, setUploading] = useState(false)
   const [ipfsUrl, setIpfsUrl] = useState(null)
   const [metadataUrl, setMetadataUrl] = useState(null)
+  const [showMetadataPreview, setShowMetadataPreview] = useState(false);
+  const [metadataJson, setMetadataJson] = useState(null);
 
   // Fetch API Key from Environment Variables
   const LIGHTHOUSE_API_KEY = process.env.GATSBY_LIGHTHOUSE_API_KEY
   const { isConnected } = useWallet() // Get the isConnected state
   console.log("isConnected:", isConnected)
+
+  const generateMetadata = async () => {
+    const timestamp = new Date().toISOString();
+    const generatedMetadata = {
+      name,
+      description: `${description} (Generated: ${timestamp})`,
+      entropie: Math.random().toFixed(6),
+      image: "Will be uploaded to IPFS...",
+    };
+
+    setMetadataJson(generatedMetadata);
+    setShowMetadataPreview(true);
+  };
+
+  const confirmUpload = async () => {
+    setShowMetadataPreview(false);
+    await captureAndUpload();  // Proceed with upload
+  };
 
   const captureAndUpload = async () => {
     if (!isConnected) return // Only allow upload when wallet is connected
@@ -55,14 +75,6 @@ const Html2CanvasUploader = ({ containerRef }) => {
       setIpfsUrl(imageIpfsUrl)
 
       // 🎲 Generate NFT Metadata with random "entropie" value
-      const metadataJson = {
-        name,
-        description: `${description} (Generated: ${timestamp})`,
-        entropie: Math.random().toFixed(6), // Random number between 0-1
-        image: imageIpfsUrl, // Link to uploaded file
-      }
-
-      // Convert metadata JSON to Blob
       const metadataBlob = new Blob([JSON.stringify(metadataJson)], {
         type: "application/json",
       })
@@ -93,11 +105,7 @@ const Html2CanvasUploader = ({ containerRef }) => {
         {isConnected ? (
       <Form style={{ padding: "10px", textAlign: "center" }}>
         {/* Upload Button */}
-        <Button
-          variant="primary"
-          onClick={captureAndUpload}
-          disabled={uploading}
-        >
+        <Button variant="primary" onClick={generateMetadata} disabled={uploading}>
           {uploading ? "Uploading..." : "Upload"}
         </Button>
         {/* Editable NFT Name & Description */}
@@ -169,6 +177,21 @@ const Html2CanvasUploader = ({ containerRef }) => {
       ) : (
         <p>Please connect your wallet to upload.</p>
       )}
+
+      <Modal show={showMetadataPreview} onHide={() => setShowMetadataPreview(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Metadata Preview</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <pre style={{ backgroundColor: "#f8f9fa", padding: "10px" }}>
+            {JSON.stringify(metadataJson, null, 2)}
+          </pre>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowMetadataPreview(false)}>Cancel</Button>
+          <Button variant="primary" onClick={confirmUpload}>Confirm & Upload</Button>
+        </Modal.Footer>
+      </Modal>
     </Container>
   )
 }

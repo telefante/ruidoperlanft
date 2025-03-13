@@ -8,7 +8,9 @@ import { useStaticQuery, graphql } from "gatsby"
 import { Modal, Button, Row, Container } from "react-bootstrap"
 import PerlinControls from "./PerlinControls"
 import { useWallet } from "./WalletContext"
-import UploadImageWithWallet from "./UploadImagewithWallet"
+// import UploadImageWithWallet from "./UploadImagewithWallet"
+// import UploadImageIpfs from "./UploadImageIpfs"
+import Html2CanvasUploader from "./Html2CanvasUploader"
 import NFTVerification from "./NFTVerification"
 
 const PerlinNoise = ({
@@ -413,9 +415,8 @@ const PerlinNoise = ({
           fontSize={fontSize}
         />
       )}
-   
+
       <Container>
-      
         <Row>
           <div
             style={{
@@ -491,7 +492,10 @@ const PerlinNoise = ({
           }}
         >
           {accessGranted ? (
-            <UploadImageWithWallet containerRef={containerRef} />
+            // <UploadImageWithWallet containerRef={containerRef} />
+            // <UploadImageIpfs containerRef={containerRef} />
+            <Html2CanvasUploader containerRef={containerRef} />
+            
           ) : (
             <p style={{ color: "white" }}>
               You need to own the NFT to upload an image.
