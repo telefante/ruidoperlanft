@@ -62,46 +62,26 @@ const PerlinNoise = ({
   const rendererRef = useRef(null)
   const currentTextRef = useRef("")
 
-  const [usePerlin, setUsePerlin] = useState(initialParams.usePerlin)
-  const [amplitude, setAmplitude] = useState(initialParams.amplitude)
-  const [scale, setScale] = useState(initialParams.scale)
-  const [frequency, setFrequency] = useState(initialParams.frequency)
-  const [octaves, setOctaves] = useState(initialParams.octaves)
+  const [perlinSettings, setPerlinSettings] = useState({
+    usePerlin: initialParams.usePerlin,
+    amplitude: initialParams.amplitude,
+    scale: initialParams.scale,
+    frequency: initialParams.frequency,
+    octaves: initialParams.octaves,
+  });
   const [textOpacity, setTextOpacity] = useState(1)
   const [capturedImage, setCapturedImage] = useState(null)
   const [showModal, setShowModal] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
-
-  const usePerlinRef = useRef(usePerlin)
-  const amplitudeRef = useRef(amplitude)
-  const scaleRef = useRef(scale)
-  const frequencyRef = useRef(frequency)
-  const octavesRef = useRef(octaves)
 
   const cameraSetupRef = useRef({
     position: { x: 0, y: 0, z: 0 },
     lookAt: { x: 0, y: 0, z: 0 },
   })
 
-  useEffect(() => {
-    usePerlinRef.current = usePerlin
-  }, [usePerlin])
-
-  useEffect(() => {
-    amplitudeRef.current = amplitude
-  }, [amplitude])
-
-  useEffect(() => {
-    scaleRef.current = scale
-  }, [scale])
-
-  useEffect(() => {
-    frequencyRef.current = frequency
-  }, [frequency])
-
-  useEffect(() => {
-    octavesRef.current = octaves
-  }, [octaves])
+  const updatePerlinSettings = (key, value) => {
+    setPerlinSettings(prev => ({ ...prev, [key]: value }));
+  };
 
   useEffect(() => {
     if (!mountRef.current) return
@@ -144,15 +124,15 @@ const PerlinNoise = ({
         const y = positions[i + 1]
 
         let noise
-        if (usePerlinRef.current) {
+        if (perlinSettings.usePerlin) {
           let totalNoise = 0
           let amplitude = 1
-          let frequency = frequencyRef.current
+          let frequency = perlinSettings.frequency
 
-          for (let o = 0; o < octavesRef.current; o++) {
+          for (let o = 0; o < perlinSettings.octaves; o++) {
             noiseVector.set(
-              x * scaleRef.current * frequency,
-              y * scaleRef.current * frequency,
+              x * perlinSettings.scale * frequency,
+              y * perlinSettings.scale * frequency,
               elapsed
             )
             totalNoise += perlin.get3(noiseVector) * amplitude
@@ -162,10 +142,10 @@ const PerlinNoise = ({
 
           noise = totalNoise
         } else {
-          noise = simplex(x * scaleRef.current, y * scaleRef.current, elapsed)
+          noise = simplex(x * perlinSettings.scale, y * perlinSettings.scale, elapsed)
         }
 
-        positions[i + 2] = noise * amplitudeRef.current
+        positions[i + 2] = noise * perlinSettings.amplitude
       }
       geometry.attributes.position.needsUpdate = true
 
@@ -398,16 +378,16 @@ const PerlinNoise = ({
       <div ref={mountRef} style={{ width: "100%", height: "100%" }} />
       {accessGranted && showControls && (
         <PerlinControls
-          usePerlin={usePerlin}
-          setUsePerlin={setUsePerlin}
-          amplitude={amplitude}
-          setAmplitude={setAmplitude}
-          scale={scale}
-          setScale={setScale}
-          frequency={frequency}
-          setFrequency={setFrequency}
-          octaves={octaves}
-          setOctaves={setOctaves}
+          usePerlin={perlinSettings.usePerlin}
+          setUsePerlin={value => updatePerlinSettings("usePerlin", value)}
+          amplitude={perlinSettings.amplitude}
+          setAmplitude={value => updatePerlinSettings("amplitude", value)}
+          scale={perlinSettings.scale}
+          setScale={value => updatePerlinSettings("scale", value)}
+          frequency={perlinSettings.frequency}
+          setFrequency={value => updatePerlinSettings("frequency", value)}
+          octaves={perlinSettings.octaves}
+          setOctaves={value => updatePerlinSettings("octaves", value)}
           showCaptureButton={accessGranted}
           captureScene={captureScene}
           controlsVisible={controlsVisible}
@@ -494,7 +474,7 @@ const PerlinNoise = ({
           {accessGranted ? (
             // <UploadImageWithWallet containerRef={containerRef} />
             // <UploadImageIpfs containerRef={containerRef} />
-            <Html2CanvasUploader containerRef={containerRef} />
+            <Html2CanvasUploader containerRef={containerRef} perlinSettings={perlinSettings} />
             
           ) : (
             <p style={{ color: "white" }}>

@@ -4,7 +4,7 @@ import html2canvas from "html2canvas"
 import { Button, Form, Container, Modal } from "react-bootstrap"
 import { useWallet } from "./WalletContext" // Import the useWallet hook
 
-const Html2CanvasUploader = ({ containerRef }) => {
+const Html2CanvasUploader = ({ containerRef, perlinSettings }) => {
   const captureRef = useRef(null)
   const [name, setName] = useState("RuidoPerla_Now")
   const [description, setDescription] = useState(
@@ -23,12 +23,18 @@ const Html2CanvasUploader = ({ containerRef }) => {
 
   const generateMetadata = async () => {
     const timestamp = new Date().toISOString();
-    const generatedMetadata = {
-      name,
-      description: `${description} (Generated: ${timestamp})`,
-      entropie: Math.random().toFixed(6),
-      image: "Will be uploaded to IPFS...",
-    };
+  const generatedMetadata = {
+    name,
+    description: `${description} (Generated: ${timestamp})`,
+    entropie: Math.random().toFixed(6),
+    image: "Will be uploaded to IPFS...",
+    perlin: {
+      amplitude: perlinSettings.amplitude,
+      scale: perlinSettings.scale,
+      frequency: perlinSettings.frequency,
+      octaves: perlinSettings.octaves,
+    },
+  };
 
     setMetadataJson(generatedMetadata);
     setShowMetadataPreview(true);
