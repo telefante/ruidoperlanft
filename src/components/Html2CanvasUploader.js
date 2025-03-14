@@ -200,57 +200,27 @@ const Html2CanvasUploader = ({ containerRef, perlinSettings }) => {
         <p>Please connect your wallet to upload.</p>
       )}
 
-      <Modal
-        show={showMetadataPreview}
-        onHide={() => setShowMetadataPreview(false)}
-      >
-        <Modal.Header closeButton>
-          <Modal.Title>
-            {showMinting ? "Confirm Minting" : "Metadata Preview"}
-          </Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          {!showMinting ? (
-            <>
-              <pre style={{ backgroundColor: "#f8f9fa", padding: "10px" }}>
-                {JSON.stringify(metadataJson, null, 2)}
-              </pre>
-              {ipfsUrl && (
-                <p>
-                  <strong>Image CID:</strong> {ipfsUrl.split("ipfs://")[1]}
-                </p>
-              )}
-              {metadataUrl && (
-                <p>
-                  <strong>Metadata CID:</strong> {extractedMetadataCid}
-                </p>
-              )}
-            </>
-          ) : extractedMetadataCid ? (
-            <MintNFTFromIPFS metadataCid={extractedMetadataCid} />
-          ) : (
-            <p style={{ color: "red" }}>
-              Metadata CID is missing! Please ensure metadata is uploaded before
-              minting.
-            </p>
-          )}
-        </Modal.Body>
-        <Modal.Footer>
-          {!showMinting ? (
-            <>
-              <Button
-                variant="secondary"
-                onClick={() => setShowMetadataPreview(false)}
-              >
-                Cancel
-              </Button>
-              <Button variant="primary" onClick={() => setShowMinting(true)}>
-                Proceed to Mint
-              </Button>
-            </>
-          ) : null}
-        </Modal.Footer>
-      </Modal>
+<Modal show={showMetadataPreview} onHide={() => setShowMetadataPreview(false)}>
+  <Modal.Header closeButton>
+    <Modal.Title>Minting Preview</Modal.Title>
+  </Modal.Header>
+  <Modal.Body>
+    <pre style={{ backgroundColor: "#f8f9fa", padding: "10px" }}>
+      {JSON.stringify(metadataJson, null, 2)}
+    </pre>
+    <p><strong>Estimated Image CID:</strong> {ipfsUrl}</p>
+    <p><strong>Estimated Metadata CID:</strong> {metadataUrl}</p>
+    <p>You are about to mint an NFT with the above metadata.</p>
+  </Modal.Body>
+  <Modal.Footer>
+    <Button variant="secondary" onClick={() => setShowMetadataPreview(false)}>
+      Cancel
+    </Button>
+    <Button variant="primary" onClick={() => setShowMinting(true)}>
+      Confirm & Mint
+    </Button>
+  </Modal.Footer>
+</Modal>
     </Container>
   )
 }
