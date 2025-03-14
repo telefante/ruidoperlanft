@@ -30,7 +30,8 @@ const Html2CanvasUploader = ({ containerRef, perlinSettings }) => {
   // console.log("isConnected:", isConnected)
   // console.log("walletAddress:", walletAddress)
   // console.log("CREATOR:", CREATOR)
-  
+
+
   const generateMetadata = async () => {
     const timestamp = new Date().toISOString();
     const safePerlinSettings = perlinSettings || { amplitude: 0, scale: 0, frequency: 0, octaves: 0 };
@@ -71,12 +72,40 @@ const Html2CanvasUploader = ({ containerRef, perlinSettings }) => {
       console.error("❌ Error generating estimated IPFS CID:", error);
     }
   };
-
-
   const confirmUpload = async () => {
-    setShowMetadataPreview(false)
-    await captureAndUpload() // Proceed with upload
-  }
+    setShowMetadataPreview(false);
+    setUploading(true);
+  
+    try {
+      // Capture and upload image to IPFS
+      const canvas = await html2canvas(containerRef.current, {
+        useCORS: true,
+        backgroundColor: null,
+        scale: 1,
+      });
+  
+      const imageBlob = await new Promise(resolve => canvas.toBlob(resolve, "image/png"));
+      const file = new File([imageBlob], `RuidoPerla-${Date.now()}.png`, { type: "image/png" });
+  
+      const fileResponse = await lighthouse.upload([file], LIGHTHOUSE_API_KEY);
+      const imageCid = fileResponse.data.Hash;
+      setIpfsUrl(`ipfs://${imageCid}`);
+  
+      // Upload metadata JSON
+      const metadataBlob = new Blob([JSON.stringify(metadataJson)], { type: "application/json" });
+      const metadataFile = new File([metadataBlob], "metadata.json", { type: "application/json" });
+  
+      const metadataResponse = await lighthouse.upload([metadataFile], LIGHTHOUSE_API_KEY);
+      const metadataCid = metadataResponse.data.Hash;
+      setMetadataUrl(`ipfs://${metadataCid}`);
+  
+      setShowMinting(true);
+    } catch (error) {
+      console.error("❌ Error uploading files to IPFS:", error);
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const captureAndUpload = async () => {
     if (!isConnected) return // Only allow upload when wallet is connected
@@ -199,7 +228,6 @@ const Html2CanvasUploader = ({ containerRef, perlinSettings }) => {
       ) : (
         <p>Please connect your wallet to upload.</p>
       )}
-
 <Modal show={showMetadataPreview} onHide={() => setShowMetadataPreview(false)}>
   <Modal.Header closeButton>
     <Modal.Title>Minting Preview</Modal.Title>
@@ -211,13 +239,20 @@ const Html2CanvasUploader = ({ containerRef, perlinSettings }) => {
     <p><strong>Estimated Image CID:</strong> {ipfsUrl}</p>
     <p><strong>Estimated Metadata CID:</strong> {metadataUrl}</p>
     <p>You are about to mint an NFT with the above metadata.</p>
+
+     {/* Show minting button only after the real upload is complete */}
+  {showMinting && metadataUrl ? (
+    <MintNFTFromIPFS metadataCid={metadataUrl.split("ipfs://")[1]} />
+  ) : (
+    <p style={{ color: "red" }}>Metadata CID is missing! Please ensure metadata is uploaded before minting.</p>
+  )}
   </Modal.Body>
   <Modal.Footer>
     <Button variant="secondary" onClick={() => setShowMetadataPreview(false)}>
       Cancel
     </Button>
-    <Button variant="primary" onClick={() => setShowMinting(true)}>
-      Confirm & Mint
+    <Button variant="primary" onClick={confirmUpload}>
+      Confirm & Upload to IPFS
     </Button>
   </Modal.Footer>
 </Modal>

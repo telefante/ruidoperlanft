@@ -12,7 +12,7 @@ import { useWallet } from "./WalletContext"
 // import UploadImageIpfs from "./UploadImageIpfs"
 import Html2CanvasUploader from "./Html2CanvasUploader"
 import NFTVerification from "./NFTVerification"
-import MintNFTFromIPFS from "./MintNFTFromIPFS"; // Import Mint Component
+import MintNFTFromIPFS from "./MintNFTFromIPFS" // Import Mint Component
 
 const PerlinNoise = ({
   showControls = true,
@@ -69,10 +69,10 @@ const PerlinNoise = ({
     scale: initialParams.scale,
     frequency: initialParams.frequency,
     octaves: initialParams.octaves,
-  });
+  })
   const [textOpacity, setTextOpacity] = useState(1)
   const [capturedImage, setCapturedImage] = useState(null)
-  const [metadataCid, setMetadataCid] = useState(null); // Store IPFS CID
+  const [metadataCid, setMetadataCid] = useState(null) // Store IPFS CID
   const [showModal, setShowModal] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
 
@@ -82,8 +82,8 @@ const PerlinNoise = ({
   })
 
   const updatePerlinSettings = (key, value) => {
-    setPerlinSettings(prev => ({ ...prev, [key]: value }));
-  };
+    setPerlinSettings(prev => ({ ...prev, [key]: value }))
+  }
 
   useEffect(() => {
     if (!mountRef.current) return
@@ -144,7 +144,11 @@ const PerlinNoise = ({
 
           noise = totalNoise
         } else {
-          noise = simplex(x * perlinSettings.scale, y * perlinSettings.scale, elapsed)
+          noise = simplex(
+            x * perlinSettings.scale,
+            y * perlinSettings.scale,
+            elapsed
+          )
         }
 
         positions[i + 2] = noise * perlinSettings.amplitude
@@ -342,19 +346,18 @@ const PerlinNoise = ({
         backgroundColor: null,
         scale: 2,
         logging: true,
-
-        ignoreElements: element => {
-          return (
-            element.classList.contains("controls") ||
-            element.classList.contains("minimize-button") ||
-            element.classList.contains("wallet-connection")
-          )
-        },
       })
-
       const imageData = capturedCanvas.toDataURL("image/png")
       setCapturedImage(imageData)
       setShowModal(true)
+
+      // ignoreElements: element => {
+      //   return (
+      //     element.classList.contains("controls") ||
+      //     element.classList.contains("minimize-button") ||
+      //     element.classList.contains("wallet-connection")
+      //   )
+      // },
     } catch (error) {
       console.error("Error capturing scene:", error)
     }
@@ -444,19 +447,9 @@ const PerlinNoise = ({
       </Container>
       <Modal show={showModal} onHide={handleClose} size="lg">
         <Modal.Header closeButton>
-          <Modal.Title
-            style={{
-              color: "black",
-              fontFamily: "var(--primary-font)",
-              fontSize: "24px",
-              fontWeight: "bold",
-              fontStyle: "italic",
-            }}
-          >
-            Mint this?
-          </Modal.Title>
+          <Modal.Title>Mint this Scene?</Modal.Title>
         </Modal.Header>
-        <Modal.Body style={{ backgroundColor: "black" }}>
+        <Modal.Body>
           {capturedImage && (
             <img
               src={capturedImage}
@@ -464,26 +457,11 @@ const PerlinNoise = ({
               style={{ width: "100%" }}
             />
           )}
+          <Html2CanvasUploader
+            containerRef={containerRef}
+            capturedImage={capturedImage}
+          />
         </Modal.Body>
-        <Modal.Footer
-          style={{
-            backgroundColor: "black",
-            fontFamily: "var(--primary-font)",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-            {accessGranted ? (
-            <>
-              <Html2CanvasUploader containerRef={containerRef} setMetadataCid={setMetadataCid} />
-              {metadataCid && <MintNFTFromIPFS metadataCid={metadataCid} />}
-            </>
-          ) : (
-            <p style={{ color: "white" }}>
-              You need to own the NFT to upload an image.
-            </p>
-          )}
-        </Modal.Footer>
       </Modal>
     </div>
   )

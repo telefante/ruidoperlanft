@@ -6,7 +6,8 @@ import { Button, Container, Modal } from "react-bootstrap";
 const MintNFTFromIPFS = ({ metadataCid }) => {
     const [minting, setMinting] = useState(false);
     const { walletAddress, isConnected, beaconWallet } = useWallet();
-  
+  const CONTRACT = process.env.GATSBY_TEZOS_REALTIME_CONTRACT;
+
     const mintNFT = async () => {
       if (!isConnected || !walletAddress) {
         alert("Please connect your wallet first!");
@@ -22,7 +23,7 @@ const MintNFTFromIPFS = ({ metadataCid }) => {
       try {
         const Tezos = new TezosToolkit("https://rpc.tzkt.io/ghostnet");
         await Tezos.setWalletProvider(beaconWallet);
-        const contract = await Tezos.contract.at("KT1BjvQ6LQD16FLzb9Snz9TSVbdGUDXkfjq5");
+        const contract = await Tezos.contract.at(CONTRACT);
   
         const tokenId = Math.floor(Math.random() * 100000);
         const metadata = new MichelsonMap();
