@@ -3,6 +3,7 @@ import * as lighthouse from "@lighthouse-web3/sdk"
 import html2canvas from "html2canvas"
 import { Button, Form, Container, Modal } from "react-bootstrap"
 import { useWallet } from "./WalletContext" // Import the useWallet hook
+import { import as importIpfsOnlyHash } from "ipfs-only-hash";
 
 const Html2CanvasUploader = ({ containerRef, perlinSettings }) => {
   const captureRef = useRef(null)
@@ -23,12 +24,22 @@ const Html2CanvasUploader = ({ containerRef, perlinSettings }) => {
 
   const generateMetadata = async () => {
     const timestamp = new Date().toISOString();
+  
+    // Create a temporary placeholder image blob
+    const imageBlob = new Blob(["Temporary Image Data"], { type: "image/png" });
+  
+    // Calculate expected CID before uploading
+    const predictedImageCid = await importIpfsOnlyHash(imageBlob);
+    const predictedMetadataCid = await importIpfsOnlyHash(
+      JSON.stringify({ name: "Temporary Metadata", description: "Placeholder" })
+    );
+  
     const generatedMetadata = {
       name: `RuidoPerla_NFT_${timestamp}`,
       description: `This NFT was generated using Perlin Noise on ${timestamp}.`,
       entropie: Math.random().toFixed(6),
-      image: ipfsUrl || "Uploading...",
-      metadataUri: metadataUrl || "Uploading...",
+      image: `ipfs://${predictedImageCid} (Estimated)`,
+      metadataUri: `ipfs://${predictedMetadataCid} (Estimated)`,
       perlin: {
         amplitude: perlinSettings.amplitude,
         scale: perlinSettings.scale,
@@ -36,7 +47,7 @@ const Html2CanvasUploader = ({ containerRef, perlinSettings }) => {
         octaves: perlinSettings.octaves,
       },
     };
-
+  
     setMetadataJson(generatedMetadata);
     setShowMetadataPreview(true);
   };
