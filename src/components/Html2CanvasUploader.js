@@ -22,8 +22,8 @@ const Html2CanvasUploader = ({ containerRef, perlinSettings }) => {
   const { isConnected, walletAddress } = useWallet() // Get the isConnected state and walletAddress
   const CREATOR = process.env.GATSBY_RPNNFT_CREATOR
   // console.log("isConnected:", isConnected)
-  console.log("walletAddress:", walletAddress)
-  console.log("CREATOR:", CREATOR)
+  // console.log("walletAddress:", walletAddress)
+  // console.log("CREATOR:", CREATOR)
   const generateMetadata = async () => {
     const timestamp = new Date().toISOString()
 
