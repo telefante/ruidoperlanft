@@ -25,8 +25,8 @@ const Html2CanvasUploader = ({ containerRef, perlinSettings }) => {
     const timestamp = new Date().toISOString();
   const generatedMetadata = {
     name,
-    description: `${description} (Generated: ${timestamp})`,
-    entropie: Math.random().toFixed(6),
+    description: `Ruido Perla NFT (Generated: ${timestamp})`,
+    // entropie: Math.random().toFixed(6),
     image: "Will be uploaded to IPFS...",
     perlin: {
       amplitude: perlinSettings.amplitude,
@@ -115,7 +115,7 @@ const Html2CanvasUploader = ({ containerRef, perlinSettings }) => {
           {uploading ? "Uploading..." : "Upload"}
         </Button>
         {/* Editable NFT Name & Description */}
-        <Form.Group controlId="nft-name">
+        {/* <Form.Group controlId="nft-name">
           <Form.Label style={{ color: "white", fontSize: "16px" }}>
             NFT Name
           </Form.Label>
@@ -137,7 +137,7 @@ const Html2CanvasUploader = ({ containerRef, perlinSettings }) => {
             value={description}
             onChange={e => setDescription(e.target.value)}
           />
-        </Form.Group>
+        </Form.Group> */}
 
         {/* Display IPFS URLs */}
         {ipfsUrl && (
