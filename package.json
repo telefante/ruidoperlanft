@@ -25,6 +25,7 @@
     "gatsby-transformer-sharp": "^5.14.0",
     "graphql-request": "^7.1.2",
     "html2canvas": "^1.4.1",
+    "ipfs-only-hash": "^4.0.0",
     "nft.storage": "^7.2.0",
     "postcss": "^8.5.2",
     "postcss-loader": "^8.1.1",
