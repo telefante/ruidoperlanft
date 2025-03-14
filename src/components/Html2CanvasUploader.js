@@ -19,14 +19,14 @@ const Html2CanvasUploader = ({ containerRef, perlinSettings }) => {
 
   // Fetch API Key from Environment Variables
   const LIGHTHOUSE_API_KEY = process.env.GATSBY_LIGHTHOUSE_API_KEY
-  const { isConnected } = useWallet() // Get the isConnected state
+  const { isConnected, walletAddress } = useWallet() // Get the isConnected state and walletAddress
   console.log("isConnected:", isConnected)
 
   const generateMetadata = async () => {
     const timestamp = new Date().toISOString();
   
     try {
-      // Create a placeholder image blob
+      // Create a temporary placeholder image blob
       const imageBlob = new Blob(["Temporary Image Data"], { type: "image/png" });
       const imageArrayBuffer = await imageBlob.arrayBuffer();
       const imageUint8Array = new Uint8Array(imageArrayBuffer);
@@ -34,18 +34,45 @@ const Html2CanvasUploader = ({ containerRef, perlinSettings }) => {
       // Generate IPFS CID for the estimated image
       const predictedImageCid = await ipfsOnlyHash.of(imageUint8Array);
   
-      // Prepare metadata as a Uint8Array
+      // Prepare metadata as a Uint8Array following the NFT metadata standard
       const metadata = JSON.stringify({
-        name: `RuidoPerla_NFT_${timestamp}`,
-        description: `This NFT was generated using Perlin Noise on ${timestamp}.`,
-        entropie: Math.random().toFixed(6),
-        image: `ipfs://${predictedImageCid} (Estimated)`,
-        perlin: {
-          amplitude: perlinSettings.amplitude,
-          scale: perlinSettings.scale,
-          frequency: perlinSettings.frequency,
-          octaves: perlinSettings.octaves,
+        artifactUri: `ipfs://${predictedImageCid}`,
+        name: `RuidoPerla#${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}`,
+        description: `With Entropy ${perlinSettings.amplitude}, it balances on the edge of dissolution; 
+                    Edge Complexity ${perlinSettings.scale} carves its fleeting form, 
+                    while Color Variance ${perlinSettings.frequency} whispers of endless recombination. 
+                    A fragment of the infinite, seen once, then lost to the next arrangement.
+  
+                    This generative piece extends the essence of the physical installation Ruido Perla, 
+                    now transformed into a digital realm. As a collector, you gain exclusive access
+                    to the evolving simulation at https://ruidoperlanft.netlify.app, where the landscape continuously regenerates, 
+                    blurring the boundaries between organic chance and computational precision.
+                    
+                    Your NFT is not just an image—it is a key to an ongoing, living algorithm, forever in motion.`,
+        minter: walletAddress,
+        mintingTool: "http://ruidoperlanft.netlify.com",
+        creators: [walletAddress],
+        decimals: 0,
+        symbol: "RPNFTv2",
+        rights: "No License / All Rights Reserved",
+        date: timestamp,
+        attributes: [
+          { "name": "Entropy Score", "value": perlinSettings.amplitude.toString() },
+          { "name": "Edge Complexity", "value": perlinSettings.scale.toString() },
+          { "name": "Color Variance", "value": perlinSettings.frequency.toString() },
+          { "name": "Text Presence", "value": perlinSettings.octaves.toString() },
+          { "name": "Rarity", "value": "Legendary" }
+        ],
+        royalties: {
+          decimals: 3,
+          shares: {
+            [walletAddress]: 80,
+            "tz1hVLhBhmGEaNspwV898Pnh9WoCtja8ixdQ": 20
+          }
         },
+        tags: ["nature", "simulation", "installation", "poetry"],
+        displayUri: `ipfs://${predictedImageCid}`,
+        thumbnailUri: `ipfs://${predictedImageCid}`
       });
   
       const metadataUint8Array = new TextEncoder().encode(metadata);
@@ -54,7 +81,7 @@ const Html2CanvasUploader = ({ containerRef, perlinSettings }) => {
       const predictedMetadataCid = await ipfsOnlyHash.of(metadataUint8Array);
   
       const generatedMetadata = JSON.parse(metadata);
-      generatedMetadata.metadataUri = `ipfs://${predictedMetadataCid} (Estimated)`;
+      generatedMetadata.metadataUri = `ipfs://${predictedMetadataCid}`;
   
       setMetadataJson(generatedMetadata);
       setShowMetadataPreview(true);
