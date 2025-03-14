@@ -23,18 +23,19 @@ const Html2CanvasUploader = ({ containerRef, perlinSettings }) => {
 
   const generateMetadata = async () => {
     const timestamp = new Date().toISOString();
-  const generatedMetadata = {
-    name,
-    description: `Ruido Perla NFT (Generated: ${timestamp})`,
-    // entropie: Math.random().toFixed(6),
-    image: "Will be uploaded to IPFS...",
-    perlin: {
-      amplitude: perlinSettings.amplitude,
-      scale: perlinSettings.scale,
-      frequency: perlinSettings.frequency,
-      octaves: perlinSettings.octaves,
-    },
-  };
+    const generatedMetadata = {
+      name: `RuidoPerla_NFT_${timestamp}`,
+      description: `This NFT was generated using Perlin Noise on ${timestamp}.`,
+      entropie: Math.random().toFixed(6),
+      image: ipfsUrl || "Uploading...",
+      metadataUri: metadataUrl || "Uploading...",
+      perlin: {
+        amplitude: perlinSettings.amplitude,
+        scale: perlinSettings.scale,
+        frequency: perlinSettings.frequency,
+        octaves: perlinSettings.octaves,
+      },
+    };
 
     setMetadataJson(generatedMetadata);
     setShowMetadataPreview(true);
@@ -188,10 +189,20 @@ const Html2CanvasUploader = ({ containerRef, perlinSettings }) => {
         <Modal.Header closeButton>
           <Modal.Title>Metadata Preview</Modal.Title>
         </Modal.Header>
-        <Modal.Body>
+      <Modal.Body>
           <pre style={{ backgroundColor: "#f8f9fa", padding: "10px" }}>
             {JSON.stringify(metadataJson, null, 2)}
           </pre>
+          {ipfsUrl && (
+            <p>
+              <strong>Image CID:</strong> {ipfsUrl.split("ipfs://")[1]}
+            </p>
+          )}
+          {metadataUrl && (
+            <p>
+              <strong>Metadata CID:</strong> {metadataUrl.split("ipfs://")[1]}
+            </p>
+          )}
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setShowMetadataPreview(false)}>Cancel</Button>
