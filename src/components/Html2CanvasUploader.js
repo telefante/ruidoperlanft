@@ -44,7 +44,8 @@ const Html2CanvasUploader = ({ containerRef, perlinSettings }) => {
         name: `RuidoPerla#${Math.floor(Math.random() * 1000)
           .toString()
           .padStart(3, "0")}`,
-        description: `You found a pearl in noise—Perlin noise, Ruido Perla.
+        description: `You found a 1/1 Ruido Perla NFT. 
+        It is a pearl in noise—Perlin noise, Ruido Perla.
         A landscape in flux, shifting with Amplitude ${perlinSettings.amplitude}, shaped by Scale ${perlinSettings.scale},
         whispering in the frequencies of endless recombination.
         This NFT is not a static image—it is a key to a living simulation, evolving in real-time at ruidoperlanft.netlify.app.
