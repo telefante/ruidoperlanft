@@ -68,7 +68,7 @@ const Html2CanvasUploader = ({ containerRef, perlinSettings }) => {
             value: perlinSettings.frequency.toString(),
           },
           { name: "Octaves", value: perlinSettings.octaves.toString() },
-          { name: "Rarity", value: "1/1" },
+       
         ],
         royalties: {
           decimals: 4,
