@@ -8,49 +8,59 @@ const MintNFTFromIPFS = ({ metadataCid }) => {
     const { walletAddress, isConnected, beaconWallet } = useWallet();
   const CONTRACT = process.env.GATSBY_TEZOS_REALTIME_CONTRACT;
 
-    const mintNFT = async () => {
-      if (!isConnected || !walletAddress) {
-        alert("Please connect your wallet first!");
-        return;
+  const mintNFT = async () => {
+    if (!isConnected || !walletAddress) {
+      alert("Please connect your wallet first!");
+      return;
+    }
+    if (!metadataCid) {
+      alert("Metadata CID is missing!");
+      return;
+    }
+  
+    setMinting(true);
+  
+    try {
+      const Tezos = new TezosToolkit("https://rpc.tzkt.io/ghostnet");
+  
+      // Ensure wallet is properly set up
+      const activeAccount = await beaconWallet.client.getActiveAccount();
+      if (!activeAccount) {
+        await beaconWallet.requestPermissions({ network: { type: "ghostnet" } });
       }
-      if (!metadataCid) {
-        alert("Metadata CID is missing!");
-        return;
-      }
   
-      setMinting(true);
+      Tezos.setProvider({ wallet: beaconWallet });
   
-      try {
-        const Tezos = new TezosToolkit("https://rpc.tzkt.io/ghostnet");
-        await Tezos.setWalletProvider(beaconWallet);
-        const contract = await Tezos.contract.at(CONTRACT);
+      // Load contract
+      const contract = await Tezos.contract.at(CONTRACT);
   
-        const tokenId = Math.floor(Math.random() * 100000);
-        const metadata = new MichelsonMap();
-        metadata.set("", Buffer.from(`ipfs://${metadataCid}`).toString("hex"));
+      // Generate token ID
+      const tokenId = Math.floor(Math.random() * 100000);
+      const metadata = new MichelsonMap();
+      metadata.set("", Buffer.from(`ipfs://${metadataCid}`).toString("hex"));
   
-        console.log(`🔹 Creating NFT with Metadata: ipfs://${metadataCid}`);
+      console.log(`🔹 Creating NFT with Metadata: ipfs://${metadataCid}`);
   
-        // Step 1: Create Token
-        const createOp = await contract.methods.create_token(tokenId, metadata).send();
-        await createOp.confirmation(1);
-        console.log(`✅ Token ${tokenId} Created! TX: ${createOp.hash}`);
+      // Step 1: Create Token
+      const createOp = await contract.methods.create_token(tokenId, metadata).send();
+      await createOp.confirmation(1);
+      console.log(`✅ Token ${tokenId} Created! TX: ${createOp.hash}`);
   
-        // Step 2: Mint NFT
-        const mintOp = await contract.methods
-          .mint_tokens([{ owner: walletAddress, token_id: tokenId, amount: 1 }])
-          .send();
-        await mintOp.confirmation(1);
-        console.log(`✅ NFT Minted to ${walletAddress}! TX: ${mintOp.hash}`);
+      // Step 2: Mint NFT
+      const mintOp = await contract.methods
+        .mint_tokens([{ owner: walletAddress, token_id: tokenId, amount: 1 }])
+        .send();
+      await mintOp.confirmation(1);
+      console.log(`✅ NFT Minted to ${walletAddress}! TX: ${mintOp.hash}`);
   
-        alert(`NFT Minted Successfully! TX: ${mintOp.hash}`);
-      } catch (error) {
-        console.error("❌ Error minting NFT:", error);
-        alert("Failed to mint NFT.");
-      } finally {
-        setMinting(false);
-      }
-    };
+      alert(`NFT Minted Successfully! TX: ${mintOp.hash}`);
+    } catch (error) {
+      console.error("❌ Error minting NFT:", error);
+      alert("Failed to mint NFT.");
+    } finally {
+      setMinting(false);
+    }
+  };
   
     return (
       <Container>

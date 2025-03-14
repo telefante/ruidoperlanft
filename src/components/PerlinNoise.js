@@ -10,9 +10,11 @@ import PerlinControls from "./PerlinControls"
 import { useWallet } from "./WalletContext"
 // import UploadImageWithWallet from "./UploadImagewithWallet"
 // import UploadImageIpfs from "./UploadImageIpfs"
-import Html2CanvasUploader from "./Html2CanvasUploader"
+// import Html2CanvasUploader from "./Html2CanvasUploader"
 import NFTVerification from "./NFTVerification"
-import MintNFTFromIPFS from "./MintNFTFromIPFS" // Import Mint Component
+// import MintNFTFromIPFS from "./MintNFTFromIPFS" // Import Mint Component
+import MintNFTProcess from "./MintNFTProcess";
+
 
 const PerlinNoise = ({
   showControls = true,
@@ -447,7 +449,7 @@ const PerlinNoise = ({
       </Container>
       <Modal show={showModal} onHide={handleClose} size="lg">
         <Modal.Header closeButton>
-          <Modal.Title>Mint this Scene?</Modal.Title>
+          <Modal.Title>Mint the Pearl?</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           {capturedImage && (
@@ -457,9 +459,10 @@ const PerlinNoise = ({
               style={{ width: "100%" }}
             />
           )}
-          <Html2CanvasUploader
+          <MintNFTProcess
             containerRef={containerRef}
             capturedImage={capturedImage}
+            perlinSettings={perlinSettings}
           />
         </Modal.Body>
       </Modal>

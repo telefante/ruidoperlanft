@@ -31,81 +31,101 @@ const Html2CanvasUploader = ({ containerRef, perlinSettings }) => {
   // console.log("walletAddress:", walletAddress)
   // console.log("CREATOR:", CREATOR)
 
-
   const generateMetadata = async () => {
-    const timestamp = new Date().toISOString();
-    const safePerlinSettings = perlinSettings || { amplitude: 0, scale: 0, frequency: 0, octaves: 0 };
-  
+    const timestamp = new Date().toISOString()
+    const safePerlinSettings = perlinSettings || {
+      amplitude: 0,
+      scale: 0,
+      frequency: 0,
+      octaves: 0,
+    }
+
     try {
-      // Create placeholder image
-      const imageBlob = new Blob(["Temporary Image Data"], { type: "image/png" });
-      const imageArrayBuffer = await imageBlob.arrayBuffer();
-      const imageUint8Array = new Uint8Array(imageArrayBuffer);
-  
-      // Generate estimated IPFS CID for image
-      const predictedImageCid = await ipfsOnlyHash.of(imageUint8Array);
-  
-      // Generate estimated metadata CID
+      const imageBlob = new Blob(["Temporary Image Data"], {
+        type: "image/png",
+      })
+      const imageArrayBuffer = await imageBlob.arrayBuffer()
+      const imageUint8Array = new Uint8Array(imageArrayBuffer)
+
+      // Generate estimated IPFS CID
+      const predictedImageCid = await ipfsOnlyHash.of(imageUint8Array)
       const metadataJson = {
         artifactUri: `ipfs://${predictedImageCid}`,
-        name: `RuidoPerla#${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}`,
+        name: `RuidoPerla#${Math.floor(Math.random() * 1000)
+          .toString()
+          .padStart(3, "0")}`,
         description: `This NFT captures the evolving Perlin noise landscape.`,
         minter: walletAddress,
         attributes: [
           { name: "Amplitude", value: safePerlinSettings.amplitude.toString() },
           { name: "Scale", value: safePerlinSettings.scale.toString() },
           { name: "Frequency", value: safePerlinSettings.frequency.toString() },
-          { name: "Octaves", value: safePerlinSettings.octaves.toString() }
+          { name: "Octaves", value: safePerlinSettings.octaves.toString() },
         ],
         displayUri: `ipfs://${predictedImageCid}`,
-        thumbnailUri: `ipfs://${predictedImageCid}`
-      };
-  
-      const metadataUint8Array = new TextEncoder().encode(JSON.stringify(metadataJson));
-      const predictedMetadataCid = await ipfsOnlyHash.of(metadataUint8Array);
-  
-      setMetadataJson(metadataJson);
-      setIpfsUrl(`ipfs://${predictedImageCid}`);
-      setMetadataUrl(`ipfs://${predictedMetadataCid}`);
-      setShowMetadataPreview(true);
+        thumbnailUri: `ipfs://${predictedImageCid}`,
+      }
+
+      const metadataUint8Array = new TextEncoder().encode(
+        JSON.stringify(metadataJson)
+      )
+      const predictedMetadataCid = await ipfsOnlyHash.of(metadataUint8Array)
+
+      setMetadataJson(metadataJson)
+      setIpfsUrl(`ipfs://${predictedImageCid}`)
+      setMetadataUrl(`ipfs://${predictedMetadataCid}`)
+      setShowMetadataPreview(true)
     } catch (error) {
-      console.error("❌ Error generating estimated IPFS CID:", error);
+      console.error("❌ Error generating estimated IPFS CID:", error)
     }
-  };
+  }
+
   const confirmUpload = async () => {
-    setShowMetadataPreview(false);
-    setUploading(true);
-  
+    setShowMetadataPreview(false)
+    setUploading(true)
+
     try {
-      // Capture and upload image to IPFS
       const canvas = await html2canvas(containerRef.current, {
         useCORS: true,
         backgroundColor: null,
         scale: 1,
-      });
-  
-      const imageBlob = await new Promise(resolve => canvas.toBlob(resolve, "image/png"));
-      const file = new File([imageBlob], `RuidoPerla-${Date.now()}.png`, { type: "image/png" });
-  
-      const fileResponse = await lighthouse.upload([file], LIGHTHOUSE_API_KEY);
-      const imageCid = fileResponse.data.Hash;
-      setIpfsUrl(`ipfs://${imageCid}`);
-  
+      })
+
+      const imageBlob = await new Promise(resolve =>
+        canvas.toBlob(resolve, "image/png")
+      )
+      const file = new File([imageBlob], `RuidoPerla-${Date.now()}.png`, {
+        type: "image/png",
+      })
+
+      // Upload image to IPFS
+      const fileResponse = await lighthouse.upload([file], LIGHTHOUSE_API_KEY)
+      const imageCid = fileResponse.data.Hash
+      setIpfsUrl(`ipfs://${imageCid}`)
+
       // Upload metadata JSON
-      const metadataBlob = new Blob([JSON.stringify(metadataJson)], { type: "application/json" });
-      const metadataFile = new File([metadataBlob], "metadata.json", { type: "application/json" });
-  
-      const metadataResponse = await lighthouse.upload([metadataFile], LIGHTHOUSE_API_KEY);
-      const metadataCid = metadataResponse.data.Hash;
-      setMetadataUrl(`ipfs://${metadataCid}`);
-  
-      setShowMinting(true);
+      const metadataBlob = new Blob([JSON.stringify(metadataJson)], {
+        type: "application/json",
+      })
+      const metadataFile = new File([metadataBlob], "metadata.json", {
+        type: "application/json",
+      })
+
+      const metadataResponse = await lighthouse.upload(
+        [metadataFile],
+        LIGHTHOUSE_API_KEY
+      )
+      const metadataCid = metadataResponse.data.Hash
+      setMetadataUrl(`ipfs://${metadataCid}`)
+
+      // Only show minting step after real upload
+      setShowMinting(true)
     } catch (error) {
-      console.error("❌ Error uploading files to IPFS:", error);
+      console.error("❌ Error uploading files to IPFS:", error)
     } finally {
-      setUploading(false);
+      setUploading(false)
     }
-  };
+  }
 
   const captureAndUpload = async () => {
     if (!isConnected) return // Only allow upload when wallet is connected
@@ -180,7 +200,6 @@ const Html2CanvasUploader = ({ containerRef, perlinSettings }) => {
           >
             {uploading ? "Processing..." : "Preview Minting"}
           </Button>
-        
 
           {/* Display IPFS URLs */}
           {ipfsUrl && (
@@ -228,34 +247,42 @@ const Html2CanvasUploader = ({ containerRef, perlinSettings }) => {
       ) : (
         <p>Please connect your wallet to upload.</p>
       )}
-<Modal show={showMetadataPreview} onHide={() => setShowMetadataPreview(false)}>
-  <Modal.Header closeButton>
-    <Modal.Title>Minting Preview</Modal.Title>
-  </Modal.Header>
-  <Modal.Body>
-    <pre style={{ backgroundColor: "#f8f9fa", padding: "10px" }}>
-      {JSON.stringify(metadataJson, null, 2)}
-    </pre>
-    <p><strong>Estimated Image CID:</strong> {ipfsUrl}</p>
-    <p><strong>Estimated Metadata CID:</strong> {metadataUrl}</p>
-    <p>You are about to mint an NFT with the above metadata.</p>
+      <Modal
+        show={showMetadataPreview}
+        onHide={() => setShowMetadataPreview(false)}
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Minting Preview</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <pre style={{ backgroundColor: "#f8f9fa", padding: "10px" }}>
+            {JSON.stringify(metadataJson, null, 2)}
+          </pre>
+          <p style={{ fontSize: "10px" }}>
+            <strong>Estimated Image CID:</strong> {ipfsUrl}
+          </p>
+          <p style={{ fontSize: "10px" }}>
+            <strong>Estimated Metadata CID:</strong> {metadataUrl}
+          </p>
+          <p>You are about to mint an NFT with the above metadata.</p>
 
-     {/* Show minting button only after the real upload is complete */}
-  {showMinting && metadataUrl ? (
-    <MintNFTFromIPFS metadataCid={metadataUrl.split("ipfs://")[1]} />
-  ) : (
-    <p style={{ color: "red" }}>Metadata CID is missing! Please ensure metadata is uploaded before minting.</p>
-  )}
-  </Modal.Body>
-  <Modal.Footer>
-    <Button variant="secondary" onClick={() => setShowMetadataPreview(false)}>
-      Cancel
-    </Button>
-    <Button variant="primary" onClick={confirmUpload}>
-      Confirm & Upload to IPFS
-    </Button>
-  </Modal.Footer>
-</Modal>
+          {/* Show minting only after the real upload is complete */}
+          {showMinting && metadataUrl ? (
+            <MintNFTFromIPFS metadataCid={metadataUrl.split("ipfs://")[1]} />
+          ) : null}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button
+            variant="secondary"
+            onClick={() => setShowMetadataPreview(false)}
+          >
+            Cancel
+          </Button>
+          <Button variant="primary" onClick={confirmUpload}>
+            Confirm & Upload to IPFS
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </Container>
   )
 }
