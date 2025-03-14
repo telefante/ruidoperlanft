@@ -2,6 +2,7 @@ import React, { useRef, useState } from "react"
 import * as lighthouse from "@lighthouse-web3/sdk"
 import html2canvas from "html2canvas"
 import { Button, Form, Container, Modal } from "react-bootstrap"
+import MintNFTFromIPFS from "./MintNFTFromIPFS"
 import { useWallet } from "./WalletContext" // Import the useWallet hook
 import ipfsOnlyHash from "ipfs-only-hash"
 
@@ -14,8 +15,13 @@ const Html2CanvasUploader = ({ containerRef, perlinSettings }) => {
   const [uploading, setUploading] = useState(false)
   const [ipfsUrl, setIpfsUrl] = useState(null)
   const [metadataUrl, setMetadataUrl] = useState(null)
+  const extractedMetadataCid =
+    metadataUrl && metadataUrl.includes("ipfs://")
+      ? metadataUrl.split("ipfs://")[1]
+      : null
   const [showMetadataPreview, setShowMetadataPreview] = useState(false)
   const [metadataJson, setMetadataJson] = useState(null)
+  const [showMinting, setShowMinting] = useState(false)
 
   // Fetch API Key from Environment Variables
   const LIGHTHOUSE_API_KEY = process.env.GATSBY_LIGHTHOUSE_API_KEY
@@ -26,9 +32,16 @@ const Html2CanvasUploader = ({ containerRef, perlinSettings }) => {
   // console.log("CREATOR:", CREATOR)
   const generateMetadata = async () => {
     const timestamp = new Date().toISOString()
+    // Ensure perlinSettings is defined with safe default values
+    const safePerlinSettings = perlinSettings || {
+      amplitude: 0,
+      scale: 0,
+      frequency: 0,
+      octaves: 0,
+    }
 
     try {
-      // Create a temporary placeholder image blob
+      // Create a placeholder image blob
       const imageBlob = new Blob(["Temporary Image Data"], {
         type: "image/png",
       })
@@ -38,21 +51,20 @@ const Html2CanvasUploader = ({ containerRef, perlinSettings }) => {
       // Generate IPFS CID for the estimated image
       const predictedImageCid = await ipfsOnlyHash.of(imageUint8Array)
 
-      // Prepare metadata as a Uint8Array following the NFT metadata standard
+      // Maintain the original metadata structure
       const metadata = JSON.stringify({
         artifactUri: `ipfs://${predictedImageCid}`,
         name: `RuidoPerla#${Math.floor(Math.random() * 1000)
           .toString()
           .padStart(3, "0")}`,
         description: `You found a 1/1 Ruido Perla NFT. 
-        It is a pearl in noise—Perlin noise, Ruido Perla.
-        A landscape in flux, shifting with Amplitude ${perlinSettings.amplitude}, shaped by Scale ${perlinSettings.scale},
-        whispering in the frequencies of endless recombination.
-        This NFT is not a static image—it is a key to a living simulation, evolving in real-time at ruidoperlanft.netlify.app.
-        A fragment of the infinite, seen once, then lost to the next wave.”`,
+      It is a pearl in noise—Perlin noise, Ruido Perla.
+      A landscape in flux, shifting with Amplitude ${safePerlinSettings.amplitude}, shaped by Scale ${safePerlinSettings.scale},
+      whispering in the frequencies of endless recombination.
+      This NFT is not a static image—it is a key to a living simulation, evolving in real-time at ruidoperlanft.netlify.app.
+      A fragment of the infinite, seen once, then lost to the next wave.`,
         minter: walletAddress,
         mintingTool: "http://ruidoperlanft.netlify.com",
-
         creators:
           CREATOR !== walletAddress
             ? [CREATOR, walletAddress]
@@ -62,14 +74,10 @@ const Html2CanvasUploader = ({ containerRef, perlinSettings }) => {
         rights: "No License / All Rights Reserved",
         date: timestamp,
         attributes: [
-          { name: "Amplitude", value: perlinSettings.amplitude.toString() },
-          { name: "Scale", value: perlinSettings.scale.toString() },
-          {
-            name: "Frequency",
-            value: perlinSettings.frequency.toString(),
-          },
-          { name: "Octaves", value: perlinSettings.octaves.toString() },
-       
+          { name: "Amplitude", value: safePerlinSettings.amplitude.toString() },
+          { name: "Scale", value: safePerlinSettings.scale.toString() },
+          { name: "Frequency", value: safePerlinSettings.frequency.toString() },
+          { name: "Octaves", value: safePerlinSettings.octaves.toString() },
         ],
         royalties: {
           decimals: 4,
@@ -153,7 +161,7 @@ const Html2CanvasUploader = ({ containerRef, perlinSettings }) => {
       )
       const metadataCid = metadataResponse.data.Hash
       const metadataIpfsUrl = `ipfs://${metadataCid}`
-      setMetadataUrl(metadataIpfsUrl)
+      setMetadataUrl(metadataIpfsUrl || "Unknown Metadata URL")
 
       console.log("✅ Image Uploaded to IPFS:", imageIpfsUrl)
       console.log("✅ Metadata Uploaded to IPFS:", metadataIpfsUrl)
@@ -174,32 +182,9 @@ const Html2CanvasUploader = ({ containerRef, perlinSettings }) => {
             onClick={generateMetadata}
             disabled={uploading}
           >
-            {uploading ? "Uploading..." : "Upload"}
+            {uploading ? "Processing..." : "Preview Minting"}
           </Button>
-          {/* Editable NFT Name & Description */}
-          {/* <Form.Group controlId="nft-name">
-          <Form.Label style={{ color: "white", fontSize: "16px" }}>
-            NFT Name
-          </Form.Label>
-          <Form.Control
-            type="text"
-            placeholder="NFT Name"
-            value={name}
-            onChange={e => setName(e.target.value)}
-          />
-        </Form.Group>
-
-        <Form.Group controlId="nft-description">
-          <Form.Label style={{ color: "white", fontSize: "16px" }}>
-            NFT Description
-          </Form.Label>
-          <Form.Control
-            type="text"
-            placeholder="NFT Description"
-            value={description}
-            onChange={e => setDescription(e.target.value)}
-          />
-        </Form.Group> */}
+        
 
           {/* Display IPFS URLs */}
           {ipfsUrl && (
@@ -231,7 +216,9 @@ const Html2CanvasUploader = ({ containerRef, perlinSettings }) => {
               <p>
                 <a
                   href={`https://gateway.lighthouse.storage/ipfs/${
-                    metadataUrl.split("ipfs://")[1]
+                    metadataUrl && metadataUrl.includes("ipfs://")
+                      ? metadataUrl.split("ipfs://")[1]
+                      : metadataUrl
                   }`}
                   target="_blank"
                   rel="noopener noreferrer"
@@ -251,33 +238,50 @@ const Html2CanvasUploader = ({ containerRef, perlinSettings }) => {
         onHide={() => setShowMetadataPreview(false)}
       >
         <Modal.Header closeButton>
-          <Modal.Title>Metadata Preview</Modal.Title>
+          <Modal.Title>
+            {showMinting ? "Confirm Minting" : "Metadata Preview"}
+          </Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <pre style={{ backgroundColor: "#f8f9fa", padding: "10px" }}>
-            {JSON.stringify(metadataJson, null, 2)}
-          </pre>
-          {ipfsUrl && (
-            <p>
-              <strong>Image CID:</strong> {ipfsUrl.split("ipfs://")[1]}
-            </p>
-          )}
-          {metadataUrl && (
-            <p>
-              <strong>Metadata CID:</strong> {metadataUrl.split("ipfs://")[1]}
+          {!showMinting ? (
+            <>
+              <pre style={{ backgroundColor: "#f8f9fa", padding: "10px" }}>
+                {JSON.stringify(metadataJson, null, 2)}
+              </pre>
+              {ipfsUrl && (
+                <p>
+                  <strong>Image CID:</strong> {ipfsUrl.split("ipfs://")[1]}
+                </p>
+              )}
+              {metadataUrl && (
+                <p>
+                  <strong>Metadata CID:</strong> {extractedMetadataCid}
+                </p>
+              )}
+            </>
+          ) : extractedMetadataCid ? (
+            <MintNFTFromIPFS metadataCid={extractedMetadataCid} />
+          ) : (
+            <p style={{ color: "red" }}>
+              Metadata CID is missing! Please ensure metadata is uploaded before
+              minting.
             </p>
           )}
         </Modal.Body>
         <Modal.Footer>
-          <Button
-            variant="secondary"
-            onClick={() => setShowMetadataPreview(false)}
-          >
-            Cancel
-          </Button>
-          <Button variant="primary" onClick={confirmUpload}>
-            Confirm & Upload
-          </Button>
+          {!showMinting ? (
+            <>
+              <Button
+                variant="secondary"
+                onClick={() => setShowMetadataPreview(false)}
+              >
+                Cancel
+              </Button>
+              <Button variant="primary" onClick={() => setShowMinting(true)}>
+                Proceed to Mint
+              </Button>
+            </>
+          ) : null}
         </Modal.Footer>
       </Modal>
     </Container>

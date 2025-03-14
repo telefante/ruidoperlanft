@@ -12,6 +12,7 @@ import { useWallet } from "./WalletContext"
 // import UploadImageIpfs from "./UploadImageIpfs"
 import Html2CanvasUploader from "./Html2CanvasUploader"
 import NFTVerification from "./NFTVerification"
+import MintNFTFromIPFS from "./MintNFTFromIPFS"; // Import Mint Component
 
 const PerlinNoise = ({
   showControls = true,
@@ -71,6 +72,7 @@ const PerlinNoise = ({
   });
   const [textOpacity, setTextOpacity] = useState(1)
   const [capturedImage, setCapturedImage] = useState(null)
+  const [metadataCid, setMetadataCid] = useState(null); // Store IPFS CID
   const [showModal, setShowModal] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
 
@@ -471,11 +473,11 @@ const PerlinNoise = ({
             justifyContent: "center",
           }}
         >
-          {accessGranted ? (
-            // <UploadImageWithWallet containerRef={containerRef} />
-            // <UploadImageIpfs containerRef={containerRef} />
-            <Html2CanvasUploader containerRef={containerRef} perlinSettings={perlinSettings} />
-            
+            {accessGranted ? (
+            <>
+              <Html2CanvasUploader containerRef={containerRef} setMetadataCid={setMetadataCid} />
+              {metadataCid && <MintNFTFromIPFS metadataCid={metadataCid} />}
+            </>
           ) : (
             <p style={{ color: "white" }}>
               You need to own the NFT to upload an image.

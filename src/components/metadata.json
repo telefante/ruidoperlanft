@@ -1,0 +1,44 @@
+ // Prepare metadata as a Uint8Array following the NFT metadata standard
+ const metadata = JSON.stringify({
+    artifactUri: `ipfs://${predictedImageCid}`,
+    name: `RuidoPerla#${Math.floor(Math.random() * 1000)
+      .toString()
+      .padStart(3, "0")}`,
+    description: `You found a 1/1 Ruido Perla NFT. 
+    It is a pearl in noise—Perlin noise, Ruido Perla.
+    A landscape in flux, shifting with Amplitude ${perlinSettings.amplitude}, shaped by Scale ${perlinSettings.scale},
+    whispering in the frequencies of endless recombination.
+    This NFT is not a static image—it is a key to a living simulation, evolving in real-time at ruidoperlanft.netlify.app.
+    A fragment of the infinite, seen once, then lost to the next wave.”`,
+    minter: walletAddress,
+    mintingTool: "http://ruidoperlanft.netlify.com",
+
+    creators:
+      CREATOR !== walletAddress
+        ? [CREATOR, walletAddress]
+        : [walletAddress],
+    decimals: 0,
+    symbol: "RPNFTv2",
+    rights: "No License / All Rights Reserved",
+    date: timestamp,
+    attributes: [
+      { name: "Amplitude", value: perlinSettings.amplitude.toString() },
+      { name: "Scale", value: perlinSettings.scale.toString() },
+      {
+        name: "Frequency",
+        value: perlinSettings.frequency.toString(),
+      },
+      { name: "Octaves", value: perlinSettings.octaves.toString() },
+   
+    ],
+    royalties: {
+      decimals: 4,
+      shares: {
+        [walletAddress]: 500,
+        [CREATOR]: 500,
+      },
+    },
+    tags: ["nature", "simulation", "real-time", "poetry"],
+    displayUri: `ipfs://${predictedImageCid}`,
+    thumbnailUri: `ipfs://${predictedImageCid}`,
+  })
