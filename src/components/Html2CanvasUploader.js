@@ -44,17 +44,11 @@ const Html2CanvasUploader = ({ containerRef, perlinSettings }) => {
         name: `RuidoPerla#${Math.floor(Math.random() * 1000)
           .toString()
           .padStart(3, "0")}`,
-        description: `With Amplitude ${perlinSettings.amplitude}, it balances on the edge of dissolution; 
-                    Scale  ${perlinSettings.scale} carves its fleeting form, 
-                    while frequency ${perlinSettings.frequency} whispers of endless recombination. 
-                    A fragment of the  infinite, seen once, then lost to the next arrangement.
-  
-                    This generative piece extends the essence of the physical installation Ruido Perla, 
-                    now transformed into a digital realm. As a collector, you gain exclusive access
-                    to the evolving simulation at https://ruidoperlanft.netlify.app, where the landscape continuously regenerates, 
-                    blurring the boundaries between organic chance and computational precision.
-                    
-                    Your NFT is not just an image—it is a key to an ongoing, living algorithm, forever in motion.`,
+        description: `You found a pearl in noise—Perlin noise, Ruido Perla.
+        A landscape in flux, shifting with Amplitude ${perlinSettings.amplitude}, shaped by Scale ${perlinSettings.scale},
+        whispering in the frequencies of endless recombination.
+        This NFT is not a static image—it is a key to a living simulation, evolving in real-time at ruidoperlanft.netlify.app.
+        A fragment of the infinite, seen once, then lost to the next wave.”`,
         minter: walletAddress,
         mintingTool: "http://ruidoperlanft.netlify.com",
 
@@ -67,23 +61,23 @@ const Html2CanvasUploader = ({ containerRef, perlinSettings }) => {
         rights: "No License / All Rights Reserved",
         date: timestamp,
         attributes: [
-          { name: "Entropy Score", value: perlinSettings.amplitude.toString() },
-          { name: "Edge Complexity", value: perlinSettings.scale.toString() },
+          { name: "Amplitude", value: perlinSettings.amplitude.toString() },
+          { name: "Scale", value: perlinSettings.scale.toString() },
           {
-            name: "Color Variance",
+            name: "Frequency",
             value: perlinSettings.frequency.toString(),
           },
-          { name: "Text Presence", value: perlinSettings.octaves.toString() },
-          { name: "Rarity", value: "Legendary" },
+          { name: "Octaves", value: perlinSettings.octaves.toString() },
+          { name: "Rarity", value: "1/1" },
         ],
         royalties: {
-          decimals: 3,
+          decimals: 4,
           shares: {
-            [walletAddress]: 80,
-            tz1hVLhBhmGEaNspwV898Pnh9WoCtja8ixdQ: 20,
+            [walletAddress]: 500,
+            [CREATOR]: 500,
           },
         },
-        tags: ["nature", "simulation", "installation", "poetry"],
+        tags: ["nature", "simulation", "real-time", "poetry"],
         displayUri: `ipfs://${predictedImageCid}`,
         thumbnailUri: `ipfs://${predictedImageCid}`,
       })
