@@ -3,7 +3,7 @@ import * as lighthouse from "@lighthouse-web3/sdk"
 import html2canvas from "html2canvas"
 import { Button, Form, Container, Modal } from "react-bootstrap"
 import { useWallet } from "./WalletContext" // Import the useWallet hook
-import { import as importIpfsOnlyHash } from "ipfs-only-hash";
+import ipfsOnlyHash from "ipfs-only-hash";
 
 const Html2CanvasUploader = ({ containerRef, perlinSettings }) => {
   const captureRef = useRef(null)
@@ -25,31 +25,42 @@ const Html2CanvasUploader = ({ containerRef, perlinSettings }) => {
   const generateMetadata = async () => {
     const timestamp = new Date().toISOString();
   
-    // Create a temporary placeholder image blob
-    const imageBlob = new Blob(["Temporary Image Data"], { type: "image/png" });
+    try {
+      // Create a placeholder image blob
+      const imageBlob = new Blob(["Temporary Image Data"], { type: "image/png" });
+      const imageArrayBuffer = await imageBlob.arrayBuffer();
+      const imageUint8Array = new Uint8Array(imageArrayBuffer);
   
-    // Calculate expected CID before uploading
-    const predictedImageCid = await importIpfsOnlyHash(imageBlob);
-    const predictedMetadataCid = await importIpfsOnlyHash(
-      JSON.stringify({ name: "Temporary Metadata", description: "Placeholder" })
-    );
+      // Generate IPFS CID for the estimated image
+      const predictedImageCid = await ipfsOnlyHash.of(imageUint8Array);
   
-    const generatedMetadata = {
-      name: `RuidoPerla_NFT_${timestamp}`,
-      description: `This NFT was generated using Perlin Noise on ${timestamp}.`,
-      entropie: Math.random().toFixed(6),
-      image: `ipfs://${predictedImageCid} (Estimated)`,
-      metadataUri: `ipfs://${predictedMetadataCid} (Estimated)`,
-      perlin: {
-        amplitude: perlinSettings.amplitude,
-        scale: perlinSettings.scale,
-        frequency: perlinSettings.frequency,
-        octaves: perlinSettings.octaves,
-      },
-    };
+      // Prepare metadata as a Uint8Array
+      const metadata = JSON.stringify({
+        name: `RuidoPerla_NFT_${timestamp}`,
+        description: `This NFT was generated using Perlin Noise on ${timestamp}.`,
+        entropie: Math.random().toFixed(6),
+        image: `ipfs://${predictedImageCid} (Estimated)`,
+        perlin: {
+          amplitude: perlinSettings.amplitude,
+          scale: perlinSettings.scale,
+          frequency: perlinSettings.frequency,
+          octaves: perlinSettings.octaves,
+        },
+      });
   
-    setMetadataJson(generatedMetadata);
-    setShowMetadataPreview(true);
+      const metadataUint8Array = new TextEncoder().encode(metadata);
+  
+      // Generate IPFS CID for the metadata
+      const predictedMetadataCid = await ipfsOnlyHash.of(metadataUint8Array);
+  
+      const generatedMetadata = JSON.parse(metadata);
+      generatedMetadata.metadataUri = `ipfs://${predictedMetadataCid} (Estimated)`;
+  
+      setMetadataJson(generatedMetadata);
+      setShowMetadataPreview(true);
+    } catch (error) {
+      console.error("❌ Error generating estimated IPFS CID:", error);
+    }
   };
 
   const confirmUpload = async () => {
