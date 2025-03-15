@@ -449,7 +449,7 @@ const PerlinNoise = ({
       </Container>
       <Modal show={showModal} onHide={handleClose} size="lg">
         <Modal.Header closeButton>
-          <Modal.Title>Mint the Pearl?</Modal.Title>
+          <Modal.Title>Mint the Pearl in perlin?</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           {capturedImage && (
