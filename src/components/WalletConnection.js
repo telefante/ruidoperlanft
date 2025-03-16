@@ -18,18 +18,20 @@ const WalletConnection = () => {
       console.error("❌ Beacon Wallet instance is missing.");
       return;
     }
-
+  
     try {
       await beaconWallet.requestPermissions({
-        network: { type: "ghostnet", rpcUrl: "https://ghostnet.ecadinfra.com" },
+        network: { type: "ghostnet", rpcUrl: "https://ghostnet.tezos.ecadinfra.com" },
       });
-
       const address = await beaconWallet.getPKH();
       console.log("✅ Wallet Connected:", address);
-
-      setWalletAddress(address); // Update context
+  
+      setWalletAddress(address);
       setIsConnected(true);
-      console.log("🔄 WalletContext Updated", { address, isConnected: true });
+  
+      // Reconfigure the Tezos instance with the connected wallet
+      tezos.setWalletProvider(beaconWallet);
+      console.log("Tezos signer:", tezos.signer);
     } catch (error) {
       console.error("❌ Wallet connection failed:", error);
     }

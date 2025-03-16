@@ -3,7 +3,7 @@ import React, { createContext, useState, useEffect, useContext } from "react";
 import { BeaconWallet } from "@taquito/beacon-wallet";
 import { TezosToolkit } from "@taquito/taquito";
 
-const RPC_URL = "https://ghostnet.ecadinfra.com";
+const RPC_URL = "https://rpc.tzkt.io/ghostnet";
 
 const WalletContext = createContext();
 
