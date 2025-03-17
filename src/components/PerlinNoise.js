@@ -14,6 +14,7 @@ import { useWallet } from "./WalletContext"
 import NFTVerification from "./NFTVerification"
 // import MintNFTFromIPFS from "./MintNFTFromIPFS" // Import Mint Component
 import MintNFTProcess from "./MintNFTProcess";
+import * as styles from "./PerlinNoise.module.css"
 
 
 const PerlinNoise = ({
@@ -447,9 +448,10 @@ const PerlinNoise = ({
           {currentTextRef.current}
         </div>
       </Container>
+      <div className={styles.modal}>
       <Modal show={showModal} onHide={handleClose} size="lg">
         <Modal.Header closeButton>
-          <Modal.Title>Mint the Pearl in perlin?</Modal.Title>
+          <Modal.Title style={{ fontFamily: "var(--primary-font)", fontWeight: "bold" }}>Mint this Pearl for your collection?</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           {capturedImage && (
@@ -466,6 +468,7 @@ const PerlinNoise = ({
           />
         </Modal.Body>
       </Modal>
+      </div>
     </div>
   )
 }

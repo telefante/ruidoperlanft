@@ -1,0 +1,16 @@
+.modal {
+  font-family: var(--primary-font);
+  font-size: 16px; /* set font size for all text inside modal */
+  color: #333; /* set text color for all text inside modal */
+}
+
+.modal * {
+  box-sizing: border-box; /* set box-sizing for all elements inside modal */
+  margin: 0; /* set margin for all elements inside modal */
+  padding: 0; /* set padding for all elements inside modal */
+}
+
+.button {
+    font-family: var(--primary-font);
+
+}

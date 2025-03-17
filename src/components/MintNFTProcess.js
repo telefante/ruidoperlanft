@@ -271,7 +271,7 @@ const MintNFTProcess = ({ containerRef, capturedImage, perlinSettings }) => {
             </Button>
           )}
 
-          <Button variant="primary" onClick={mintNFT} disabled={minting}>
+          <Button variant="primary" onClick={mintNFT} disabled={minting} >
             {minting ? "Minting..." : "Confirm & Mint"}
           </Button>
 
