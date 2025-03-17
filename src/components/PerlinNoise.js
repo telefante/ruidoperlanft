@@ -487,13 +487,13 @@ const PerlinNoise = ({
           <Modal.Title style={{ fontFamily: "var(--primary-font)", fontWeight: "bold" }}>Mint this Pearl for your collection?</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          {capturedImage && (
+          {/* {capturedImage && (
             <img
               src={capturedImage}
               alt="Captured Scene"
               style={{ width: "100%" }}
             />
-          )}
+          )} */}
           <MintNFTProcess
             containerRef={containerRef}
             capturedImage={capturedImage}
