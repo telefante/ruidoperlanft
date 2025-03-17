@@ -18,13 +18,13 @@ const PerlinControls = ({
   isMobile,
 }) => {
   return (
-    <Draggable>
+    <Draggable handle=".drag-handle" cancel="input, button, select, textarea">
       <div
         className="controls"
         style={{
           position: "absolute",
           top: "10px",
-          right: "10px",
+          right: "10px",  
           backgroundColor: "rgba(0, 0, 0, 0.5)",
           padding: "10px",
           borderRadius: "5px",
@@ -33,6 +33,9 @@ const PerlinControls = ({
           fontFamily: "var(--primary-font)",
         }}
       >
+        <div className="drag-handle" style={{ cursor: "grab", padding: "5px", textAlign: "center", color: "white" }}>
+          Drag Here
+        </div>
         <h2
           style={{
             color: "white",
