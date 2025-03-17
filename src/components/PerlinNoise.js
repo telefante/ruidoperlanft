@@ -8,13 +8,10 @@ import { useStaticQuery, graphql } from "gatsby"
 import { Modal, Button, Row, Container } from "react-bootstrap"
 import PerlinControls from "./PerlinControls"
 import { useWallet } from "./WalletContext"
-// import UploadImageWithWallet from "./UploadImagewithWallet"
-// import UploadImageIpfs from "./UploadImageIpfs"
-// import Html2CanvasUploader from "./Html2CanvasUploader"
+
 import NFTVerification from "./NFTVerification"
-// import MintNFTFromIPFS from "./MintNFTFromIPFS" // Import Mint Component
 import MintNFTProcess from "./MintNFTProcess"
-// import MintNFTProcess from "./MintNFTProcess";
+
 import * as styles from "./PerlinNoise.module.css"
 
 
@@ -352,7 +349,7 @@ const PerlinNoise = ({
     try {
       const capturedCanvas = await html2canvas(containerRef.current, {
         useCORS: true,
-        backgroundColor: null,
+        backgroundColor: "#000000",
         scale: 1,
         logging: true,
         ignoreElements: element => {
@@ -364,6 +361,7 @@ const PerlinNoise = ({
           )
         },
       })
+      const imageData = capturedCanvas.toDataURL("image/png")
       setCapturedImage(imageData)
       setShowModal(true)
 
