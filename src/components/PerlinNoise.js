@@ -13,8 +13,7 @@ import { useWallet } from "./WalletContext"
 // import Html2CanvasUploader from "./Html2CanvasUploader"
 import NFTVerification from "./NFTVerification"
 // import MintNFTFromIPFS from "./MintNFTFromIPFS" // Import Mint Component
-import MintNFTProcess from "./MintNFTProcess";
-
+import MintNFTProcess from "./MintNFTProcess"
 
 const PerlinNoise = ({
   showControls = true,
@@ -75,6 +74,11 @@ const PerlinNoise = ({
   const [textOpacity, setTextOpacity] = useState(1)
   const [capturedImage, setCapturedImage] = useState(null)
   const [metadataCid, setMetadataCid] = useState(null) // Store IPFS CID
+  const [mintResult, setMintResult] = useState(null)
+
+  const handleMintComplete = result => {
+    setMintResult(result)
+  }
   const [showModal, setShowModal] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
 
@@ -447,25 +451,33 @@ const PerlinNoise = ({
           {currentTextRef.current}
         </div>
       </Container>
-      <Modal show={showModal} onHide={handleClose} size="lg">
-        <Modal.Header closeButton>
-          <Modal.Title>Mint the Pearl in perlin?</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          {capturedImage && (
-            <img
-              src={capturedImage}
-              alt="Captured Scene"
-              style={{ width: "100%" }}
-            />
-          )}
-          <MintNFTProcess
-            containerRef={containerRef}
-            capturedImage={capturedImage}
-            perlinSettings={perlinSettings}
-          />
-        </Modal.Body>
-      </Modal>
+             <Modal show={showModal} onHide={handleClose} size="lg">
+         <Modal.Header closeButton>
+           <Modal.Title>Mint the Pearl in perlin?</Modal.Title>
+         </Modal.Header>
+         <Modal.Body>
+           {mintResult ? (
+             <div>
+               <h5>NFT Minted Successfully!</h5>
+               <p><strong>Transaction:</strong> {mintResult.tx}</p>
+               <p><strong>Metadata CID:</strong> {mintResult.metadataCid}</p>
+               <Button variant="secondary" onClick={handleClose}>Close</Button>
+             </div>
+           ) : (
+             <div>
+               {capturedImage && (
+                  <MintNFTProcess
+                  containerRef={containerRef}
+                  capturedImage={capturedImage}
+                  perlinSettings={perlinSettings}
+                  onMintComplete={handleMintComplete}
+                />
+               )}
+              
+             </div>
+           )}
+         </Modal.Body>
+       </Modal>
     </div>
   )
 }
