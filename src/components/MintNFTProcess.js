@@ -6,7 +6,7 @@ import { TezosToolkit, MichelsonMap } from "@taquito/taquito"
 import { useWallet } from "./WalletContext"
 import ipfsOnlyHash from "ipfs-only-hash"
 
-const MintNFTProcess = ({ containerRef, perlinSettings }) => {
+const MintNFTProcess = ({ containerRef, capturedImage, perlinSettings }) => {
   const [uploading, setUploading] = useState(false)
   const [minting, setMinting] = useState(false)
   const [showModal, setShowModal] = useState(false)
@@ -15,18 +15,19 @@ const MintNFTProcess = ({ containerRef, perlinSettings }) => {
   const [metadataJson, setMetadataJson] = useState(null)
   const [showMinting, setShowMinting] = useState(false)
   const [mintSuccess, setMintSuccess] = useState(false)
-  const [capturedImage, setCapturedImage] = useState(null)
+  // const [capturedImage, setCapturedImage] = useState(null)
 
-  
-  const { isConnected, walletAddress, beaconWallet, tezos } = useWallet();
+  const { isConnected, walletAddress, beaconWallet, tezos } = useWallet()
   const LIGHTHOUSE_API_KEY = process.env.GATSBY_LIGHTHOUSE_API_KEY
   const CONTRACT = process.env.GATSBY_TEZOS_REALTIME_CONTRACT
 
   useEffect(() => {
     if (ipfsUrl) {
-      console.log(`https://gateway.lighthouse.storage/ipfs/${ipfsUrl.split("ipfs://")[1]}`);
+      console.log(
+        `https://gateway.lighthouse.storage/ipfs/${ipfsUrl.split("ipfs://")[1]}`
+      )
     }
-  }, [ipfsUrl]);
+  }, [ipfsUrl])
 
   const generateMetadata = async () => {
     setShowModal(true)
@@ -80,15 +81,12 @@ const MintNFTProcess = ({ containerRef, perlinSettings }) => {
     setUploading(true)
 
     try {
-      const canvas = await html2canvas(containerRef.current, {
-        useCORS: true,
-        backgroundColor: null,
-        scale: 1,
-      })
+      if (!capturedImage) {
+        throw new Error("No captured image provided");
+      }
+      const response = await fetch(capturedImage);
+      const imageBlob = await response.blob();
 
-      const imageBlob = await new Promise(resolve =>
-        canvas.toBlob(resolve, "image/png")
-      )
       const file = new File([imageBlob], `RuidoPerla-${Date.now()}.png`, {
         type: "image/png",
       })
@@ -97,7 +95,7 @@ const MintNFTProcess = ({ containerRef, perlinSettings }) => {
       const imageCid = fileResponse.data.Hash
       console.log("Image CID:", imageCid)
       setIpfsUrl(`ipfs://${imageCid}`)
-   
+
       const metadataBlob = new Blob([JSON.stringify(metadataJson)], {
         type: "application/json",
       })
@@ -120,57 +118,54 @@ const MintNFTProcess = ({ containerRef, perlinSettings }) => {
     }
   }
 
-
   const mintNFT = async () => {
     if (!isConnected || !walletAddress || !beaconWallet) {
-      alert("Please connect your wallet first!");
-      return;
+      alert("Please connect your wallet first!")
+      return
     }
     if (!metadataUrl) {
-      alert("Metadata CID is missing!");
-      return;
+      alert("Metadata CID is missing!")
+      return
     }
 
-    setMinting(true);
+    setMinting(true)
 
     try {
       // Ensure wallet permissions are granted
-      let activeAccount = await beaconWallet.client.getActiveAccount();
+      let activeAccount = await beaconWallet.client.getActiveAccount()
       if (!activeAccount) {
-        console.log("🔑 Requesting Wallet Permissions...");
-        await beaconWallet.requestPermissions({ network: { type: "ghostnet" } });
-        activeAccount = await beaconWallet.client.getActiveAccount();
+        console.log("🔑 Requesting Wallet Permissions...")
+        await beaconWallet.requestPermissions({ network: { type: "ghostnet" } })
+        activeAccount = await beaconWallet.client.getActiveAccount()
         if (!activeAccount) {
-          alert("Wallet not connected. Please try again.");
-          setMinting(false);
-          return;
+          alert("Wallet not connected. Please try again.")
+          setMinting(false)
+          return
         }
       }
 
-
       // Re-set the wallet provider to ensure signer is configured
-    // tezos.setWalletProvider(beaconWallet);
+      // tezos.setWalletProvider(beaconWallet);
 
-
-    // Re-set the provider just in case
-tezos.setWalletProvider(beaconWallet);
-console.log("Active Account:", activeAccount);
-console.log("Tezos signer:", tezos.signer);
+      // Re-set the provider just in case
+      tezos.setWalletProvider(beaconWallet)
+      console.log("Active Account:", activeAccount)
+      console.log("Tezos signer:", tezos.signer)
 
       // Use the shared Tezos instance (which already has the wallet provider configured)
-      console.log(`📜 Fetching contract at: ${CONTRACT}`);
+      console.log(`📜 Fetching contract at: ${CONTRACT}`)
       // const contract = await tezos.contract.at(CONTRACT);
-      const contract = await tezos.wallet.at(CONTRACT);
+      const contract = await tezos.wallet.at(CONTRACT)
 
-      console.log("✅ Contract successfully fetched.");
+      console.log("✅ Contract successfully fetched.")
 
-      const tokenId = Math.floor(Math.random() * 100000);
+      const tokenId = Math.floor(Math.random() * 100000)
       const safePerlinSettings = perlinSettings || {
         amplitude: 0,
         scale: 0,
         frequency: 0,
         octaves: 0,
-      };
+      }
 
       // Construct metadata following TZIP-12 schema
       const metadataContent = {
@@ -186,56 +181,56 @@ console.log("Tezos signer:", tezos.signer);
         ],
         displayUri: `${ipfsUrl}`,
         thumbnailUri: `${ipfsUrl}`,
-      };
+      }
 
-      const metadataMap = new MichelsonMap();
+      const metadataMap = new MichelsonMap()
       metadataMap.set(
         "",
         Buffer.from(JSON.stringify(metadataContent), "utf8").toString("hex")
-      );
+      )
 
       console.log(
         `🔹 Creating NFT with Metadata: ${JSON.stringify(metadataContent)}`
-      );
+      )
       console.log(
         "📜 Available Contract Methods:",
         Object.keys(contract.methods)
-      );
+      )
 
       try {
-        console.log("📤 Sending create_token transaction...");
+        console.log("📤 Sending create_token transaction...")
         const createOp = await contract.methods
           .create_token(tokenId, metadataMap)
-          .send();
-        await createOp.confirmation(1);
+          .send()
+        await createOp.confirmation(1)
         // console.log(`✅ Token ${tokenId} Created! TX: ${createOp.hash}`);
-        console.log(`✅ Token ${tokenId} Created! TX: ${createOp.opHash}`);
+        console.log(`✅ Token ${tokenId} Created! TX: ${createOp.opHash}`)
       } catch (error) {
-        console.error("❌ Error in create_token:", error.message || error);
+        console.error("❌ Error in create_token:", error.message || error)
         alert(
           `Error: ${
             error.message || "Unknown error occurred while minting NFT."
           }`
-        );
-        setMinting(false);
-        return;
+        )
+        setMinting(false)
+        return
       }
 
-      console.log("📤 Sending mint_tokens transaction...");
+      console.log("📤 Sending mint_tokens transaction...")
       const mintOp = await contract.methods
         .mint_tokens([{ owner: walletAddress, token_id: tokenId, amount: 1 }])
-        .send();
-      await mintOp.confirmation(1);
+        .send()
+      await mintOp.confirmation(1)
       // console.log(`✅ NFT Minted to ${walletAddress}! TX: ${mintOp.hash}`);
-      console.log(`✅ NFT Minted to ${walletAddress}! TX: ${mintOp.opHash}`);
-      setMintSuccess(true);
+      console.log(`✅ NFT Minted to ${walletAddress}! TX: ${mintOp.opHash}`)
+      setMintSuccess(true)
     } catch (error) {
-      console.error("❌ Error minting NFT:", error);
-      alert("Failed to mint NFT.");
+      console.error("❌ Error minting NFT:", error)
+      alert("Failed to mint NFT.")
     } finally {
-      setMinting(false);
+      setMinting(false)
     }
-  };
+  }
 
   return (
     <Container>
@@ -276,9 +271,9 @@ console.log("Tezos signer:", tezos.signer);
             </Button>
           )}
 
-<Button variant="primary" onClick={mintNFT} disabled={minting}>
-              {minting ? "Minting..." : "Confirm & Mint"}
-            </Button>
+          <Button variant="primary" onClick={mintNFT} disabled={minting}>
+            {minting ? "Minting..." : "Confirm & Mint"}
+          </Button>
 
           {mintSuccess && (
             <p style={{ color: "green" }}>✅ NFT Minted Successfully!</p>
@@ -286,7 +281,7 @@ console.log("Tezos signer:", tezos.signer);
         </Modal.Body>
       </Modal>
     </Container>
-  );
-};
+  )
+}
 
-export default MintNFTProcess;
+export default MintNFTProcess
