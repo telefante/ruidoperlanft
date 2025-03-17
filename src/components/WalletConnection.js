@@ -1,21 +1,16 @@
 import React, { useEffect } from "react";
-import { TezosToolkit } from "@taquito/taquito";
 import { Button } from "react-bootstrap";
 import { useWallet } from "./WalletContext"; // Import WalletContext
 
 const WalletConnection = () => {
-  const { setWalletAddress, setIsConnected, isConnected, beaconWallet } =
-    useWallet();
+  const { setWalletAddress, setIsConnected, isConnected, beaconWallet, tezos } = useWallet();
 
-  const RPC_URL = "https://ghostnet.ecadinfra.com"; // Correct Tezos RPC URL
-  // for mainnet https://mainnet.tezos.ecadinfra.com/
-  const NETWORK_TYPE = process.env.GATSBY_NETWORK_TYPE; // Correct Tezos network type
-  console.log("TYPE:", NETWORK_TYPE);
-  const tezos = new TezosToolkit(RPC_URL);
-
+  // (Optional) If you still want to set the wallet provider here, ensure tezos is defined.
   useEffect(() => {
-    tezos.setWalletProvider(beaconWallet);
-  }, [beaconWallet, tezos]);
+    if (tezos && beaconWallet) {
+      tezos.setWalletProvider(beaconWallet);
+    }
+  }, [tezos, beaconWallet]);
 
   const connectWallet = async () => {
     console.log("🔄 Connecting wallet...");
@@ -23,22 +18,20 @@ const WalletConnection = () => {
       console.error("❌ Beacon Wallet instance is missing.");
       return;
     }
-
+  
     try {
       await beaconWallet.requestPermissions({
-        network: { type: "ghostnet", rpcUrl: RPC_URL },
+        network: { type: "ghostnet", rpcUrl: "https://ghostnet.tezos.ecadinfra.com" },
       });
-
       const address = await beaconWallet.getPKH();
       console.log("✅ Wallet Connected:", address);
-
-      setWalletAddress(address); // 🚀 Ensure Context Updates
+  
+      setWalletAddress(address);
       setIsConnected(true);
-
-      console.log("🔄 WalletContext Updated in WalletConnection.js", {
-        address,
-        isConnected: true,
-      });
+  
+      // Reconfigure the Tezos instance with the connected wallet
+      tezos.setWalletProvider(beaconWallet);
+      console.log("Tezos signer:", tezos.signer);
     } catch (error) {
       console.error("❌ Wallet connection failed:", error);
     }
@@ -64,11 +57,11 @@ const WalletConnection = () => {
   return (
     <div className="wallet-connection">
       {isConnected ? (
-        <Button variant="danger"  style={{fontFamily: "var(--primary-font)"}} onClick={disconnectWallet} >
+        <Button variant="danger" style={{ fontFamily: "var(--primary-font)" }} onClick={disconnectWallet}>
           Disconnect Wallet
         </Button>
       ) : (
-        <Button variant="primary"  style={{fontFamily: "var(--primary-font)"}} onClick={connectWallet}>
+        <Button variant="primary" style={{ fontFamily: "var(--primary-font)" }} onClick={connectWallet}>
           Connect Wallet
         </Button>
       )}

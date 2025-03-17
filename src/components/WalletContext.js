@@ -1,5 +1,9 @@
+// WalletContext.js
 import React, { createContext, useState, useEffect, useContext } from "react";
 import { BeaconWallet } from "@taquito/beacon-wallet";
+import { TezosToolkit } from "@taquito/taquito";
+
+const RPC_URL = "https://rpc.tzkt.io/ghostnet";
 
 const WalletContext = createContext();
 
@@ -7,6 +11,13 @@ const WalletProvider = ({ children }) => {
   const [walletAddress, setWalletAddress] = useState(null);
   const [isConnected, setIsConnected] = useState(false);
   const [beaconWallet, setBeaconWallet] = useState(null);
+  const [tezos, setTezos] = useState(null);
+
+  // Create TezosToolkit instance on component mount
+  useEffect(() => {
+    const tezosToolkit = new TezosToolkit(RPC_URL);
+    setTezos(tezosToolkit);
+  }, []);
 
   useEffect(() => {
     const initBeaconWallet = async () => {
@@ -16,6 +27,11 @@ const WalletProvider = ({ children }) => {
           preferredNetwork: "ghostnet",
         });
         setBeaconWallet(wallet);
+
+        // Once TezosToolkit is available, configure it with the wallet provider
+        if (tezos) {
+          tezos.setWalletProvider(wallet);
+        }
 
         // Fetch active wallet session if available
         const activeAccount = await wallet.client.getActiveAccount();
@@ -30,19 +46,17 @@ const WalletProvider = ({ children }) => {
     };
 
     initBeaconWallet();
-  }, []);
+  }, [tezos]);
 
   const connectWallet = async () => {
     if (!beaconWallet) {
       console.error("❌ Beacon Wallet instance is missing.");
       return;
     }
-
     try {
       await beaconWallet.requestPermissions({
         network: { type: "ghostnet" },
       });
-
       const address = await beaconWallet.getPKH();
       setWalletAddress(address);
       setIsConnected(true);
@@ -54,7 +68,6 @@ const WalletProvider = ({ children }) => {
 
   const disconnectWallet = async () => {
     if (!beaconWallet) return;
-
     try {
       await beaconWallet.clearActiveAccount();
       setWalletAddress(null);
@@ -71,6 +84,7 @@ const WalletProvider = ({ children }) => {
     isConnected,
     setIsConnected,
     beaconWallet,
+    tezos, // share the TezosToolkit instance
     connectWallet,
     disconnectWallet,
   };
