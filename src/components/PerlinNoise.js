@@ -13,7 +13,10 @@ import { useWallet } from "./WalletContext"
 // import Html2CanvasUploader from "./Html2CanvasUploader"
 import NFTVerification from "./NFTVerification"
 // import MintNFTFromIPFS from "./MintNFTFromIPFS" // Import Mint Component
-import MintNFTProcess from "./MintNFTProcess"
+
+import MintNFTProcess from "./MintNFTProcess";
+import * as styles from "./PerlinNoise.module.css"
+
 
 const PerlinNoise = ({
   showControls = true,
@@ -451,6 +454,7 @@ const PerlinNoise = ({
           {currentTextRef.current}
         </div>
       </Container>
+
              <Modal show={showModal} onHide={handleClose} size="lg">
          <Modal.Header closeButton>
            <Modal.Title>Mint the Pearl in perlin?</Modal.Title>
@@ -478,6 +482,7 @@ const PerlinNoise = ({
            )}
          </Modal.Body>
        </Modal>
+
     </div>
   )
 }

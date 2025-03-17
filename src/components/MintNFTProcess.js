@@ -20,74 +20,68 @@ const MintNFTProcess = ({ containerRef, perlinSettings, capturedImage }) => {
   const LIGHTHOUSE_API_KEY = process.env.GATSBY_LIGHTHOUSE_API_KEY
   const CONTRACT = process.env.GATSBY_TEZOS_REALTIME_CONTRACT
 
-  useEffect(() => {
-    if (ipfsUrl) {
-      console.log(
-        `https://gateway.lighthouse.storage/ipfs/${ipfsUrl.split("ipfs://")[1]}`
-      )
-    }
-  }, [ipfsUrl])
+  // useEffect(() => {
+  //   if (ipfsUrl) {
+  //     console.log(
+  //       `https://gateway.lighthouse.storage/ipfs/${ipfsUrl.split("ipfs://")[1]}`
+  //     )
+  //   }
+  // }, [ipfsUrl])
 
-useEffect(() => {
-  generateMetadata();
-}, []);
-
-
-  const generateMetadata = async () => {
-    setShowModal(true)
-    const timestamp = new Date().toISOString()
-    const safePerlinSettings = perlinSettings || {
-      amplitude: 0,
-      scale: 0,
-      frequency: 0,
-      octaves: 0,
-    }
+  const startMintingProcess = async () => {
+    console.log("🚀 Starting Minting Process...")
+    setMinting(true) // Start minting process
 
     try {
-      const imageBlob = new Blob(["Temporary Image Data"], {
-        type: "image/png",
-      })
-      const imageArrayBuffer = await imageBlob.arrayBuffer()
-      const imageUint8Array = new Uint8Array(imageArrayBuffer)
-      const predictedImageCid = await ipfsOnlyHash.of(imageUint8Array)
+      const imageIpfsUrl = await uploadImageToIPFS() // ✅ Wait for image upload
 
-      const metadata = {
-        artifactUri: `ipfs://${predictedImageCid}`,
-        name: `RuidoPerla#${Math.floor(Math.random() * 1000)
-          .toString()
-          .padStart(3, "0")}`,
-        description: `This NFT captures the evolving Perlin noise landscape.`,
-        minter: walletAddress,
-        attributes: [
-          { name: "Amplitude", value: safePerlinSettings.amplitude.toString() },
-          { name: "Scale", value: safePerlinSettings.scale.toString() },
-          { name: "Frequency", value: safePerlinSettings.frequency.toString() },
-          { name: "Octaves", value: safePerlinSettings.octaves.toString() },
-        ],
-        displayUri: `ipfs://${predictedImageCid}`,
-        thumbnailUri: `ipfs://${predictedImageCid}`,
+      if (!imageIpfsUrl) {
+        console.error("❌ Image upload failed! Stopping mint process.")
+        setMinting(false)
+        return
       }
 
-      const metadataUint8Array = new TextEncoder().encode(
-        JSON.stringify(metadata)
-      )
-      const predictedMetadataCid = await ipfsOnlyHash.of(metadataUint8Array)
-
-      setMetadataJson(metadata)
-      setIpfsUrl(`ipfs://${predictedImageCid}`)
-      setMetadataUrl(`ipfs://${predictedMetadataCid}`)
+      await uploadMetadataToIPFS(imageIpfsUrl) // ✅ Proceed to metadata upload
     } catch (error) {
-      console.error("❌ Error generating estimated IPFS CID:", error)
+      console.error("❌ Error in minting process:", error)
+      setMinting(false)
     }
   }
 
-  const confirmUpload = async () => {
+  useEffect(() => {
+    if (metadataUrl && ipfsUrl && minting) {
+      // Ensuring both URLs are available
+      console.log("🚀 Both URLs are set. Initiating mint...")
+      console.log(
+        `
+        Image Gateway https://gateway.lighthouse.storage/ipfs/${
+          ipfsUrl.split("ipfs://")[1]
+        }`
+      )
+      console.log(
+        `Metadata Gateway https://gateway.lighthouse.storage/ipfs/${
+          metadataUrl.split("ipfs://")[1]
+        }`
+      )
+      mintNFT()
+    }
+  }, [metadataUrl, ipfsUrl, minting]) // Runs only when metadataUrl or ipfsUrl changes
+
+  // useEffect(() => {
+  //   if (!ipfsUrl) {
+  //     uploadImageToIPFS();
+  //   }
+  // }, []);
+
+  const uploadImageToIPFS = async () => {
+    console.log("📤 Uploading Image to IPFS...")
     setUploading(true)
 
     try {
       if (!capturedImage) {
         throw new Error("No captured image provided")
       }
+
       const response = await fetch(capturedImage)
       const imageBlob = await response.blob()
       const file = new File([imageBlob], `RuidoPerla-${Date.now()}.png`, {
@@ -95,159 +89,144 @@ useEffect(() => {
       })
 
       const fileResponse = await lighthouse.upload([file], LIGHTHOUSE_API_KEY)
-      const imageCid = fileResponse.data.Hash
-      console.log("Image CID:", imageCid)
-      setIpfsUrl(`ipfs://${imageCid}`)
+      if (fileResponse.data && fileResponse.data.Hash) {
+        const imageCid = fileResponse.data.Hash
+        const ipfsImageUrl = `ipfs://${imageCid}`
+        setIpfsUrl(ipfsImageUrl)
+        console.log(
+          `✅ Image Uploaded: https://gateway.lighthouse.storage/ipfs/${ipfsImageUrl.split("ipfs://")[1]}`
+        )
 
-      const metadataBlob = new Blob([JSON.stringify(metadataJson)], {
-        type: "application/json",
-      })
-      const metadataFile = new File([metadataBlob], "metadata.json", {
-        type: "application/json",
-      })
-
-      const metadataResponse = await lighthouse.upload(
-        [metadataFile],
-        LIGHTHOUSE_API_KEY
-      )
-      const metadataCid = metadataResponse.data.Hash
-      setMetadataUrl(`ipfs://${metadataCid}`)
-
-      // setShowMinting(true)
+        return ipfsImageUrl // ✅ Return image URL for metadata upload
+      } else {
+        throw new Error("Image upload failed.")
+      }
     } catch (error) {
-      console.error("❌ Error uploading files to IPFS:", error)
+      console.error("❌ Error uploading image:", error)
+      setMinting(false)
+      return null
     } finally {
       setUploading(false)
-      setMinting(true)
-      mintNFT()
     }
   }
-
-  const mintNFT = async () => {
-    if (!isConnected || !walletAddress || !beaconWallet) {
-      alert("Please connect your wallet first!")
-      return
-    }
-    if (!metadataUrl) {
-      alert("Metadata CID is missing!")
-      return
-    }
-
-    setMinting(true)
-
+  const uploadMetadataToIPFS = async (imageIpfsUrl) => {
+    console.log("📤 Uploading Metadata to IPFS...");
+    setUploading(true);
+  
     try {
-      // Ensure wallet permissions are granted
-      let activeAccount = await beaconWallet.client.getActiveAccount()
-      if (!activeAccount) {
-        console.log("🔑 Requesting Wallet Permissions...")
-        await beaconWallet.requestPermissions({ network: { type: "ghostnet" } })
-        activeAccount = await beaconWallet.client.getActiveAccount()
-        if (!activeAccount) {
-          alert("Wallet not connected. Please try again.")
-          setMinting(false)
-          return
-        }
-      }
-
-      // Re-set the wallet provider to ensure signer is configured
-      // tezos.setWalletProvider(beaconWallet);
-
-      // Re-set the provider just in case
-      tezos.setWalletProvider(beaconWallet)
-      console.log("Active Account:", activeAccount)
-      console.log("Tezos signer:", tezos.signer)
-
-      // Use the shared Tezos instance (which already has the wallet provider configured)
-      console.log(`📜 Fetching contract at: ${CONTRACT}`)
-      // const contract = await tezos.contract.at(CONTRACT);
-      const contract = await tezos.wallet.at(CONTRACT)
-
-      console.log("✅ Contract successfully fetched.")
-
-      const tokenId = Math.floor(Math.random() * 100000)
-      const safePerlinSettings = perlinSettings || {
-        amplitude: 0,
-        scale: 0,
-        frequency: 0,
-        octaves: 0,
-      }
-
-      // Construct metadata following TZIP-12 schema
-      const metadataContent = {
-        artifactUri: `${ipfsUrl}`,
-        name: `RuidoPerla#${String(tokenId).padStart(3, "0")}`,
-        description: `This NFT captures the evolving Perlin noise landscape.`,
+      const tokenId = Math.floor(Math.random() * 100000);
+      const formattedTokenId = String(tokenId).padStart(3, "0");
+      const currentDate = new Date().toISOString();
+  
+      const metadataJson = {
+        date: currentDate,
+        name: `RuidoPerla#${formattedTokenId}`,
+        tags: ["Generative Art", "Algorithmic", "NFT", "Tezos"],
         minter: walletAddress,
-        attributes: [
-          { name: "Amplitude", value: safePerlinSettings.amplitude.toString() },
-          { name: "Scale", value: safePerlinSettings.scale.toString() },
-          { name: "Frequency", value: safePerlinSettings.frequency.toString() },
-          { name: "Octaves", value: safePerlinSettings.octaves.toString() },
+        rights: "No License / All Rights Reserved",
+        symbol: "RPNFT",
+        formats: [
+          { uri: imageIpfsUrl, mimeType: "image/png" },
+          { uri: imageIpfsUrl.replace(".png", ".jpg"), mimeType: "image/jpeg" },
+          { uri: imageIpfsUrl.replace(".png", ".gif"), mimeType: "image/gif" },
         ],
-        displayUri: `${ipfsUrl}`,
-        thumbnailUri: `${ipfsUrl}`,
+        creators: [walletAddress],
+        decimals: "0",
+        royalties: { shares: { [walletAddress]: 1000 }, decimals: 4 },
+        attributes: [
+          { name: "Amplitude", value: perlinSettings.amplitude.toString() },
+          { name: "Scale", value: perlinSettings.scale.toString() },
+          { name: "Frequency", value: perlinSettings.frequency.toString() },
+          { name: "Octaves", value: perlinSettings.octaves.toString() },
+          { name: "Entropy", value: (Math.random() * 10).toFixed(6) },
+        ],
+        displayUri: imageIpfsUrl.replace(".png", ".jpg"),
+        artifactUri: imageIpfsUrl,
+        description: `With Entropy ${(Math.random() * 10).toFixed(6)}, it balances on the edge of dissolution.`,
+        mintingTool: "http://ruidoperlanft.netlify.com",
+        thumbnailUri: imageIpfsUrl.replace(".png", ".jpg"),
+      };
+  
+      const metadataBlob = new Blob([JSON.stringify(metadataJson)], {
+        type: "application/json",
+      });
+      const metadataFile = new File([metadataBlob], `RuidoPerla${formattedTokenId}.json`, {
+        type: "application/json",
+      });
+  
+      const metadataResponse = await lighthouse.upload([metadataFile], LIGHTHOUSE_API_KEY);
+  
+      if (metadataResponse.data && metadataResponse.data.Hash) {
+        const metadataCid = metadataResponse.data.Hash;
+        const IPFS_CID = `ipfs://${metadataCid}`;
+  
+        console.log("✅ Metadata Uploaded:", IPFS_CID);
+  
+        // ✅ Pass both URLs to mintNFT directly
+        mintNFT(tokenId, IPFS_CID, imageIpfsUrl);
+      } else {
+        throw new Error("Metadata upload failed.");
       }
-
-      const metadataMap = new MichelsonMap()
-      metadataMap.set(
-        "",
-        Buffer.from(JSON.stringify(metadataContent), "utf8").toString("hex")
-      )
-
-      console.log(
-        `🔹 Creating NFT with Metadata: ${JSON.stringify(metadataContent)}`
-      )
-      console.log(
-        "📜 Available Contract Methods:",
-        Object.keys(contract.methods)
-      )
-
-      try {
-        console.log("📤 Sending create_token transaction...")
-        const createOp = await contract.methods
-          .create_token(tokenId, metadataMap)
-          .send()
-        await createOp.confirmation(1)
-        // console.log(`✅ Token ${tokenId} Created! TX: ${createOp.hash}`);
-        console.log(`✅ Token ${tokenId} Created! TX: ${createOp.opHash}`)
-      } catch (error) {
-        console.error("❌ Error in create_token:", error.message || error)
-        alert(
-          `Error: ${
-            error.message || "Unknown error occurred while minting NFT."
-          }`
-        )
-        setMinting(false)
-        return
-      }
-
-      console.log("📤 Sending mint_tokens transaction...")
+    } catch (error) {
+      console.error("❌ Error uploading metadata:", error);
+      setMinting(false);
+    } finally {
+      setUploading(false);
+    }
+  };
+  const mintNFT = async (tokenId, metadataIpfsUrl, imageIpfsUrl) => {
+    console.log("🚀 Minting NFT...");
+  
+    if (!isConnected || !walletAddress || !beaconWallet) {
+      alert("Please connect your wallet first!");
+      setMinting(false);
+      return;
+    }
+  
+    console.log("Metadata URL before minting:", metadataIpfsUrl);
+    console.log("Image URL before minting:", imageIpfsUrl);
+  
+    if (!metadataIpfsUrl || !imageIpfsUrl) {
+      alert("IPFS upload incomplete! Make sure both image and metadata are uploaded.");
+      setMinting(false);
+      return;
+    }
+  
+    try {
+      const contract = await tezos.wallet.at(CONTRACT);
+      console.log("✅ Contract successfully fetched.");
+  
+      console.log("🔹 Corrected IPFS Metadata URI:", metadataIpfsUrl);
+  
+      // Create a MichelsonMap with the correct metadata format
+      const metadata = new MichelsonMap();
+      metadata.set("", Buffer.from(`${metadataIpfsUrl}`).toString("hex")); // Store as hex
+  
+      console.log("Metadata:", metadata);
+  
+      console.log("📤 Sending create_token transaction...");
+      const createOp = await contract.methods.create_token(tokenId, metadata).send();
+      await createOp.confirmation(1);
+      console.log(`✅ Token ${tokenId} Created! TX: ${createOp.opHash}`);
+  
+      console.log("📤 Sending mint_tokens transaction...");
       const mintOp = await contract.methods
         .mint_tokens([{ owner: walletAddress, token_id: tokenId, amount: 1 }])
-        .send()
-      await mintOp.confirmation(1)
-      // console.log(`✅ NFT Minted to ${walletAddress}! TX: ${mintOp.hash}`);
-      console.log(`✅ NFT Minted to ${walletAddress}! TX: ${mintOp.opHash}`)
-      setMintSuccess(true)
+        .send();
+      await mintOp.confirmation(1);
+      console.log(`✅ NFT Minted to ${walletAddress}! TX: ${mintOp.opHash}`);
+  
+      setMintSuccess(true);
     } catch (error) {
-      console.error("❌ Error minting NFT:", error)
-      alert("Failed to mint NFT.")
+      console.error("❌ Error minting NFT:", error);
+      alert("Failed to mint NFT.");
     } finally {
-      setMinting(false)
+      setMinting(false);
     }
-  }
+  };
 
   return (
     <Container>
-      {/* <Button variant="primary" onClick={generateMetadata} disabled={uploading}>
-        {uploading ? "Processing..." : "Preview Minting Process"}
-      </Button> */}
-
-      {/* <Modal show={showModal} onHide={() => setShowModal(false)} size="lg"> */}
-      {/* <Modal.Header closeButton> */}
-      {/* <Modal.Title>Mint the Pearl?</Modal.Title> */}
-      {/* </Modal.Header> */}
-      {/* <Modal.Body> */}
       {capturedImage && (
         <img
           src={capturedImage}
@@ -266,25 +245,17 @@ useEffect(() => {
         <strong>Estimated Metadata CID:</strong> {metadataUrl}
       </p>
 
-      {/* {!showMinting ? (
-        <Button variant="primary" onClick={confirmUpload}>
-          Confirm & Upload to IPFS
-        </Button>
-      ) : (
-        <Button variant="primary" onClick={mintNFT} disabled={minting}>
-          {minting ? "Minting..." : "Confirm & Mint"}
-        </Button>
-      )} */}
-
-      <Button variant="primary" onClick={confirmUpload} disabled={minting}>
+      <Button
+        variant="primary"
+        onClick={startMintingProcess}
+        disabled={minting}
+      >
         {minting ? "Minting..." : "Mint this!"}
       </Button>
 
       {mintSuccess && (
         <p style={{ color: "green" }}>✅ NFT Minted Successfully!</p>
       )}
-      {/* </Modal.Body> */}
-      {/* </Modal> */}
     </Container>
   )
 }
