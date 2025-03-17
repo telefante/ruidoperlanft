@@ -28,7 +28,7 @@ const PerlinControls = ({
           backgroundColor: "rgba(0, 0, 0, 0.5)",
           padding: "10px",
           borderRadius: "5px",
-          zIndex: 1000,
+          zIndex: 2000,
           width: isMobile ? "90%" : "20%",
           fontFamily: "var(--primary-font)",
         }}
