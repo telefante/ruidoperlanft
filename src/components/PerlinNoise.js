@@ -353,10 +353,17 @@ const PerlinNoise = ({
       const capturedCanvas = await html2canvas(containerRef.current, {
         useCORS: true,
         backgroundColor: null,
-        scale: 2,
+        scale: 1,
         logging: true,
+        ignoreElements: element => {
+          return (
+            element.classList.contains("controls") ||
+            element.id === "communication" ||
+            element.id === "click-and-drag-instruction"
+          
+          )
+        },
       })
-      const imageData = capturedCanvas.toDataURL("image/png")
       setCapturedImage(imageData)
       setShowModal(true)
 
@@ -426,6 +433,8 @@ const PerlinNoise = ({
               zIndex: 1000,
               textShadow: "2px 2px 4px rgba(0,0,0,0.5)",
             }}
+            id="click-and-drag-instruction"
+            
           >
             Click and drag to move the geometry!
           </div>
