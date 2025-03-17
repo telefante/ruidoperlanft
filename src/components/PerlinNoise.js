@@ -13,8 +13,8 @@ import { useWallet } from "./WalletContext"
 // import Html2CanvasUploader from "./Html2CanvasUploader"
 import NFTVerification from "./NFTVerification"
 // import MintNFTFromIPFS from "./MintNFTFromIPFS" // Import Mint Component
-
-import MintNFTProcess from "./MintNFTProcess";
+import MintNFTProcess from "./MintNFTProcess"
+// import MintNFTProcess from "./MintNFTProcess";
 import * as styles from "./PerlinNoise.module.css"
 
 
@@ -454,8 +454,7 @@ const PerlinNoise = ({
           {currentTextRef.current}
         </div>
       </Container>
-
-             <Modal show={showModal} onHide={handleClose} size="lg">
+             {/* <Modal show={showModal} onHide={handleClose} size="lg">
          <Modal.Header closeButton>
            <Modal.Title>Mint the Pearl in perlin?</Modal.Title>
          </Modal.Header>
@@ -481,8 +480,28 @@ const PerlinNoise = ({
              </div>
            )}
          </Modal.Body>
-       </Modal>
-
+       </Modal> */}
+      <div className={styles.modal}>
+      <Modal show={showModal} onHide={handleClose} size="lg">
+        <Modal.Header closeButton>
+          <Modal.Title style={{ fontFamily: "var(--primary-font)", fontWeight: "bold" }}>Mint this Pearl for your collection?</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {capturedImage && (
+            <img
+              src={capturedImage}
+              alt="Captured Scene"
+              style={{ width: "100%" }}
+            />
+          )}
+          <MintNFTProcess
+            containerRef={containerRef}
+            capturedImage={capturedImage}
+            perlinSettings={perlinSettings}
+          />
+        </Modal.Body>
+      </Modal>
+      </div>
     </div>
   )
 }
