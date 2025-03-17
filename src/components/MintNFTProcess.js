@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react"
+import React, { useRef, useState, useEffect } from "react"
 import * as lighthouse from "@lighthouse-web3/sdk"
 import html2canvas from "html2canvas"
 import { Button, Container, Modal } from "react-bootstrap"
@@ -19,8 +19,14 @@ const MintNFTProcess = ({ containerRef, perlinSettings }) => {
 
   
   const { isConnected, walletAddress, beaconWallet, tezos } = useWallet();
-  const LIGHTHOUSE_API_KEY = process.env.GATSBY_LIGHTHOUSE_API_KEYs
+  const LIGHTHOUSE_API_KEY = process.env.GATSBY_LIGHTHOUSE_API_KEY
   const CONTRACT = process.env.GATSBY_TEZOS_REALTIME_CONTRACT
+
+  useEffect(() => {
+    if (ipfsUrl) {
+      console.log(`https://gateway.lighthouse.storage/ipfs/${ipfsUrl.split("ipfs://")[1]}`);
+    }
+  }, [ipfsUrl]);
 
   const generateMetadata = async () => {
     setShowModal(true)
@@ -76,8 +82,8 @@ const MintNFTProcess = ({ containerRef, perlinSettings }) => {
     try {
       const canvas = await html2canvas(containerRef.current, {
         useCORS: true,
-        backgroundColor: "black",
-        scale: 0.1,
+        backgroundColor: null,
+        scale: 1,
       })
 
       const imageBlob = await new Promise(resolve =>
@@ -89,8 +95,9 @@ const MintNFTProcess = ({ containerRef, perlinSettings }) => {
 
       const fileResponse = await lighthouse.upload([file], LIGHTHOUSE_API_KEY)
       const imageCid = fileResponse.data.Hash
+      console.log("Image CID:", imageCid)
       setIpfsUrl(`ipfs://${imageCid}`)
-
+   
       const metadataBlob = new Blob([JSON.stringify(metadataJson)], {
         type: "application/json",
       })
@@ -112,6 +119,8 @@ const MintNFTProcess = ({ containerRef, perlinSettings }) => {
       setUploading(false)
     }
   }
+
+
   const mintNFT = async () => {
     if (!isConnected || !walletAddress || !beaconWallet) {
       alert("Please connect your wallet first!");
