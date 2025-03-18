@@ -1,19 +1,19 @@
 import React, { useRef, useState, useEffect } from "react"
 import * as lighthouse from "@lighthouse-web3/sdk"
-import html2canvas from "html2canvas"
+// import html2canvas from "html2canvas"
 import { Button, Container, Modal } from "react-bootstrap"
-import { TezosToolkit, MichelsonMap } from "@taquito/taquito"
+import { MichelsonMap } from "@taquito/taquito"
 import { useWallet } from "./WalletContext"
-import ipfsOnlyHash from "ipfs-only-hash"
+// import ipfsOnlyHash from "ipfs-only-hash"
 
 const MintNFTProcess = ({ containerRef, perlinSettings, capturedImage }) => {
   const [uploading, setUploading] = useState(false)
   const [minting, setMinting] = useState(false)
-  const [showModal, setShowModal] = useState(false)
+  // const [showModal, setShowModal] = useState(false)
   const [ipfsUrl, setIpfsUrl] = useState(null)
   const [metadataUrl, setMetadataUrl] = useState(null)
   const [metadataJson, setMetadataJson] = useState(null)
-  const [showMinting, setShowMinting] = useState(false)
+  // const [showMinting, setShowMinting] = useState(false)
   const [mintSuccess, setMintSuccess] = useState(false)
 
   const { isConnected, walletAddress, beaconWallet, tezos } = useWallet()

@@ -8,13 +8,10 @@ import { useStaticQuery, graphql } from "gatsby"
 import { Modal, Button, Row, Container } from "react-bootstrap"
 import PerlinControls from "./PerlinControls"
 import { useWallet } from "./WalletContext"
-// import UploadImageWithWallet from "./UploadImagewithWallet"
-// import UploadImageIpfs from "./UploadImageIpfs"
-// import Html2CanvasUploader from "./Html2CanvasUploader"
-import NFTVerification from "./NFTVerification"
-// import MintNFTFromIPFS from "./MintNFTFromIPFS" // Import Mint Component
 
-import MintNFTProcess from "./MintNFTProcess";
+import NFTVerification from "./NFTVerification"
+import MintNFTProcess from "./MintNFTProcess"
+
 import * as styles from "./PerlinNoise.module.css"
 
 
@@ -66,6 +63,7 @@ const PerlinNoise = ({
   const cameraRef = useRef(null)
   const rendererRef = useRef(null)
   const currentTextRef = useRef("")
+  const geometryRef = useRef(null);
 
   const [perlinSettings, setPerlinSettings] = useState({
     usePerlin: initialParams.usePerlin,
@@ -73,15 +71,11 @@ const PerlinNoise = ({
     scale: initialParams.scale,
     frequency: initialParams.frequency,
     octaves: initialParams.octaves,
-  })
+  });
+
   const [textOpacity, setTextOpacity] = useState(1)
   const [capturedImage, setCapturedImage] = useState(null)
-  const [metadataCid, setMetadataCid] = useState(null) // Store IPFS CID
-  const [mintResult, setMintResult] = useState(null)
 
-  const handleMintComplete = result => {
-    setMintResult(result)
-  }
   const [showModal, setShowModal] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
 
@@ -125,48 +119,80 @@ const PerlinNoise = ({
     sceneRef.current = scene
     cameraRef.current = camera
 
+    const planeWidth = 200
+    const planeHeight = 200
+    const segments = 17
+    const geometry = new THREE.PlaneGeometry(
+      planeWidth,
+      planeHeight,
+      segments,
+      segments
+    )
+    geometryRef.current = geometry; // Assign geometryRef here
+
+    const solidMaterial = new THREE.MeshBasicMaterial({
+      color: initialParams.colors?.solid?.color || 0x000000,
+      transparent: true,
+      opacity: initialParams.colors?.solid?.opacity || 0.6,
+      side: THREE.DoubleSide,
+    })
+
+    const wireframeMaterial = new THREE.MeshBasicMaterial({
+      color: initialParams.colors?.wireframe?.color || 0xffffff,
+      wireframe: true,
+      transparent: true,
+      opacity: initialParams.colors?.wireframe?.opacity || 0.8,
+    })
+
+    const solidMesh = new THREE.Mesh(geometry, solidMaterial)
+    const wireframeMesh = new THREE.Mesh(geometry, wireframeMaterial)
+
+    scene.add(solidMesh)
+    scene.add(wireframeMesh)
+
+    const clock = new THREE.Clock()
+    const noiseVector = new THREE.Vector3()
+    const perlin = new Perlin()
+    const simplex = createNoise3D()
+
     const animate = () => {
-      requestAnimationFrame(animate)
-      const elapsed = clock.getElapsedTime()
+      requestAnimationFrame(animate);
+      const elapsed = clock.getElapsedTime(); // Ensure time progression
 
-      const positions = geometry.attributes.position.array
+      if (!geometryRef.current) return;
+
+      const { amplitude, scale, frequency, octaves, usePerlin } = perlinSettings;
+      const positions = geometryRef.current.attributes.position.array;
+
       for (let i = 0; i < positions.length; i += 3) {
-        const x = positions[i]
-        const y = positions[i + 1]
+        const x = positions[i];
+        const y = positions[i + 1];
 
-        let noise
-        if (perlinSettings.usePerlin) {
-          let totalNoise = 0
-          let amplitude = 1
-          let frequency = perlinSettings.frequency
+        let noiseValue;
+        let totalNoise = 0;
+        let amp = 1;
+        let freq = frequency;
 
-          for (let o = 0; o < perlinSettings.octaves; o++) {
-            noiseVector.set(
-              x * perlinSettings.scale * frequency,
-              y * perlinSettings.scale * frequency,
-              elapsed
-            )
-            totalNoise += perlin.get3(noiseVector) * amplitude
-            amplitude *= 0.5
-            frequency *= 2
-          }
-
-          noise = totalNoise
-        } else {
-          noise = simplex(
-            x * perlinSettings.scale,
-            y * perlinSettings.scale,
-            elapsed
-          )
+        for (let o = 0; o < octaves; o++) {
+          noiseVector.set(
+            x * scale * freq,
+            y * scale * freq,
+            elapsed // Change over time
+          );
+          totalNoise += usePerlin ? perlin.get3(noiseVector) * amp : simplex(x * scale, y * scale, elapsed);
+          amp *= 0.5;
+          freq *= 2;
         }
 
-        positions[i + 2] = noise * perlinSettings.amplitude
+        noiseValue = totalNoise;
+        positions[i + 2] = noiseValue * amplitude;
       }
-      geometry.attributes.position.needsUpdate = true
 
-      rendererRef.current.render(scene, camera)
-      controls.update()
-    }
+      geometryRef.current.attributes.position.needsUpdate = true;
+      rendererRef.current.render(sceneRef.current, cameraRef.current);
+    };
+
+    animate(); // Ensure animation loop runs
 
     const handleResize = () => {
       const width = mountRef.current.clientWidth
@@ -177,11 +203,6 @@ const PerlinNoise = ({
 
       renderer.setSize(width, height)
     }
-
-    const clock = new THREE.Clock()
-    const noiseVector = new THREE.Vector3()
-    const perlin = new Perlin()
-    const simplex = createNoise3D()
 
     const lines = text.split("\n").filter(line => line.trim())
     let currentIndex = 0
@@ -272,38 +293,6 @@ const PerlinNoise = ({
       },
     }
 
-    const planeWidth = 200
-    const planeHeight = 200
-    const segments = 17
-    const geometry = new THREE.PlaneGeometry(
-      planeWidth,
-      planeHeight,
-      segments,
-      segments
-    )
-
-    const solidMaterial = new THREE.MeshBasicMaterial({
-      color: initialParams.colors?.solid?.color || 0x000000,
-      transparent: true,
-      opacity: initialParams.colors?.solid?.opacity || 0.6,
-      side: THREE.DoubleSide,
-    })
-
-    const wireframeMaterial = new THREE.MeshBasicMaterial({
-      color: initialParams.colors?.wireframe?.color || 0xffffff,
-      wireframe: true,
-      transparent: true,
-      opacity: initialParams.colors?.wireframe?.opacity || 0.8,
-    })
-
-    const solidMesh = new THREE.Mesh(geometry, solidMaterial)
-    const wireframeMesh = new THREE.Mesh(geometry, wireframeMaterial)
-
-    scene.add(solidMesh)
-    scene.add(wireframeMesh)
-
-    animate()
-
     window.addEventListener("resize", handleResize)
 
     return () => {
@@ -321,7 +310,9 @@ const PerlinNoise = ({
       renderer.domElement.removeEventListener("pointerdown", onPointerDown)
       renderer.domElement.removeEventListener("pointerup", onPointerUp)
     }
-  }, [data, enableOrbit, cameraParams])
+  }, [data, enableOrbit, cameraParams, perlinSettings])
+
+  
 
   useEffect(() => {
     const mediaQuery = window.matchMedia("(max-width: 768px)")
@@ -346,27 +337,29 @@ const PerlinNoise = ({
     }
   }, [walletAddress, isConnected])
 
+  
+
   const captureScene = async () => {
     if (!containerRef.current) return
 
     try {
       const capturedCanvas = await html2canvas(containerRef.current, {
         useCORS: true,
-        backgroundColor: null,
-        scale: 2,
+        backgroundColor: "#000000",
+        scale: 1,
         logging: true,
+        ignoreElements: element => {
+          return (
+            element.classList.contains("controls") ||
+            element.id === "communication" ||
+            element.id === "click-and-drag-instruction"
+          
+          )
+        },
       })
       const imageData = capturedCanvas.toDataURL("image/png")
       setCapturedImage(imageData)
       setShowModal(true)
-
-      // ignoreElements: element => {
-      //   return (
-      //     element.classList.contains("controls") ||
-      //     element.classList.contains("minimize-button") ||
-      //     element.classList.contains("wallet-connection")
-      //   )
-      // },
     } catch (error) {
       console.error("Error capturing scene:", error)
     }
@@ -426,6 +419,8 @@ const PerlinNoise = ({
               zIndex: 1000,
               textShadow: "2px 2px 4px rgba(0,0,0,0.5)",
             }}
+            id="click-and-drag-instruction"
+            
           >
             Click and drag to move the geometry!
           </div>
@@ -454,35 +449,21 @@ const PerlinNoise = ({
           {currentTextRef.current}
         </div>
       </Container>
-
-             <Modal show={showModal} onHide={handleClose} size="lg">
-         <Modal.Header closeButton>
-           <Modal.Title>Mint the Pearl in perlin?</Modal.Title>
-         </Modal.Header>
-         <Modal.Body>
-           {mintResult ? (
-             <div>
-               <h5>NFT Minted Successfully!</h5>
-               <p><strong>Transaction:</strong> {mintResult.tx}</p>
-               <p><strong>Metadata CID:</strong> {mintResult.metadataCid}</p>
-               <Button variant="secondary" onClick={handleClose}>Close</Button>
-             </div>
-           ) : (
-             <div>
-               {capturedImage && (
-                  <MintNFTProcess
-                  containerRef={containerRef}
-                  capturedImage={capturedImage}
-                  perlinSettings={perlinSettings}
-                  onMintComplete={handleMintComplete}
-                />
-               )}
-              
-             </div>
-           )}
-         </Modal.Body>
-       </Modal>
-
+  
+      <div className={styles.modal}>
+      <Modal show={showModal} onHide={handleClose} size="lg">
+        <Modal.Header closeButton>
+          <Modal.Title style={{ fontFamily: "var(--primary-font)", fontWeight: "bold" }}>Mint this Pearl for your collection?</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <MintNFTProcess
+            containerRef={containerRef}
+            capturedImage={capturedImage}
+            perlinSettings={perlinSettings}
+          />
+        </Modal.Body>
+      </Modal>
+      </div>
     </div>
   )
 }

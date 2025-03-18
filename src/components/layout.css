@@ -136,6 +136,7 @@ p {
   /* font-weight: 700; */
   font-style: italic;
   color: var(--primary-color);
+  z-index: 20;
 
 }
 ul,
@@ -243,7 +244,7 @@ pre tt:after {
   background: radial-gradient(ellipse at center, #ff4081 20%, #ff9800 40%, #3f51b5 60%, #009688 80%);
   background-size: cover;
   background-attachment: scroll; /* Allows movement */
-  z-index: -1; /* Keeps it in the background */
+  z-index: 0; /* Keeps it in the background */
   top: 0;
   left: 0;
   transform: translateY(0);

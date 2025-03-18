@@ -167,7 +167,7 @@ const NFTVerification = ({ setAccessGranted }) => {
     <div>
       {loading && <p>Checking NFT ownership...</p>}
       {success && (
-        <Container>
+        <Container id="communication">
           <Row>
             <h3>Congratulations! You are already a Ruido Perla's collector</h3>
           </Row>
