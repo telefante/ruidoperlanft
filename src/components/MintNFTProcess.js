@@ -11,6 +11,8 @@ const MintNFTProcess = ({ containerRef, perlinSettings, capturedImage }) => {
   const [minting, setMinting] = useState(false)
   // const [showModal, setShowModal] = useState(false)
   const [ipfsUrl, setIpfsUrl] = useState(null)
+  const [gatewayImageUrl, setGatewayImageUrl] = useState(null)
+  const [gatewayMetadataUrl, setGatewayMetadataUrl] = useState(null)
   const [metadataUrl, setMetadataUrl] = useState(null)
   const [metadataJson, setMetadataJson] = useState(null)
   // const [showMinting, setShowMinting] = useState(false)
@@ -20,8 +22,6 @@ const MintNFTProcess = ({ containerRef, perlinSettings, capturedImage }) => {
   const LIGHTHOUSE_API_KEY = process.env.GATSBY_LIGHTHOUSE_API_KEY
   const CONTRACT = process.env.GATSBY_TEZOS_REALTIME_CONTRACT
   const FIRST_CREATOR = process.env.GATSBY_RPNNFT_CREATOR
-
-
 
   const startMintingProcess = async () => {
     console.log("🚀 Starting Minting Process...")
@@ -45,24 +45,24 @@ const MintNFTProcess = ({ containerRef, perlinSettings, capturedImage }) => {
 
   useEffect(() => {
     if (metadataUrl && ipfsUrl && minting) {
-      // Ensuring both URLs are available
-      console.log("🚀 Both URLs are set. Initiating mint...")
-      console.log(
-        `
-        Image Gateway https://gateway.lighthouse.storage/ipfs/${
-          ipfsUrl.split("ipfs://")[1]
-        }`
+      setGatewayImageUrl(
+        `https://gateway.lighthouse.storage/ipfs/${ipfsUrl.split("ipfs://")[1]}`
       )
-      console.log(
-        `Metadata Gateway https://gateway.lighthouse.storage/ipfs/${
+      setGatewayMetadataUrl(
+        `https://gateway.lighthouse.storage/ipfs/${
           metadataUrl.split("ipfs://")[1]
         }`
       )
+
+      console.log("🚀 Both URLs are set. Initiating mint...")
+      console.log(`Image Gateway ${gatewayImageUrl}`)
+      console.log(`Metadata Gateway ${gatewayMetadataUrl}`)
+      mintNFT()
+      console.log("🚀 Both URLs are set. Initiating mint...")
+
       mintNFT()
     }
   }, [metadataUrl, ipfsUrl, minting]) // Runs only when metadataUrl or ipfsUrl changes
-
-
 
   const uploadImageToIPFS = async () => {
     console.log("📤 Uploading Image to IPFS...")
@@ -123,10 +123,16 @@ const MintNFTProcess = ({ containerRef, perlinSettings, capturedImage }) => {
           { uri: imageIpfsUrl.replace(".png", ".jpg"), mimeType: "image/jpeg" },
           { uri: imageIpfsUrl.replace(".png", ".gif"), mimeType: "image/gif" },
         ],
-        creators: FIRST_CREATOR !== walletAddress ? [FIRST_CREATOR, walletAddress] : [walletAddress],
+        creators:
+          FIRST_CREATOR !== walletAddress
+            ? [FIRST_CREATOR, walletAddress]
+            : [walletAddress],
         decimals: "0",
         royalties: {
-          shares: FIRST_CREATOR !== walletAddress ? { [walletAddress]: 500, [FIRST_CREATOR]: 500 } : { [walletAddress]: 1000 },
+          shares:
+            FIRST_CREATOR !== walletAddress
+              ? { [walletAddress]: 500, [FIRST_CREATOR]: 500 }
+              : { [walletAddress]: 1000 },
           decimals: 4,
         },
         attributes: [
@@ -138,11 +144,7 @@ const MintNFTProcess = ({ containerRef, perlinSettings, capturedImage }) => {
         ],
         displayUri: imageIpfsUrl.replace(".png", ".jpg"),
         artifactUri: imageIpfsUrl,
-        description: `You found a pearl in noise—Perlin noise, Ruido Perla. A landscape in flux, shifting with Amplitude ${
-          perlinSettings.amplitude
-        }, shaped by Scale ${
-          perlinSettings.scale
-        }, whispering in the frequencies of endless recombination. This NFT is not a static image—it is a key to a living simulation, evolving in real-time at ruidoperlanft.netlify.app. 
+        description: `You found a pearl in noise—Perlin noise, Ruido Perla. A landscape in flux, shifting with Amplitude ${perlinSettings.amplitude}, shaped by Scale ${perlinSettings.scale}, whispering in the frequencies of endless recombination. This NFT is not a static image—it is a key to a living simulation, evolving in real-time at ruidoperlanft.netlify.app. 
         A fragment of the infinite, seen once, then lost to the next wave.`,
         mintingTool: "http://ruidoperlanft.netlify.com",
         thumbnailUri: imageIpfsUrl.replace(".png", ".jpg"),
@@ -165,13 +167,26 @@ const MintNFTProcess = ({ containerRef, perlinSettings, capturedImage }) => {
       )
 
       if (metadataResponse.data && metadataResponse.data.Hash) {
-        const metadataCid = metadataResponse.data.Hash
-        const IPFS_CID = `ipfs://${metadataCid}`
-
-        console.log("✅ Metadata Uploaded:", IPFS_CID)
-
-        // ✅ Pass both URLs to mintNFT directly
-        mintNFT(tokenId, IPFS_CID, imageIpfsUrl)
+        const metadataCid = metadataResponse.data.Hash;
+        const IPFS_CID = `ipfs://${metadataCid}`;
+      
+        console.log("✅ Metadata Uploaded:", IPFS_CID);
+      
+        // ✅ Update state explicitly
+        const newGatewayImageUrl = `https://gateway.lighthouse.storage/ipfs/${imageIpfsUrl.split("ipfs://")[1]}`;
+        const newGatewayMetadataUrl = `https://gateway.lighthouse.storage/ipfs/${metadataCid}`;
+      
+        setGatewayImageUrl(newGatewayImageUrl);
+        setGatewayMetadataUrl(newGatewayMetadataUrl);
+      
+        console.log("🚀 Updated State:");
+        console.log("New Gateway Image URL:", newGatewayImageUrl);
+        console.log("New Gateway Metadata URL:", newGatewayMetadataUrl);
+      
+        // ✅ Ensure state is updated before calling mintNFT
+        setTimeout(() => {
+          mintNFT(tokenId, IPFS_CID, imageIpfsUrl);
+        }, 500); // Give React time to update state
       } else {
         throw new Error("Metadata upload failed.")
       }
@@ -191,8 +206,8 @@ const MintNFTProcess = ({ containerRef, perlinSettings, capturedImage }) => {
       return
     }
 
-    console.log("Metadata URL before minting:", metadataIpfsUrl)
-    console.log("Image URL before minting:", imageIpfsUrl)
+    // console.log("Metadata URL before minting:", metadataIpfsUrl)
+    // console.log("Image URL before minting:", imageIpfsUrl)
 
     if (!metadataIpfsUrl || !imageIpfsUrl) {
       alert(
@@ -205,7 +220,6 @@ const MintNFTProcess = ({ containerRef, perlinSettings, capturedImage }) => {
     try {
       const contract = await tezos.wallet.at(CONTRACT)
       console.log("✅ Contract successfully fetched.")
-
       console.log("🔹 Corrected IPFS Metadata URI:", metadataIpfsUrl)
 
       // Create a MichelsonMap with the correct metadata format
@@ -251,10 +265,48 @@ const MintNFTProcess = ({ containerRef, perlinSettings, capturedImage }) => {
         {JSON.stringify(metadataJson, null, 2)}
       </pre>
       <p style={{ color: "black", fontSize: "12px" }}>
-        <strong>Estimated Image CID:</strong> {ipfsUrl}
+        {gatewayImageUrl ? (
+          <>
+            <strong>
+              <br />
+              IPFS Image URL:{" "}
+              <a
+                href={gatewayImageUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {gatewayImageUrl}
+              </a>
+            </strong>
+            <br />
+            <img
+              src={gatewayImageUrl}
+              alt="NFT Preview"
+              style={{ width: "200px", marginTop: "10px" }}
+            />
+          </>
+        ) : (
+          <em>Waiting for image upload...</em>
+        )}
       </p>
       <p style={{ color: "black", fontSize: "12px" }}>
-        <strong>Estimated Metadata CID:</strong> {metadataUrl}
+        {gatewayMetadataUrl ? (
+          <>
+            <strong>
+              <br />
+              IPFS Metadata CID:{" "}
+              <a
+                href={gatewayMetadataUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {gatewayMetadataUrl}
+              </a>
+            </strong>
+          </>
+        ) : (
+          <em>Waiting for metadata upload...</em>
+        )}
       </p>
 
       <Button
