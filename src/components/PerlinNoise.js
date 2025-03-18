@@ -383,7 +383,7 @@ const PerlinNoise = ({
     >
       <NFTVerification setAccessGranted={setAccessGranted} />
       <div ref={mountRef} style={{ width: "100%", height: "100%" }} />
-      {accessGranted && showControls && (
+      {accessGranted && controlsVisible && (
         <PerlinControls
           usePerlin={perlinSettings.usePerlin}
           setUsePerlin={value => updatePerlinSettings("usePerlin", value)}
