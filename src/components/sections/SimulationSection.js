@@ -108,6 +108,8 @@ const SimulationSection = ({ account, connectWallet, disconnectWallet }) => {
 
       {/* Full viewport width and height container */}
       <div
+
+      
         style={{
           width: "100vw",
           height: "66vh",

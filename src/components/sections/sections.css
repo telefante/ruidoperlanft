@@ -12,6 +12,7 @@
     opacity: 0;
     transform: translateY(50px);
     width: 100%;
+  
   }
   
   .section-container.visible {

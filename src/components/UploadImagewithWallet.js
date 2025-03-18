@@ -5,12 +5,14 @@ import { useWallet } from "./WalletContext";
 import lighthouse from "@lighthouse-web3/sdk";
 import { encodeKey } from "@taquito/utils";
 import axios from "axios";
+import NFTVerification from "./NFTVerification"; // Import NFT Verification Component
 
 const UploadImageWithWallet = ({ containerRef }) => {
   const [uploading, setUploading] = useState(false);
   const [ipfsUrl, setIpfsUrl] = useState(null);
   const { isConnected, beaconWallet, walletAddress } = useWallet();
   const [authMessage, setAuthMessage] = useState("");
+  const [accessGranted, setAccessGranted] = useState(false); // Track NFT ownership
 
   useEffect(() => {
     const fetchAuthMessage = async () => {
@@ -48,6 +50,10 @@ const UploadImageWithWallet = ({ containerRef }) => {
       alert("Authentication message not available. Please try again.");
       return;
     }
+    if (!accessGranted) {
+      alert("You need to own an NFT to use this feature.");
+      return;
+    }
 
     setUploading(true);
 
@@ -75,13 +81,11 @@ const UploadImageWithWallet = ({ containerRef }) => {
       let publicKey = activeAccount.publicKey;
       console.log("✅ Original Public Key:", publicKey);
 
-      // Convert to Base58 if needed
       if (!publicKey.startsWith("edpk") && !publicKey.startsWith("sppk") && !publicKey.startsWith("p2pk")) {
         publicKey = encodeKey(Buffer.from(publicKey, "hex"), "edpk");
         console.log("🔄 Converted Public Key to Base58:", publicKey);
       }
 
-      // Validate the public key format
       if (!publicKey.startsWith("edpk") && !publicKey.startsWith("sppk") && !publicKey.startsWith("p2pk")) {
         throw new Error("Invalid public key format");
       }
@@ -116,14 +120,16 @@ const UploadImageWithWallet = ({ containerRef }) => {
 
   return (
     <Container>
+      <NFTVerification setAccessGranted={setAccessGranted} /> {/* NFT Ownership Verification */}
+
       {isConnected ? (
         <div style={{ padding: "10px", textAlign: "center" }}>
           <Button
             variant="primary"
             onClick={captureAndUpload}
-            disabled={uploading}
+            disabled={uploading || !accessGranted}
           >
-            {uploading ? "Uploading..." : "Capture & Upload"}
+            {uploading ? "Uploading..." : accessGranted ? "Capture & Upload" : "NFT Required"}
           </Button>
 
           {ipfsUrl && (
