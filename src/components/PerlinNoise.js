@@ -32,10 +32,6 @@ const PerlinNoise = ({
   controlsVisible,
   setControlsVisible,
 }) => {
-  const noiseVector = new THREE.Vector3();
-  const perlin = new Perlin();
-  const simplex = createNoise3D();
-
   const data = useStaticQuery(graphql`
     query {
       allMarkdownRemark {
@@ -77,61 +73,8 @@ const PerlinNoise = ({
     octaves: initialParams.octaves,
   });
 
-  useEffect(() => {
-    if (!geometryRef.current) return;
-
-    const { amplitude, scale, frequency, octaves, usePerlin } = perlinSettings;
-    const positions = geometryRef.current.attributes.position.array;
-
-    for (let i = 0; i < positions.length; i += 3) {
-      const x = positions[i];
-      const y = positions[i + 1];
-      let noise;
-
-      if (usePerlin) {
-        let totalNoise = 0;
-        let amplitude = 1;
-        let frequency = perlinSettings.frequency;
-
-        for (let o = 0; o < octaves; o++) {
-          noiseVector.set(
-            x * scale * frequency,
-            y * scale * frequency,
-            Date.now() * 0.001
-          );
-          totalNoise += perlin.get3(noiseVector) * amplitude;
-          amplitude *= 0.5;
-          frequency *= 2;
-        }
-
-        noise = totalNoise;
-      } else {
-        noise = simplex(
-          x * scale,
-          y * scale,
-          Date.now() * 0.001
-        );
-      }
-
-      positions[i + 2] = noise * amplitude;
-    }
-
-    geometryRef.current.attributes.position.needsUpdate = true;
-    rendererRef.current.render(sceneRef.current, cameraRef.current);
-  }, [
-    perlinSettings.amplitude, 
-    perlinSettings.scale, 
-    perlinSettings.frequency, 
-    perlinSettings.octaves, 
-    perlinSettings.usePerlin
-  ]);
-
-
   const [textOpacity, setTextOpacity] = useState(1)
   const [capturedImage, setCapturedImage] = useState(null)
-  // const [metadataCid, setMetadataCid] = useState(null) // Store IPFS CID
-  // const [mintResult, setMintResult] = useState(null)
-
 
   const [showModal, setShowModal] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
@@ -144,8 +87,6 @@ const PerlinNoise = ({
   const updatePerlinSettings = (key, value) => {
     setPerlinSettings(prev => ({ ...prev, [key]: value }))
   }
-
-  
 
   useEffect(() => {
     if (!mountRef.current) return
@@ -209,13 +150,49 @@ const PerlinNoise = ({
     scene.add(solidMesh)
     scene.add(wireframeMesh)
 
-    const animate = () => {
-      requestAnimationFrame(animate)
-      const elapsed = clock.getElapsedTime()
+    const clock = new THREE.Clock()
+    const noiseVector = new THREE.Vector3()
+    const perlin = new Perlin()
+    const simplex = createNoise3D()
 
-      rendererRef.current.render(scene, camera)
-      controls.update()
-    }
+    const animate = () => {
+      requestAnimationFrame(animate);
+      const elapsed = clock.getElapsedTime(); // Ensure time progression
+
+      if (!geometryRef.current) return;
+
+      const { amplitude, scale, frequency, octaves, usePerlin } = perlinSettings;
+      const positions = geometryRef.current.attributes.position.array;
+
+      for (let i = 0; i < positions.length; i += 3) {
+        const x = positions[i];
+        const y = positions[i + 1];
+
+        let noiseValue;
+        let totalNoise = 0;
+        let amp = 1;
+        let freq = frequency;
+
+        for (let o = 0; o < octaves; o++) {
+          noiseVector.set(
+            x * scale * freq,
+            y * scale * freq,
+            elapsed // Change over time
+          );
+          totalNoise += usePerlin ? perlin.get3(noiseVector) * amp : simplex(x * scale, y * scale, elapsed);
+          amp *= 0.5;
+          freq *= 2;
+        }
+
+        noiseValue = totalNoise;
+        positions[i + 2] = noiseValue * amplitude;
+      }
+
+      geometryRef.current.attributes.position.needsUpdate = true;
+      rendererRef.current.render(sceneRef.current, cameraRef.current);
+    };
+
+    animate(); // Ensure animation loop runs
 
     const handleResize = () => {
       const width = mountRef.current.clientWidth
@@ -226,8 +203,6 @@ const PerlinNoise = ({
 
       renderer.setSize(width, height)
     }
-
-    const clock = new THREE.Clock()
 
     const lines = text.split("\n").filter(line => line.trim())
     let currentIndex = 0
@@ -318,8 +293,6 @@ const PerlinNoise = ({
       },
     }
 
-    animate()
-
     window.addEventListener("resize", handleResize)
 
     return () => {
@@ -337,7 +310,7 @@ const PerlinNoise = ({
       renderer.domElement.removeEventListener("pointerdown", onPointerDown)
       renderer.domElement.removeEventListener("pointerup", onPointerUp)
     }
-  }, [data, enableOrbit, cameraParams])
+  }, [data, enableOrbit, cameraParams, perlinSettings])
 
   
 
@@ -483,13 +456,6 @@ const PerlinNoise = ({
           <Modal.Title style={{ fontFamily: "var(--primary-font)", fontWeight: "bold" }}>Mint this Pearl for your collection?</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          {/* {capturedImage && (
-            <img
-              src={capturedImage}
-              alt="Captured Scene"
-              style={{ width: "100%" }}
-            />
-          )} */}
           <MintNFTProcess
             containerRef={containerRef}
             capturedImage={capturedImage}
