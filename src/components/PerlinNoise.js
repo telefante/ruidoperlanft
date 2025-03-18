@@ -32,6 +32,10 @@ const PerlinNoise = ({
   controlsVisible,
   setControlsVisible,
 }) => {
+  const noiseVector = new THREE.Vector3();
+  const perlin = new Perlin();
+  const simplex = createNoise3D();
+
   const data = useStaticQuery(graphql`
     query {
       allMarkdownRemark {
@@ -63,6 +67,7 @@ const PerlinNoise = ({
   const cameraRef = useRef(null)
   const rendererRef = useRef(null)
   const currentTextRef = useRef("")
+  const geometryRef = useRef(null);
 
   const [perlinSettings, setPerlinSettings] = useState({
     usePerlin: initialParams.usePerlin,
@@ -70,7 +75,58 @@ const PerlinNoise = ({
     scale: initialParams.scale,
     frequency: initialParams.frequency,
     octaves: initialParams.octaves,
-  })
+  });
+
+  useEffect(() => {
+    if (!geometryRef.current) return;
+
+    const { amplitude, scale, frequency, octaves, usePerlin } = perlinSettings;
+    const positions = geometryRef.current.attributes.position.array;
+
+    for (let i = 0; i < positions.length; i += 3) {
+      const x = positions[i];
+      const y = positions[i + 1];
+      let noise;
+
+      if (usePerlin) {
+        let totalNoise = 0;
+        let amplitude = 1;
+        let frequency = perlinSettings.frequency;
+
+        for (let o = 0; o < octaves; o++) {
+          noiseVector.set(
+            x * scale * frequency,
+            y * scale * frequency,
+            Date.now() * 0.001
+          );
+          totalNoise += perlin.get3(noiseVector) * amplitude;
+          amplitude *= 0.5;
+          frequency *= 2;
+        }
+
+        noise = totalNoise;
+      } else {
+        noise = simplex(
+          x * scale,
+          y * scale,
+          Date.now() * 0.001
+        );
+      }
+
+      positions[i + 2] = noise * amplitude;
+    }
+
+    geometryRef.current.attributes.position.needsUpdate = true;
+    rendererRef.current.render(sceneRef.current, cameraRef.current);
+  }, [
+    perlinSettings.amplitude, 
+    perlinSettings.scale, 
+    perlinSettings.frequency, 
+    perlinSettings.octaves, 
+    perlinSettings.usePerlin
+  ]);
+
+
   const [textOpacity, setTextOpacity] = useState(1)
   const [capturedImage, setCapturedImage] = useState(null)
   // const [metadataCid, setMetadataCid] = useState(null) // Store IPFS CID
@@ -122,44 +178,40 @@ const PerlinNoise = ({
     sceneRef.current = scene
     cameraRef.current = camera
 
+    const planeWidth = 200
+    const planeHeight = 200
+    const segments = 17
+    const geometry = new THREE.PlaneGeometry(
+      planeWidth,
+      planeHeight,
+      segments,
+      segments
+    )
+    geometryRef.current = geometry; // Assign geometryRef here
+
+    const solidMaterial = new THREE.MeshBasicMaterial({
+      color: initialParams.colors?.solid?.color || 0x000000,
+      transparent: true,
+      opacity: initialParams.colors?.solid?.opacity || 0.6,
+      side: THREE.DoubleSide,
+    })
+
+    const wireframeMaterial = new THREE.MeshBasicMaterial({
+      color: initialParams.colors?.wireframe?.color || 0xffffff,
+      wireframe: true,
+      transparent: true,
+      opacity: initialParams.colors?.wireframe?.opacity || 0.8,
+    })
+
+    const solidMesh = new THREE.Mesh(geometry, solidMaterial)
+    const wireframeMesh = new THREE.Mesh(geometry, wireframeMaterial)
+
+    scene.add(solidMesh)
+    scene.add(wireframeMesh)
+
     const animate = () => {
       requestAnimationFrame(animate)
       const elapsed = clock.getElapsedTime()
-
-      const positions = geometry.attributes.position.array
-      for (let i = 0; i < positions.length; i += 3) {
-        const x = positions[i]
-        const y = positions[i + 1]
-
-        let noise
-        if (perlinSettings.usePerlin) {
-          let totalNoise = 0
-          let amplitude = 1
-          let frequency = perlinSettings.frequency
-
-          for (let o = 0; o < perlinSettings.octaves; o++) {
-            noiseVector.set(
-              x * perlinSettings.scale * frequency,
-              y * perlinSettings.scale * frequency,
-              elapsed
-            )
-            totalNoise += perlin.get3(noiseVector) * amplitude
-            amplitude *= 0.5
-            frequency *= 2
-          }
-
-          noise = totalNoise
-        } else {
-          noise = simplex(
-            x * perlinSettings.scale,
-            y * perlinSettings.scale,
-            elapsed
-          )
-        }
-
-        positions[i + 2] = noise * perlinSettings.amplitude
-      }
-      geometry.attributes.position.needsUpdate = true
 
       rendererRef.current.render(scene, camera)
       controls.update()
@@ -176,9 +228,6 @@ const PerlinNoise = ({
     }
 
     const clock = new THREE.Clock()
-    const noiseVector = new THREE.Vector3()
-    const perlin = new Perlin()
-    const simplex = createNoise3D()
 
     const lines = text.split("\n").filter(line => line.trim())
     let currentIndex = 0
@@ -269,36 +318,6 @@ const PerlinNoise = ({
       },
     }
 
-    const planeWidth = 200
-    const planeHeight = 200
-    const segments = 17
-    const geometry = new THREE.PlaneGeometry(
-      planeWidth,
-      planeHeight,
-      segments,
-      segments
-    )
-
-    const solidMaterial = new THREE.MeshBasicMaterial({
-      color: initialParams.colors?.solid?.color || 0x000000,
-      transparent: true,
-      opacity: initialParams.colors?.solid?.opacity || 0.6,
-      side: THREE.DoubleSide,
-    })
-
-    const wireframeMaterial = new THREE.MeshBasicMaterial({
-      color: initialParams.colors?.wireframe?.color || 0xffffff,
-      wireframe: true,
-      transparent: true,
-      opacity: initialParams.colors?.wireframe?.opacity || 0.8,
-    })
-
-    const solidMesh = new THREE.Mesh(geometry, solidMaterial)
-    const wireframeMesh = new THREE.Mesh(geometry, wireframeMaterial)
-
-    scene.add(solidMesh)
-    scene.add(wireframeMesh)
-
     animate()
 
     window.addEventListener("resize", handleResize)
@@ -345,42 +364,7 @@ const PerlinNoise = ({
     }
   }, [walletAddress, isConnected])
 
-  /** Updates Perlin Noise dynamically */
-  useEffect(() => {
-    if (!mountRef.current) return
-
-    const geometry = geometryRef.current;
-    const positions = geometry.attributes.position.array;
-    const elapsed = performance.now() / 1000;
-    const noiseVector = new THREE.Vector3();
-
-    for (let i = 0; i < positions.length; i += 3) {
-      const x = positions[i];
-      const y = positions[i + 1];
-
-      let noiseValue;
-      if (perlinSettings.usePerlin) {
-        let totalNoise = 0;
-        let amplitude = 1;
-        let frequency = perlinSettings.frequency;
-
-        for (let o = 0; o < perlinSettings.octaves; o++) {
-          noiseVector.set(x * perlinSettings.scale * frequency, y * perlinSettings.scale * frequency, elapsed);
-          totalNoise += perlin.get3(noiseVector) * amplitude;
-          amplitude *= 0.5;
-          frequency *= 2;
-        }
-        noiseValue = totalNoise;
-      } else {
-        noiseValue = simplex(x * perlinSettings.scale, y * perlinSettings.scale, elapsed);
-      }
-
-      positions[i + 2] = noiseValue * perlinSettings.amplitude;
-    }
-
-    geometry.attributes.position.needsUpdate = true;
-    rendererRef.current.render(sceneRef.current, cameraRef.current);
-  }, [perlinSettings]);
+  
 
   const captureScene = async () => {
     if (!containerRef.current) return
