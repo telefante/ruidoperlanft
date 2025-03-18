@@ -73,12 +73,10 @@ const PerlinNoise = ({
   })
   const [textOpacity, setTextOpacity] = useState(1)
   const [capturedImage, setCapturedImage] = useState(null)
-  const [metadataCid, setMetadataCid] = useState(null) // Store IPFS CID
-  const [mintResult, setMintResult] = useState(null)
+  // const [metadataCid, setMetadataCid] = useState(null) // Store IPFS CID
+  // const [mintResult, setMintResult] = useState(null)
 
-  const handleMintComplete = result => {
-    setMintResult(result)
-  }
+
   const [showModal, setShowModal] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
 
@@ -90,6 +88,8 @@ const PerlinNoise = ({
   const updatePerlinSettings = (key, value) => {
     setPerlinSettings(prev => ({ ...prev, [key]: value }))
   }
+
+  
 
   useEffect(() => {
     if (!mountRef.current) return
@@ -320,6 +320,8 @@ const PerlinNoise = ({
     }
   }, [data, enableOrbit, cameraParams])
 
+  
+
   useEffect(() => {
     const mediaQuery = window.matchMedia("(max-width: 768px)")
     const handleMediaQueryChange = e => {
@@ -343,6 +345,43 @@ const PerlinNoise = ({
     }
   }, [walletAddress, isConnected])
 
+  /** Updates Perlin Noise dynamically */
+  useEffect(() => {
+    if (!mountRef.current) return
+
+    const geometry = geometryRef.current;
+    const positions = geometry.attributes.position.array;
+    const elapsed = performance.now() / 1000;
+    const noiseVector = new THREE.Vector3();
+
+    for (let i = 0; i < positions.length; i += 3) {
+      const x = positions[i];
+      const y = positions[i + 1];
+
+      let noiseValue;
+      if (perlinSettings.usePerlin) {
+        let totalNoise = 0;
+        let amplitude = 1;
+        let frequency = perlinSettings.frequency;
+
+        for (let o = 0; o < perlinSettings.octaves; o++) {
+          noiseVector.set(x * perlinSettings.scale * frequency, y * perlinSettings.scale * frequency, elapsed);
+          totalNoise += perlin.get3(noiseVector) * amplitude;
+          amplitude *= 0.5;
+          frequency *= 2;
+        }
+        noiseValue = totalNoise;
+      } else {
+        noiseValue = simplex(x * perlinSettings.scale, y * perlinSettings.scale, elapsed);
+      }
+
+      positions[i + 2] = noiseValue * perlinSettings.amplitude;
+    }
+
+    geometry.attributes.position.needsUpdate = true;
+    rendererRef.current.render(sceneRef.current, cameraRef.current);
+  }, [perlinSettings]);
+
   const captureScene = async () => {
     if (!containerRef.current) return
 
@@ -364,14 +403,6 @@ const PerlinNoise = ({
       const imageData = capturedCanvas.toDataURL("image/png")
       setCapturedImage(imageData)
       setShowModal(true)
-
-      // ignoreElements: element => {
-      //   return (
-      //     element.classList.contains("controls") ||
-      //     element.classList.contains("minimize-button") ||
-      //     element.classList.contains("wallet-connection")
-      //   )
-      // },
     } catch (error) {
       console.error("Error capturing scene:", error)
     }
@@ -461,33 +492,7 @@ const PerlinNoise = ({
           {currentTextRef.current}
         </div>
       </Container>
-             {/* <Modal show={showModal} onHide={handleClose} size="lg">
-         <Modal.Header closeButton>
-           <Modal.Title>Mint the Pearl in perlin?</Modal.Title>
-         </Modal.Header>
-         <Modal.Body>
-           {mintResult ? (
-             <div>
-               <h5>NFT Minted Successfully!</h5>
-               <p><strong>Transaction:</strong> {mintResult.tx}</p>
-               <p><strong>Metadata CID:</strong> {mintResult.metadataCid}</p>
-               <Button variant="secondary" onClick={handleClose}>Close</Button>
-             </div>
-           ) : (
-             <div>
-               {capturedImage && (
-                  <MintNFTProcess
-                  containerRef={containerRef}
-                  capturedImage={capturedImage}
-                  perlinSettings={perlinSettings}
-                  onMintComplete={handleMintComplete}
-                />
-               )}
-              
-             </div>
-           )}
-         </Modal.Body>
-       </Modal> */}
+  
       <div className={styles.modal}>
       <Modal show={showModal} onHide={handleClose} size="lg">
         <Modal.Header closeButton>
