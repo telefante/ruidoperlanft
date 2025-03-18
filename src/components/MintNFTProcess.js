@@ -279,11 +279,11 @@ const MintNFTProcess = ({ containerRef, perlinSettings, capturedImage }) => {
               </a>
             </strong>
             <br />
-            <img
+            {/* <img
               src={gatewayImageUrl}
               alt="NFT Preview"
               style={{ width: "200px", marginTop: "10px" }}
-            />
+            /> */}
           </>
         ) : (
           <em>Waiting for image upload...</em>
@@ -313,6 +313,13 @@ const MintNFTProcess = ({ containerRef, perlinSettings, capturedImage }) => {
         variant="primary"
         onClick={startMintingProcess}
         disabled={minting}
+        style={{
+          fontFamily: "var(--primary-font)",
+          fontStyle: "italic",
+          fontWeight: "bold",
+          fontSize: "1.2rem",
+          maxWidth: "200px",
+        }}
       >
         {minting ? "Minting..." : "Mint this!"}
       </Button>
