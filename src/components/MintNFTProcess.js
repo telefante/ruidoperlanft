@@ -122,11 +122,6 @@ const MintNFTProcess = ({ containerRef, perlinSettings, capturedImage, textFragm
         minter: walletAddress,
         rights: "No License / All Rights Reserved",
         symbol: "RPNFT",
-        formats: [
-          { uri: imageIpfsUrl, mimeType: "image/png" },
-          { uri: imageIpfsUrl.replace(".png", ".jpg"), mimeType: "image/jpeg" },
-          { uri: imageIpfsUrl.replace(".png", ".gif"), mimeType: "image/gif" },
-        ],
         creators:
           FIRST_CREATOR !== walletAddress
             ? [FIRST_CREATOR, walletAddress]
@@ -265,9 +260,9 @@ const MintNFTProcess = ({ containerRef, perlinSettings, capturedImage, textFragm
         />
       )}
 
-      <pre style={{ backgroundColor: "#f8f9fa", padding: "10px" }}>
+      {/* <pre style={{ backgroundColor: "#f8f9fa", padding: "10px" }}>
         {JSON.stringify(metadataJson, null, 2)}
-      </pre>
+      </pre> */}
       <p style={{ color: "black", fontSize: "12px" }}>
         {gatewayImageUrl ? (
           <>
