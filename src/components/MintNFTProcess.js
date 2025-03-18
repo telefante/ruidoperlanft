@@ -6,7 +6,7 @@ import { MichelsonMap } from "@taquito/taquito"
 import { useWallet } from "./WalletContext"
 // import ipfsOnlyHash from "ipfs-only-hash"
 
-const MintNFTProcess = ({ containerRef, perlinSettings, capturedImage }) => {
+const MintNFTProcess = ({ containerRef, perlinSettings, capturedImage, textFragment }) => {
   const [uploading, setUploading] = useState(false)
   const [minting, setMinting] = useState(false)
   // const [showModal, setShowModal] = useState(false)
@@ -17,6 +17,10 @@ const MintNFTProcess = ({ containerRef, perlinSettings, capturedImage }) => {
   const [metadataJson, setMetadataJson] = useState(null)
   // const [showMinting, setShowMinting] = useState(false)
   const [mintSuccess, setMintSuccess] = useState(false)
+ 
+  useEffect(() => {
+    console.log("textFragment changed:", textFragment)
+  }, [textFragment])
 
   const { isConnected, walletAddress, beaconWallet, tezos } = useWallet()
   const LIGHTHOUSE_API_KEY = process.env.GATSBY_LIGHTHOUSE_API_KEY
@@ -140,7 +144,7 @@ const MintNFTProcess = ({ containerRef, perlinSettings, capturedImage }) => {
           { name: "Scale", value: perlinSettings.scale.toString() },
           { name: "Frequency", value: perlinSettings.frequency.toString() },
           { name: "Octaves", value: perlinSettings.octaves.toString() },
-          { name: "Entropy", value: (Math.random() * 10).toFixed(6) },
+          { name: "Text Fragment", value: textFragment },
         ],
         displayUri: imageIpfsUrl.replace(".png", ".jpg"),
         artifactUri: imageIpfsUrl,

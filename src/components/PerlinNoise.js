@@ -14,7 +14,6 @@ import MintNFTProcess from "./MintNFTProcess"
 
 import * as styles from "./PerlinNoise.module.css"
 
-
 const PerlinNoise = ({
   showControls = true,
   enableOrbit = true,
@@ -57,13 +56,13 @@ const PerlinNoise = ({
   const mountRef = useRef(null)
   const [accessGranted, setAccessGranted] = useState(false)
   const { walletAddress, isConnected } = useWallet()
-
+  const [currentTextFragment, setCurrentTextFragment] = useState(null)
   const containerRef = useRef(null)
   const sceneRef = useRef(null)
   const cameraRef = useRef(null)
   const rendererRef = useRef(null)
   const currentTextRef = useRef("")
-  const geometryRef = useRef(null);
+  const geometryRef = useRef(null)
 
   const [perlinSettings, setPerlinSettings] = useState({
     usePerlin: initialParams.usePerlin,
@@ -71,7 +70,7 @@ const PerlinNoise = ({
     scale: initialParams.scale,
     frequency: initialParams.frequency,
     octaves: initialParams.octaves,
-  });
+  })
 
   const [textOpacity, setTextOpacity] = useState(1)
   const [capturedImage, setCapturedImage] = useState(null)
@@ -128,7 +127,7 @@ const PerlinNoise = ({
       segments,
       segments
     )
-    geometryRef.current = geometry; // Assign geometryRef here
+    geometryRef.current = geometry // Assign geometryRef here
 
     const solidMaterial = new THREE.MeshBasicMaterial({
       color: initialParams.colors?.solid?.color || 0x000000,
@@ -156,43 +155,45 @@ const PerlinNoise = ({
     const simplex = createNoise3D()
 
     const animate = () => {
-      requestAnimationFrame(animate);
-      const elapsed = clock.getElapsedTime(); // Ensure time progression
+      requestAnimationFrame(animate)
+      const elapsed = clock.getElapsedTime() // Ensure time progression
 
-      if (!geometryRef.current) return;
+      if (!geometryRef.current) return
 
-      const { amplitude, scale, frequency, octaves, usePerlin } = perlinSettings;
-      const positions = geometryRef.current.attributes.position.array;
+      const { amplitude, scale, frequency, octaves, usePerlin } = perlinSettings
+      const positions = geometryRef.current.attributes.position.array
 
       for (let i = 0; i < positions.length; i += 3) {
-        const x = positions[i];
-        const y = positions[i + 1];
+        const x = positions[i]
+        const y = positions[i + 1]
 
-        let noiseValue;
-        let totalNoise = 0;
-        let amp = 1;
-        let freq = frequency;
+        let noiseValue
+        let totalNoise = 0
+        let amp = 1
+        let freq = frequency
 
         for (let o = 0; o < octaves; o++) {
           noiseVector.set(
             x * scale * freq,
             y * scale * freq,
             elapsed // Change over time
-          );
-          totalNoise += usePerlin ? perlin.get3(noiseVector) * amp : simplex(x * scale, y * scale, elapsed);
-          amp *= 0.5;
-          freq *= 2;
+          )
+          totalNoise += usePerlin
+            ? perlin.get3(noiseVector) * amp
+            : simplex(x * scale, y * scale, elapsed)
+          amp *= 0.5
+          freq *= 2
         }
 
-        noiseValue = totalNoise;
-        positions[i + 2] = noiseValue * amplitude;
+        noiseValue = totalNoise
+        positions[i + 2] = noiseValue * amplitude
       }
 
-      geometryRef.current.attributes.position.needsUpdate = true;
-      rendererRef.current.render(sceneRef.current, cameraRef.current);
-    };
+      geometryRef.current.attributes.position.needsUpdate = true
+      rendererRef.current.render(sceneRef.current, cameraRef.current)
+    }
 
-    animate(); // Ensure animation loop runs
+    animate() // Ensure animation loop runs
 
     const handleResize = () => {
       const width = mountRef.current.clientWidth
@@ -312,8 +313,6 @@ const PerlinNoise = ({
     }
   }, [data, enableOrbit, cameraParams, perlinSettings])
 
-  
-
   useEffect(() => {
     const mediaQuery = window.matchMedia("(max-width: 768px)")
     const handleMediaQueryChange = e => {
@@ -337,8 +336,6 @@ const PerlinNoise = ({
     }
   }, [walletAddress, isConnected])
 
-  
-
   const captureScene = async () => {
     if (!containerRef.current) return
 
@@ -353,11 +350,11 @@ const PerlinNoise = ({
             element.classList.contains("controls") ||
             element.id === "communication" ||
             element.id === "click-and-drag-instruction"
-          
           )
         },
       })
       const imageData = capturedCanvas.toDataURL("image/png")
+      setCurrentTextFragment(currentTextRef.current)
       setCapturedImage(imageData)
       setShowModal(true)
     } catch (error) {
@@ -420,7 +417,6 @@ const PerlinNoise = ({
               textShadow: "2px 2px 4px rgba(0,0,0,0.5)",
             }}
             id="click-and-drag-instruction"
-            
           >
             Click and drag to move the geometry!
           </div>
@@ -449,20 +445,25 @@ const PerlinNoise = ({
           {currentTextRef.current}
         </div>
       </Container>
-  
+
       <div className={styles.modal}>
-      <Modal show={showModal} onHide={handleClose} size="lg">
-        <Modal.Header closeButton>
-          <Modal.Title style={{ fontFamily: "var(--primary-font)", fontWeight: "bold" }}>Mint this Pearl for your collection?</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <MintNFTProcess
-            containerRef={containerRef}
-            capturedImage={capturedImage}
-            perlinSettings={perlinSettings}
-          />
-        </Modal.Body>
-      </Modal>
+        <Modal show={showModal} onHide={handleClose} size="lg">
+          <Modal.Header closeButton>
+            <Modal.Title
+              style={{ fontFamily: "var(--primary-font)", fontWeight: "bold" }}
+            >
+              Mint this Pearl for your collection?
+            </Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <MintNFTProcess
+              containerRef={containerRef}
+              capturedImage={capturedImage}
+              perlinSettings={perlinSettings}
+              textFragment={currentTextFragment}
+            />
+          </Modal.Body>
+        </Modal>
       </div>
     </div>
   )
