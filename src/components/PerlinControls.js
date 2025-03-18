@@ -79,7 +79,7 @@ const PerlinControls = ({
             <input
               type="range"
               min="1"
-              max="25"
+              max="50"
               step="0.5"
               value={amplitude}
               onChange={e => setAmplitude(parseFloat(e.target.value))}
