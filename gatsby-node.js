@@ -16,8 +16,11 @@ exports.onCreateWebpackConfig = ({ stage, actions }) => {
         crypto: require.resolve("crypto-browserify"),
         buffer: require.resolve("buffer/"),
         process: require.resolve("process/browser"),
+        crypto: false,
       },
+    
     },
+    
     plugins: [
       new (require("webpack")).ProvidePlugin({
         Buffer: ["buffer", "Buffer"],
