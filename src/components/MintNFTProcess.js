@@ -96,9 +96,9 @@ const MintNFTProcess = ({ containerRef, perlinSettings, capturedImage, textFragm
       const currentDate = new Date().toISOString()
 
       const metadataJson = {
-        date: currentDate,
         name: `RuidoPerla#${formattedTokenId}`,
-        tags: ["Generative Art", "Algorithmic", "NFT", "Tezos"],
+        date: currentDate,
+        tags: ["Generative Art", "Algorithmic", "Poetry", "Ruido Perla", "Poetics", "Real-Time"],
         minter: walletAddress,
         rights: "No License / All Rights Reserved",
         symbol: "RPNFT",
@@ -125,7 +125,7 @@ const MintNFTProcess = ({ containerRef, perlinSettings, capturedImage, textFragm
         artifactUri: imageIpfsUrl,
         description: `You found a pearl in noise—Perlin noise, Ruido Perla. A landscape in flux, shifting with Amplitude ${perlinSettings.amplitude}, shaped by Scale ${perlinSettings.scale}, whispering in the frequencies of endless recombination. This NFT is not a static image—it is a key to a living simulation, evolving in real-time at ruidoperlanft.netlify.app. 
         A fragment of the infinite, seen once, then lost to the next wave.`,
-        mintingTool: "http://ruidoperlanft.netlify.com",
+        mintingTool: "https://ruidoperlanft.netlify.app",
         thumbnailUri: imageIpfsUrl.replace(".png", ".jpg"),
       }
 
