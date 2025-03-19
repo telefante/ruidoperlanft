@@ -234,10 +234,13 @@ const MintNFTProcess = ({ containerRef, perlinSettings, capturedImage, textFragm
       // await createOp.confirmation(1)
       // console.log(`✅ Token ${tokenId} Created! TX: ${createOp.opHash}`)
 
-      console.log("📤 Sending mint_tokens transaction...")
+      console.log("📤 Sending mint  transaction...")
+      // const mintOp = await contract.methods
+      //   .mint_tokens([{ owner: walletAddress, token_id: tokenId, amount: 1 }])
+      //   .send()
       const mintOp = await contract.methods
-        .mint_tokens([{ owner: walletAddress, token_id: tokenId, amount: 1 }])
-        .send()
+        .mint([{ metadata: { "": Buffer.from("metadata_value") }, to_: walletAddress }])
+        .send();
       await mintOp.confirmation(1)
       console.log(`✅ NFT Minted to ${walletAddress}! TX: ${mintOp.opHash}`)
 
