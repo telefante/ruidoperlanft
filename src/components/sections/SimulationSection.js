@@ -9,7 +9,7 @@ import { useTracking } from "../../contexts/TrackingContext"
 
 const SimulationSection = ({ account, connectWallet, disconnectWallet }) => {
   const [controlsVisible, setControlsVisible] = useState(true) // Define the state
-  const COLLECTION_CONTRACT = process.env.GATSBY_TEZOS_CONTRACT
+  const COLLECTION_CONTRACT = process.env.GATSBY_RUIDOPERLANFT_CONTRACT
   const { trackEvent } = useTracking()
 
   // Define surface parameters for simulation

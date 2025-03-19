@@ -13,8 +13,8 @@ const MintNFTProcess = ({ containerRef, perlinSettings, capturedImage, textFragm
   const [ipfsUrl, setIpfsUrl] = useState(null)
   const [gatewayImageUrl, setGatewayImageUrl] = useState(null)
   const [gatewayMetadataUrl, setGatewayMetadataUrl] = useState(null)
-  const [metadataUrl, setMetadataUrl] = useState(null)
-  const [metadataJson, setMetadataJson] = useState(null)
+  // const [metadataUrl, setMetadataUrl] = useState(null)
+  // const [metadataJson, setMetadataJson] = useState(null)
   // const [showMinting, setShowMinting] = useState(false)
   const [mintSuccess, setMintSuccess] = useState(false)
  
@@ -24,7 +24,7 @@ const MintNFTProcess = ({ containerRef, perlinSettings, capturedImage, textFragm
 
   const { isConnected, walletAddress, beaconWallet, tezos } = useWallet()
   const LIGHTHOUSE_API_KEY = process.env.GATSBY_LIGHTHOUSE_API_KEY
-  const CONTRACT = process.env.GATSBY_TEZOS_REALTIME_CONTRACT
+  const realtimeRPNFTContract = process.env.GATSBY_TEZOS_REALTIME_CONTRACT
   const FIRST_CREATOR = process.env.GATSBY_RPNNFT_CREATOR
 
   const startMintingProcess = async () => {
@@ -47,27 +47,7 @@ const MintNFTProcess = ({ containerRef, perlinSettings, capturedImage, textFragm
     }
   }
 
-  // useEffect(() => {
-  //   if (metadataUrl && ipfsUrl && minting) {
-  //     setGatewayImageUrl(
-  //       `https://gateway.lighthouse.storage/ipfs/${ipfsUrl.split("ipfs://")[1]}`
-  //     )
-  //     setGatewayMetadataUrl(
-  //       `https://gateway.lighthouse.storage/ipfs/${
-  //         metadataUrl.split("ipfs://")[1]
-  //       }`
-  //     )
-
-  //     console.log("🚀 Both URLs are set. Initiating mint...")
-  //     console.log(`Image Gateway ${gatewayImageUrl}`)
-  //     console.log(`Metadata Gateway ${gatewayMetadataUrl}`)
-  //     mintNFT()
-  //     console.log("🚀 Both URLs are set. Initiating mint...")
-
-  //     mintNFT()
-  //   }
-  // }, [metadataUrl, ipfsUrl, minting]) // Runs only when metadataUrl or ipfsUrl changes
-
+ 
   const uploadImageToIPFS = async () => {
     console.log("📤 Uploading Image to IPFS...")
     setUploading(true)
@@ -217,8 +197,8 @@ const MintNFTProcess = ({ containerRef, perlinSettings, capturedImage, textFragm
     }
 
     try {
-      const contract = await tezos.wallet.at(CONTRACT)
-      console.log("✅ Contract successfully fetched:", CONTRACT)
+      const contract = await tezos.wallet.at(realtimeRPNFTContract)
+      console.log("✅ Contract successfully fetched:", realtimeRPNFTContract)
       console.log("🔹 Corrected IPFS Metadata URI:", metadataIpfsUrl)
 
       // Create a MichelsonMap with the correct metadata format
