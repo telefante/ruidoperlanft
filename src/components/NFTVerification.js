@@ -6,7 +6,7 @@ import { Container, Row } from "react-bootstrap";
 const objktapi =
   process.env.GATSBY_OBJKT_GRAPHQL_URL ||
   "https://data.ghostnet.objkt.com/v3/graphql";
-const contractAddress = process.env.GATSBY_TEZOS_CONTRACT;
+const RuiperPerlacontractAddress = process.env.GATSBY_TEZOS_CONTRACT;
 const CACHE_KEY = "nftOwnershipCache";
 const CACHE_EXPIRY = 5 * 60 * 1000; // Cache for 5 minutes
 
@@ -121,7 +121,7 @@ const NFTVerification = ({ setAccessGranted }) => {
   };
 
   const checkNFTOwnershipTzKT = async (address) => {
-    const apiUrl = `https://ghostnet.tzkt.io/v1/tokens/balances?account=${address}&token.contract=${contractAddress}`;
+    const apiUrl = `https://ghostnet.tzkt.io/v1/tokens/balances?account=${address}&token.contract=${RuiperPerlacontractAddress}`;
     console.log("TzKT API Request:", apiUrl);
     try {
       const response = await fetch(apiUrl);
@@ -140,7 +140,7 @@ const NFTVerification = ({ setAccessGranted }) => {
         token_holder(
           where: {
             holder_address: { _eq: "${address}" }
-            token: { fa_contract: { _eq: "${contractAddress}" } }
+            token: { fa_contract: { _eq: "${RuiperPerlacontractAddress}" } }
           }
         ) {
           quantity
