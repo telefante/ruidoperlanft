@@ -16,9 +16,10 @@ exports.onCreateWebpackConfig = ({ stage, actions }) => {
         crypto: require.resolve("crypto-browserify"),
         buffer: require.resolve("buffer/"),
         process: require.resolve("process/browser"),
-        crypto: false,
       },
-    
+      alias: {
+        crypto: require.resolve("crypto-browserify"),
+      },
     },
     
     plugins: [
@@ -42,6 +43,9 @@ exports.onCreateWebpackConfig = ({ stage, actions }) => {
           "ws": false,  // WebSocket library is for browser use only
           "stream": false,  // Prevents "stream" module error
           "@stablelib/x25519": false,  // Exclude the cryptographic library causing issues
+          //  "@lighthouse-web3/sdk": false,
+         "@taquito/taquito": false,
+        // "ipfs-only-hash": false,
         },
       },
     });
