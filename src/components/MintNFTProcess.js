@@ -47,26 +47,26 @@ const MintNFTProcess = ({ containerRef, perlinSettings, capturedImage, textFragm
     }
   }
 
-  useEffect(() => {
-    if (metadataUrl && ipfsUrl && minting) {
-      setGatewayImageUrl(
-        `https://gateway.lighthouse.storage/ipfs/${ipfsUrl.split("ipfs://")[1]}`
-      )
-      setGatewayMetadataUrl(
-        `https://gateway.lighthouse.storage/ipfs/${
-          metadataUrl.split("ipfs://")[1]
-        }`
-      )
+  // useEffect(() => {
+  //   if (metadataUrl && ipfsUrl && minting) {
+  //     setGatewayImageUrl(
+  //       `https://gateway.lighthouse.storage/ipfs/${ipfsUrl.split("ipfs://")[1]}`
+  //     )
+  //     setGatewayMetadataUrl(
+  //       `https://gateway.lighthouse.storage/ipfs/${
+  //         metadataUrl.split("ipfs://")[1]
+  //       }`
+  //     )
 
-      console.log("🚀 Both URLs are set. Initiating mint...")
-      console.log(`Image Gateway ${gatewayImageUrl}`)
-      console.log(`Metadata Gateway ${gatewayMetadataUrl}`)
-      mintNFT()
-      console.log("🚀 Both URLs are set. Initiating mint...")
+  //     console.log("🚀 Both URLs are set. Initiating mint...")
+  //     console.log(`Image Gateway ${gatewayImageUrl}`)
+  //     console.log(`Metadata Gateway ${gatewayMetadataUrl}`)
+  //     mintNFT()
+  //     console.log("🚀 Both URLs are set. Initiating mint...")
 
-      mintNFT()
-    }
-  }, [metadataUrl, ipfsUrl, minting]) // Runs only when metadataUrl or ipfsUrl changes
+  //     mintNFT()
+  //   }
+  // }, [metadataUrl, ipfsUrl, minting]) // Runs only when metadataUrl or ipfsUrl changes
 
   const uploadImageToIPFS = async () => {
     console.log("📤 Uploading Image to IPFS...")
@@ -218,26 +218,29 @@ const MintNFTProcess = ({ containerRef, perlinSettings, capturedImage, textFragm
 
     try {
       const contract = await tezos.wallet.at(CONTRACT)
-      console.log("✅ Contract successfully fetched.")
+      console.log("✅ Contract successfully fetched:", CONTRACT)
       console.log("🔹 Corrected IPFS Metadata URI:", metadataIpfsUrl)
 
       // Create a MichelsonMap with the correct metadata format
-      const metadata = new MichelsonMap()
-      metadata.set("", Buffer.from(`${metadataIpfsUrl}`).toString("hex")) // Store as hex
+      const metadataMap = new MichelsonMap()
+      metadataMap.set("", Buffer.from(`${metadataIpfsUrl}`).toString("hex")) // Store as hex
 
-      console.log("Metadata:", metadata)
+      console.log("Metadata:", metadataMap)
 
-      console.log("📤 Sending create_token transaction...")
-      const createOp = await contract.methods
-        .create_token(tokenId, metadata)
-        .send()
-      await createOp.confirmation(1)
-      console.log(`✅ Token ${tokenId} Created! TX: ${createOp.opHash}`)
+      // console.log("📤 Sending create_token transaction...")
+      // const createOp = await contract.methods
+      //   .create_token(tokenId, metadata)
+      //   .send()
+      // await createOp.confirmation(1)
+      // console.log(`✅ Token ${tokenId} Created! TX: ${createOp.opHash}`)
 
-      console.log("📤 Sending mint_tokens transaction...")
+      console.log("📤 Sending mint  transaction...")
+      // const mintOp = await contract.methods
+      //   .mint_tokens([{ owner: walletAddress, token_id: tokenId, amount: 1 }])
+      //   .send()
       const mintOp = await contract.methods
-        .mint_tokens([{ owner: walletAddress, token_id: tokenId, amount: 1 }])
-        .send()
+        .mint([{ metadata: metadataMap, to_: walletAddress }])
+        .send();
       await mintOp.confirmation(1)
       console.log(`✅ NFT Minted to ${walletAddress}! TX: ${mintOp.opHash}`)
 
