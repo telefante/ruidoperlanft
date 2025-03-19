@@ -227,12 +227,12 @@ const MintNFTProcess = ({ containerRef, perlinSettings, capturedImage, textFragm
 
       console.log("Metadata:", metadata)
 
-      console.log("📤 Sending create_token transaction...")
-      const createOp = await contract.methods
-        .create_token(tokenId, metadata)
-        .send()
-      await createOp.confirmation(1)
-      console.log(`✅ Token ${tokenId} Created! TX: ${createOp.opHash}`)
+      // console.log("📤 Sending create_token transaction...")
+      // const createOp = await contract.methods
+      //   .create_token(tokenId, metadata)
+      //   .send()
+      // await createOp.confirmation(1)
+      // console.log(`✅ Token ${tokenId} Created! TX: ${createOp.opHash}`)
 
       console.log("📤 Sending mint_tokens transaction...")
       const mintOp = await contract.methods
