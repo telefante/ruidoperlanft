@@ -121,7 +121,7 @@ const InstallationSection = () => {
 
   // console.log("Image data:", data)
 
-  const COLLECTION_CONTRACT = process.env.GATSBY_TEZOS_CONTRACT
+  const COLLECTION_CONTRACT = process.env.GATSBY_RUIDOPERLANFT_CONTRACT
   // const OBJKT_TOKEN_URL = process.env.GATSBY_OBJKT_TOKEN_URL
 
  

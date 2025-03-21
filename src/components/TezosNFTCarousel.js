@@ -34,7 +34,7 @@ const TezosNFTCarousel = () => {
 
   // const RPC_URL = process.env.GATSBY_TEZOS_RPC_URL;
   const TzKT_API = process.env.GATSBY_TZKT_API_URL
-  const COLLECTION_CONTRACT = process.env.GATSBY_TEZOS_CONTRACT
+  const COLLECTION_CONTRACT = process.env.GATSBY_RUIDOPERLANFT_CONTRACT
   const OBJKT_TOKEN_URL = process.env.GATSBY_OBJKT_TOKEN_URL
   console.log("TzKT_API:", TzKT_API)
   console.log("COLLECTION_CONTRACT:", COLLECTION_CONTRACT)
