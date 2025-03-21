@@ -9,22 +9,30 @@ import { useWallet } from "./WalletContext"
 const MintNFTProcess = ({ containerRef, perlinSettings, capturedImage, textFragment }) => {
   const [uploading, setUploading] = useState(false)
   const [minting, setMinting] = useState(false)
-  // const [showModal, setShowModal] = useState(false)
   const [ipfsUrl, setIpfsUrl] = useState(null)
   const [gatewayImageUrl, setGatewayImageUrl] = useState(null)
   const [gatewayMetadataUrl, setGatewayMetadataUrl] = useState(null)
-  // const [metadataUrl, setMetadataUrl] = useState(null)
-  // const [metadataJson, setMetadataJson] = useState(null)
-  // const [showMinting, setShowMinting] = useState(false)
+
   const [mintSuccess, setMintSuccess] = useState(false)
- 
+  const [isHolderOfRareOrLegendary, setIsHolderOfRareOrLegendary] = useState(false)
+  const [currentSupply, setCurrentSupply] = useState(0)
+  const [maxSupply, setMaxSupply] = useState(7)
+
   useEffect(() => {
     console.log("textFragment changed:", textFragment)
   }, [textFragment])
 
+  // Add useEffect to check holder status and supply when wallet connects
+  useEffect(() => {
+    if (isConnected && walletAddress) {
+      checkHolderStatus()
+      checkSupply()
+    }
+  }, [isConnected, walletAddress])
+
   const { isConnected, walletAddress, beaconWallet, tezos } = useWallet()
   const LIGHTHOUSE_API_KEY = process.env.GATSBY_LIGHTHOUSE_API_KEY
-  const realtimeRPNFTContract = process.env.GATSBY_TEZOS_REALTIME_CONTRACT
+  const realtimeRPNFTContract = process.env.GATSBY_TEZOS_REALTIME_CONTRACT // p
   const FIRST_CREATOR = process.env.GATSBY_RPNNFT_CREATOR
 
   const startMintingProcess = async () => {
@@ -47,7 +55,6 @@ const MintNFTProcess = ({ containerRef, perlinSettings, capturedImage, textFragm
     }
   }
 
- 
   const uploadImageToIPFS = async () => {
     console.log("📤 Uploading Image to IPFS...")
     setUploading(true)
@@ -176,6 +183,44 @@ const MintNFTProcess = ({ containerRef, perlinSettings, capturedImage, textFragm
       setUploading(false)
     }
   }
+  const checkHolderStatus = async () => {
+    try {
+      const contract = await tezos.wallet.at(realtimeRPNFTContract)
+      
+      // Get balance of user's tokens
+      const storage = await contract.storage()
+      const userTokens = await storage.ledger.getKeys()
+      
+      // Check if user holds any tokens (you'll need to implement your own logic
+      // to determine if they're rare/legendary based on your metadata)
+      for (const tokenId of userTokens) {
+        const tokenMetadata = await storage.token_metadata.get(tokenId)
+        // Example check - modify based on your actual rarity criteria
+        if (tokenMetadata && tokenMetadata.token_info.get('rarity') === 'rare' || 
+            tokenMetadata.token_info.get('rarity') === 'legendary') {
+          setIsHolderOfRareOrLegendary(true)
+          break
+        }
+      }
+    } catch (error) {
+      console.error("Error checking holder status:", error)
+    }
+  }
+
+  const checkSupply = async () => {
+    try {
+      const contract = await tezos.wallet.at(realtimeRPNFTContract)
+      const storage = await contract.storage()
+      const current = await storage.current_supply
+      const max = await storage.max_supply
+      
+      setCurrentSupply(current.toNumber())
+      setMaxSupply(max.toNumber())
+    } catch (error) {
+      console.error("Error checking supply:", error)
+    }
+  }
+
   const mintNFT = async (tokenId, metadataIpfsUrl, imageIpfsUrl) => {
     console.log("🚀 Minting NFT...")
 
@@ -185,13 +230,8 @@ const MintNFTProcess = ({ containerRef, perlinSettings, capturedImage, textFragm
       return
     }
 
-    // console.log("Metadata URL before minting:", metadataIpfsUrl)
-    // console.log("Image URL before minting:", imageIpfsUrl)
-
     if (!metadataIpfsUrl || !imageIpfsUrl) {
-      alert(
-        "IPFS upload incomplete! Make sure both image and metadata are uploaded."
-      )
+      alert("IPFS upload incomplete! Make sure both image and metadata are uploaded.")
       setMinting(false)
       return
     }
@@ -199,35 +239,35 @@ const MintNFTProcess = ({ containerRef, perlinSettings, capturedImage, textFragm
     try {
       const contract = await tezos.wallet.at(realtimeRPNFTContract)
       console.log("✅ Contract successfully fetched:", realtimeRPNFTContract)
-      console.log("🔹 Corrected IPFS Metadata URI:", metadataIpfsUrl)
 
-      // Create a MichelsonMap with the correct metadata format
+      // Create metadata map
       const metadataMap = new MichelsonMap()
-      metadataMap.set("", Buffer.from(`${metadataIpfsUrl}`).toString("hex")) // Store as hex
+      metadataMap.set("", Buffer.from(`${metadataIpfsUrl}`).toString("hex"))
 
-      console.log("Metadata:", metadataMap)
+      // Determine mint amount based on conditions
+      let mintAmount = 0
+      if (currentSupply < 3) {
+        mintAmount = 0 // First 3 tokens are free
+      } else if (isHolderOfRareOrLegendary) {
+        mintAmount = 0 // Free for holders of rare/legendary
+      } else {
+        mintAmount = 5000000 // 5 TEZ in mutez
+      }
 
-      // console.log("📤 Sending create_token transaction...")
-      // const createOp = await contract.methods
-      //   .create_token(tokenId, metadata)
-      //   .send()
-      // await createOp.confirmation(1)
-      // console.log(`✅ Token ${tokenId} Created! TX: ${createOp.opHash}`)
-
-      console.log("📤 Sending mint  transaction...")
-      // const mintOp = await contract.methods
-      //   .mint_tokens([{ owner: walletAddress, token_id: tokenId, amount: 1 }])
-      //   .send()
+      console.log("📤 Sending mint transaction...")
       const mintOp = await contract.methods
         .mint([{ metadata: metadataMap, to_: walletAddress }])
-        .send();
+        .send({ amount: mintAmount });
+      
       await mintOp.confirmation(1)
       console.log(`✅ NFT Minted to ${walletAddress}! TX: ${mintOp.opHash}`)
 
       setMintSuccess(true)
+      // Update supply after successful mint
+      checkSupply()
     } catch (error) {
       console.error("❌ Error minting NFT:", error)
-      alert("Failed to mint NFT.")
+      alert("Failed to mint NFT: " + error.message)
     } finally {
       setMinting(false)
     }
@@ -291,10 +331,19 @@ const MintNFTProcess = ({ containerRef, perlinSettings, capturedImage, textFragm
         )}
       </p>
 
+      <div style={{ marginBottom: "20px" }}>
+        <p>Current Supply: {currentSupply} / {maxSupply}</p>
+        <p>Minting Price: {
+          currentSupply < 3 ? "Free (First 3 tokens)" :
+          isHolderOfRareOrLegendary ? "Free (Rare/Legendary holder)" :
+          "5 TEZ"
+        }</p>
+      </div>
+
       <Button
         variant="primary"
         onClick={startMintingProcess}
-        disabled={minting}
+        disabled={minting || currentSupply >= maxSupply}
         style={{
           fontFamily: "var(--primary-font)",
           fontStyle: "italic",
@@ -303,7 +352,9 @@ const MintNFTProcess = ({ containerRef, perlinSettings, capturedImage, textFragm
           maxWidth: "200px",
         }}
       >
-        {minting ? "Minting..." : "Mint this!"}
+        {minting ? "Minting..." : 
+         currentSupply >= maxSupply ? "Max Supply Reached" : 
+         "Mint this!"}
       </Button>
 
       {mintSuccess && (
