@@ -88,6 +88,10 @@ const PerlinNoise = ({
     lookAt: { x: 0, y: 0, z: 0 },
   })
 
+  const cameraPositionRef = useRef(null)
+  const cameraRotationRef = useRef(null)
+  const controlsTargetRef = useRef(null)
+
   const updatePerlinSettings = (key, value) => {
     setPerlinSettings(prev => ({ ...prev, [key]: value }))
   }
@@ -101,13 +105,18 @@ const PerlinNoise = ({
     const scene = new THREE.Scene()
     const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000)
 
-    if (cameraParams) {
-      const { position, lookAt } = cameraParams
-      camera.position.set(position.x, position.y, position.z)
-      camera.lookAt(lookAt.x, lookAt.y, lookAt.z)
+    if (cameraPositionRef.current && cameraRotationRef.current) {
+      camera.position.copy(cameraPositionRef.current)
+      camera.rotation.copy(cameraRotationRef.current)
     } else {
-      camera.position.set(0, 100, 200)
-      camera.lookAt(0, 0, 0)
+      if (cameraParams) {
+        const { position, lookAt } = cameraParams
+        camera.position.set(position.x, position.y, position.z)
+        camera.lookAt(lookAt.x, lookAt.y, lookAt.z)
+      } else {
+        camera.position.set(0, 100, 200)
+        camera.lookAt(0, 0, 0)
+      }
     }
 
     const renderer = new THREE.WebGLRenderer({
@@ -213,6 +222,19 @@ const PerlinNoise = ({
     controls.minDistance = 50
     controls.maxDistance = 400
 
+    if (controlsTargetRef.current) {
+      controls.target.copy(controlsTargetRef.current)
+      controls.update()
+    }
+
+    const handleControlsChange = () => {
+      cameraPositionRef.current = camera.position.clone()
+      cameraRotationRef.current = camera.rotation.clone()
+      controlsTargetRef.current = controls.target.clone()
+    }
+
+    controls.addEventListener('change', handleControlsChange)
+
     const raycaster = new THREE.Raycaster()
     const mouse = new THREE.Vector2()
 
@@ -243,6 +265,10 @@ const PerlinNoise = ({
       if (controls.enabled) {
         renderer.domElement.style.cursor = "grab"
       }
+
+      cameraPositionRef.current = camera.position.clone()
+      cameraRotationRef.current = camera.rotation.clone()
+      controlsTargetRef.current = controls.target.clone()
 
       console.log("position", camera.position)
       const direction = new THREE.Vector3()
@@ -283,7 +309,7 @@ const PerlinNoise = ({
       if (mountRef.current && rendererRef.current) {
         mountRef.current.removeChild(rendererRef.current.domElement)
       }
-      controls.removeEventListener("change", () => {})
+      controls.removeEventListener('change', handleControlsChange)
       controls.dispose()
       if (rendererRef.current) {
         rendererRef.current.dispose()
