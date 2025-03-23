@@ -7,7 +7,12 @@ import { useWallet } from "./WalletContext"
 import { color } from "framer-motion"
 // import ipfsOnlyHash from "ipfs-only-hash"
 
-const MintNFTProcess = ({ containerRef, perlinSettings, capturedImage, textFragment }) => {
+const MintNFTProcess = ({
+  containerRef,
+  perlinSettings,
+  capturedImage,
+  textFragment,
+}) => {
   const [uploading, setUploading] = useState(false) // vielleicht nicht mehr nötig
   const [minting, setMinting] = useState(false)
   const [ipfsUrl, setIpfsUrl] = useState(null) // vielleicht nicht mehr nötig
@@ -15,17 +20,18 @@ const MintNFTProcess = ({ containerRef, perlinSettings, capturedImage, textFragm
   const [gatewayMetadataUrl, setGatewayMetadataUrl] = useState(null)
 
   const [mintSuccess, setMintSuccess] = useState(false)
-  const [isHolderOfRareOrLegendary, setIsHolderOfRareOrLegendary] = useState(false)
+  const [isHolderOfRareOrLegendary, setIsHolderOfRareOrLegendary] =
+    useState(false)
   const [currentSupply, setCurrentSupply] = useState(0)
   const [maxSupply, setMaxSupply] = useState(7)
 
   // Get wallet context
-  const { 
-    isConnected, 
-    walletAddress, 
-    beaconWallet, 
+  const {
+    isConnected,
+    walletAddress,
+    beaconWallet,
     tezos,
-    connectWallet // Add this to allow connecting from the component
+    connectWallet, // Add this to allow connecting from the component
   } = useWallet()
 
   // Add loading state for wallet
@@ -57,8 +63,8 @@ const MintNFTProcess = ({ containerRef, perlinSettings, capturedImage, textFragm
   const LIGHTHOUSE_API_KEY = process.env.GATSBY_LIGHTHOUSE_API_KEY
   const realtimeRPNFTContract = process.env.GATSBY_TEZOS_REALTIME_CONTRACT
   const FIRST_CREATOR = process.env.GATSBY_RPNNFT_CREATOR
-  const AMOUNT = 2.5; // 2.5 TEZ
- 
+  const AMOUNT = 2.5 // 2.5 TEZ
+
   const startMintingProcess = async () => {
     console.log("🚀 Starting Minting Process...")
     setMinting(true) // Start minting process
@@ -129,7 +135,14 @@ const MintNFTProcess = ({ containerRef, perlinSettings, capturedImage, textFragm
       const metadataJson = {
         name: `RuidoPerla#${formattedTokenId}`,
         date: currentDate,
-        tags: ["Generative Art", "Algorithmic", "Poetry", "Ruido Perla", "Poetics", "Real-Time"],
+        tags: [
+          "Generative Art",
+          "Algorithmic",
+          "Poetry",
+          "Ruido Perla",
+          "Poetics",
+          "Real-Time",
+        ],
         minter: walletAddress,
         rights: "No License / All Rights Reserved",
         symbol: "RPNFT",
@@ -177,26 +190,28 @@ const MintNFTProcess = ({ containerRef, perlinSettings, capturedImage, textFragm
       )
 
       if (metadataResponse.data && metadataResponse.data.Hash) {
-        const metadataCid = metadataResponse.data.Hash;
-        const IPFS_CID = `ipfs://${metadataCid}`;
-      
-        console.log("✅ Metadata Uploaded:", IPFS_CID);
-      
+        const metadataCid = metadataResponse.data.Hash
+        const IPFS_CID = `ipfs://${metadataCid}`
+
+        console.log("✅ Metadata Uploaded:", IPFS_CID)
+
         // ✅ Update state explicitly
-        const newGatewayImageUrl = `https://gateway.lighthouse.storage/ipfs/${imageIpfsUrl.split("ipfs://")[1]}`;
-        const newGatewayMetadataUrl = `https://gateway.lighthouse.storage/ipfs/${metadataCid}`;
-      
-        setGatewayImageUrl(newGatewayImageUrl);
-        setGatewayMetadataUrl(newGatewayMetadataUrl);
-      
-        console.log("🚀 Updated State:");
-        console.log("New Gateway Image URL:", newGatewayImageUrl);
-        console.log("New Gateway Metadata URL:", newGatewayMetadataUrl);
-      
+        const newGatewayImageUrl = `https://gateway.lighthouse.storage/ipfs/${
+          imageIpfsUrl.split("ipfs://")[1]
+        }`
+        const newGatewayMetadataUrl = `https://gateway.lighthouse.storage/ipfs/${metadataCid}`
+
+        setGatewayImageUrl(newGatewayImageUrl)
+        setGatewayMetadataUrl(newGatewayMetadataUrl)
+
+        console.log("🚀 Updated State:")
+        console.log("New Gateway Image URL:", newGatewayImageUrl)
+        console.log("New Gateway Metadata URL:", newGatewayMetadataUrl)
+
         // ✅ Ensure state is updated before calling mintNFT
         setTimeout(() => {
-          mintNFT(tokenId, IPFS_CID, imageIpfsUrl);
-        }, 500); // Give React time to update state
+          mintNFT(tokenId, IPFS_CID, imageIpfsUrl)
+        }, 500) // Give React time to update state
       } else {
         throw new Error("Metadata upload failed.")
       }
@@ -210,18 +225,21 @@ const MintNFTProcess = ({ containerRef, perlinSettings, capturedImage, textFragm
   const checkHolderStatus = async () => {
     try {
       const contract = await tezos.wallet.at(realtimeRPNFTContract)
-      
+
       // Get balance of user's tokens
       const storage = await contract.storage()
       const userTokens = await storage.ledger.getKeys()
-      
+
       // Check if user holds any tokens (you'll need to implement your own logic
       // to determine if they're rare/legendary based on your metadata)
       for (const tokenId of userTokens) {
         const tokenMetadata = await storage.token_metadata.get(tokenId)
         // Example check - modify based on your actual rarity criteria
-        if (tokenMetadata && tokenMetadata.token_info.get('rarity') === 'rare' || 
-            tokenMetadata.token_info.get('rarity') === 'legendary') {
+        if (
+          (tokenMetadata &&
+            tokenMetadata.token_info.get("rarity") === "rare") ||
+          tokenMetadata.token_info.get("rarity") === "legendary"
+        ) {
           setIsHolderOfRareOrLegendary(true)
           break
         }
@@ -237,7 +255,7 @@ const MintNFTProcess = ({ containerRef, perlinSettings, capturedImage, textFragm
       const storage = await contract.storage()
       const current = await storage.current_supply
       const max = await storage.max_supply
-      
+
       setCurrentSupply(current.toNumber())
       setMaxSupply(max.toNumber())
     } catch (error) {
@@ -255,7 +273,9 @@ const MintNFTProcess = ({ containerRef, perlinSettings, capturedImage, textFragm
     }
 
     if (!metadataIpfsUrl || !imageIpfsUrl) {
-      alert("IPFS upload incomplete! Make sure both image and metadata are uploaded.")
+      alert(
+        "IPFS upload incomplete! Make sure both image and metadata are uploaded."
+      )
       setMinting(false)
       return
     }
@@ -263,10 +283,10 @@ const MintNFTProcess = ({ containerRef, perlinSettings, capturedImage, textFragm
     try {
       const contract = await tezos.wallet.at(realtimeRPNFTContract)
       console.log("✅ Contract successfully fetched:", realtimeRPNFTContract)
-      
+
       // Add this paragraph to show contract link
-      const betterCallDevUrl = `https://better-call.dev/ghostnet/KT1RJ6PbjHpwc3M5rw5s2Nbmefwbuwbdxton/operations`;
-      console.log(`View contract on Better Call Dev: ${betterCallDevUrl}`);
+      const betterCallDevUrl = `https://better-call.dev/ghostnet/KT1RJ6PbjHpwc3M5rw5s2Nbmefwbuwbdxton/operations`
+      console.log(`View contract on Better Call Dev: ${betterCallDevUrl}`)
 
       // Create metadata map
       const metadataMap = new MichelsonMap()
@@ -279,26 +299,26 @@ const MintNFTProcess = ({ containerRef, perlinSettings, capturedImage, textFragm
       } else if (isHolderOfRareOrLegendary) {
         mintAmount = 0 // Free for holders of rare/legendary
       } else {
-        mintAmount = AMOUNT 
+        mintAmount = AMOUNT
       }
 
       console.log("📤 Sending mint transaction...")
       const mintOp = await contract.methods
         .mint([{ metadata: metadataMap, to_: walletAddress }])
-        .send({ amount: mintAmount });
-      
+        .send({ amount: mintAmount })
+
       await mintOp.confirmation(1)
-      
+
       // Add operation hash link
-      const opHashUrl = `https://better-call.dev/ghostnet/opg/${mintOp.opHash}/contents`;
-      console.log(`✅ NFT Minted! View transaction: ${opHashUrl}`);
+      const opHashUrl = `https://better-call.dev/ghostnet/opg/${mintOp.opHash}/contents`
+      console.log(`✅ NFT Minted! View transaction: ${opHashUrl}`)
 
       setMintSuccess({
         success: true,
         opHash: mintOp.opHash,
-        opHashUrl: opHashUrl
-      });
-      
+        opHashUrl: opHashUrl,
+      })
+
       // Update supply after successful mint
       checkSupply()
     } catch (error) {
@@ -331,55 +351,50 @@ const MintNFTProcess = ({ containerRef, perlinSettings, capturedImage, textFragm
       {/* <pre style={{ backgroundColor: "#f8f9fa", padding: "10px" }}>
         {JSON.stringify(metadataJson, null, 2)}
       </pre> */}
-<Row>
-      <Col md={6}>
-      <p >
-        {gatewayImageUrl ? (
-          <>
-            <strong>
-          
-              IPFS Image{" "}
-              <a
-                href={gatewayImageUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                URL
-              </a>
-            </strong>
-          
-            
-          </>
-        ) : (
-          <em>Waiting for image upload...</em>
-        )}
-      </p>
-
-      </Col>
-<Col md={6}>
-      <p >
-        {gatewayMetadataUrl ? (
-          <>
-            <strong>
-             
-              Metadata {" "}
-              <a
-                href={gatewayMetadataUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-               CID URL
-              </a>
-            </strong>
-          </>
-        ) : (
-          <em>Waiting for metadata upload...</em>
-        )}
-      </p>
-      </Col>
+      <Row>
+        <Col md={6}>
+          <p>
+            {gatewayImageUrl ? (
+              <>
+                <strong>
+                  IPFS Image{" "}
+                  <a
+                    href={gatewayImageUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    URL
+                  </a>
+                </strong>
+              </>
+            ) : (
+              <em>Waiting for image upload...</em>
+            )}
+          </p>
+        </Col>
+        <Col md={6}>
+          <p>
+            {gatewayMetadataUrl ? (
+              <>
+                <strong>
+                  Metadata{" "}
+                  <a
+                    href={gatewayMetadataUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    CID URL
+                  </a>
+                </strong>
+              </>
+            ) : (
+              <em>Waiting for metadata upload...</em>
+            )}
+          </p>
+        </Col>
       </Row>
 
-      <div >
+      <div>
         {!isConnected ? (
           <Button
             variant="primary"
@@ -397,15 +412,26 @@ const MintNFTProcess = ({ containerRef, perlinSettings, capturedImage, textFragm
           </Button>
         ) : (
           <>
-            <div style={{ color: "black" }}>
-              <p>Current Supply: {currentSupply} / {maxSupply}</p>
-              <p>Minting Price: {
-                currentSupply < 3 ? "Free (First 3 tokens)" :
-                isHolderOfRareOrLegendary ? "Free (Rare/Legendary holder)" :
-                `${AMOUNT} TEZ`
-              }</p>
+            <Row>
+              <Col md={6}>
+                <p>
+                  Current Supply: {currentSupply} / {maxSupply}
+                </p>
+              </Col>
+              <Col md={6}>
+                <p>
+                  Minting Price:{" "}
+                  {currentSupply < 3
+                    ? "Free (First 3 tokens)"
+                    : isHolderOfRareOrLegendary
+                    ? "Free (Rare/Legendary holder)"
+                    : `${AMOUNT} TEZ`}
+                </p>
+              </Col>
+
               <p>Connected Address: {walletAddress}</p>
-            </div>
+            </Row>
+
             <Button
               variant="primary"
               onClick={startMintingProcess}
@@ -418,10 +444,13 @@ const MintNFTProcess = ({ containerRef, perlinSettings, capturedImage, textFragm
                 maxWidth: "200px",
               }}
             >
-              {walletLoading ? "Loading..." :
-               minting ? "Minting..." : 
-               currentSupply >= maxSupply ? "Max Supply Reached" : 
-               "Mint this!"}
+              {walletLoading
+                ? "Loading..."
+                : minting
+                ? "Minting..."
+                : currentSupply >= maxSupply
+                ? "Max Supply Reached"
+                : "Mint this!"}
             </Button>
           </>
         )}
@@ -434,7 +463,7 @@ const MintNFTProcess = ({ containerRef, perlinSettings, capturedImage, textFragm
             <Col md={6}>
               <p style={{ color: "black" }}>
                 Contract:{" "}
-                <a 
+                <a
                   href={`https://better-call.dev/ghostnet/KT1RJ6PbjHpwc3M5rw5s2Nbmefwbuwbdxton/operations`}
                   target="_blank"
                   rel="noopener noreferrer"
@@ -447,7 +476,7 @@ const MintNFTProcess = ({ containerRef, perlinSettings, capturedImage, textFragm
               {mintSuccess.opHash && (
                 <p style={{ color: "black" }}>
                   Transaction:{" "}
-                  <a 
+                  <a
                     href={mintSuccess.opHashUrl}
                     target="_blank"
                     rel="noopener noreferrer"
