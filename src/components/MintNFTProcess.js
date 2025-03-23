@@ -263,6 +263,10 @@ const MintNFTProcess = ({ containerRef, perlinSettings, capturedImage, textFragm
     try {
       const contract = await tezos.wallet.at(realtimeRPNFTContract)
       console.log("✅ Contract successfully fetched:", realtimeRPNFTContract)
+      
+      // Add this paragraph to show contract link
+      const betterCallDevUrl = `https://better-call.dev/ghostnet/KT1RJ6PbjHpwc3M5rw5s2Nbmefwbuwbdxton/operations`;
+      console.log(`View contract on Better Call Dev: ${betterCallDevUrl}`);
 
       // Create metadata map
       const metadataMap = new MichelsonMap()
@@ -284,9 +288,17 @@ const MintNFTProcess = ({ containerRef, perlinSettings, capturedImage, textFragm
         .send({ amount: mintAmount });
       
       await mintOp.confirmation(1)
-      console.log(`✅ NFT Minted to ${walletAddress}! TX: ${mintOp.opHash}`)
+      
+      // Add operation hash link
+      const opHashUrl = `https://better-call.dev/ghostnet/opg/${mintOp.opHash}/contents`;
+      console.log(`✅ NFT Minted! View transaction: ${opHashUrl}`);
 
-      setMintSuccess(true)
+      setMintSuccess({
+        success: true,
+        opHash: mintOp.opHash,
+        opHashUrl: opHashUrl
+      });
+      
       // Update supply after successful mint
       checkSupply()
     } catch (error) {
@@ -411,7 +423,21 @@ const MintNFTProcess = ({ containerRef, perlinSettings, capturedImage, textFragm
       </div>
 
       {mintSuccess && (
-        <p style={{ color: "green" }}>✅ NFT Minted Successfully!</p>
+        <div>
+          <p style={{ color: "green" }}>✅ NFT Minted Successfully!</p>
+          {mintSuccess.opHash && (
+            <p style={{ color: "black" }}>
+              View transaction on Better Call Dev:{" "}
+              <a 
+                href={mintSuccess.opHashUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {mintSuccess.opHash}
+              </a>
+            </p>
+          )}
+        </div>
       )}
     </Container>
   )
