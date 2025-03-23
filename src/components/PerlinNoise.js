@@ -8,10 +8,8 @@ import { useStaticQuery, graphql } from "gatsby"
 import { Modal, Button, Row, Container } from "react-bootstrap"
 import PerlinControls from "./PerlinControls"
 import { useWallet } from "./WalletContext"
-
 import NFTVerification from "./NFTVerification"
 import MintNFTProcess from "./MintNFTProcess"
-
 import * as styles from "./PerlinNoise.module.css"
 
 const PerlinNoise = ({
@@ -63,6 +61,13 @@ const PerlinNoise = ({
   const rendererRef = useRef(null)
   const currentTextRef = useRef("")
   const geometryRef = useRef(null)
+  const animationFrameRef = useRef(null)
+  const clockRef = useRef(new THREE.Clock())
+  const noiseVectorRef = useRef(new THREE.Vector3())
+  const perlinRef = useRef(new Perlin())
+  const simplexRef = useRef(createNoise3D())
+  const animateRef = useRef(null)
+  const currentIndexRef = useRef(0)
 
   const [perlinSettings, setPerlinSettings] = useState({
     usePerlin: initialParams.usePerlin,
@@ -83,6 +88,10 @@ const PerlinNoise = ({
     lookAt: { x: 0, y: 0, z: 0 },
   })
 
+  const cameraPositionRef = useRef(null)
+  const cameraRotationRef = useRef(null)
+  const controlsTargetRef = useRef(null)
+
   const updatePerlinSettings = (key, value) => {
     setPerlinSettings(prev => ({ ...prev, [key]: value }))
   }
@@ -96,13 +105,18 @@ const PerlinNoise = ({
     const scene = new THREE.Scene()
     const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000)
 
-    if (cameraParams) {
-      const { position, lookAt } = cameraParams
-      camera.position.set(position.x, position.y, position.z)
-      camera.lookAt(lookAt.x, lookAt.y, lookAt.z)
+    if (cameraPositionRef.current && cameraRotationRef.current) {
+      camera.position.copy(cameraPositionRef.current)
+      camera.rotation.copy(cameraRotationRef.current)
     } else {
-      camera.position.set(0, 100, 200)
-      camera.lookAt(0, 0, 0)
+      if (cameraParams) {
+        const { position, lookAt } = cameraParams
+        camera.position.set(position.x, position.y, position.z)
+        camera.lookAt(lookAt.x, lookAt.y, lookAt.z)
+      } else {
+        camera.position.set(0, 100, 200)
+        camera.lookAt(0, 0, 0)
+      }
     }
 
     const renderer = new THREE.WebGLRenderer({
@@ -127,7 +141,7 @@ const PerlinNoise = ({
       segments,
       segments
     )
-    geometryRef.current = geometry // Assign geometryRef here
+    geometryRef.current = geometry
 
     const solidMaterial = new THREE.MeshBasicMaterial({
       color: initialParams.colors?.solid?.color || 0x000000,
@@ -149,51 +163,47 @@ const PerlinNoise = ({
     scene.add(solidMesh)
     scene.add(wireframeMesh)
 
-    const clock = new THREE.Clock()
-    const noiseVector = new THREE.Vector3()
     const perlin = new Perlin()
     const simplex = createNoise3D()
+    const noiseVector = new THREE.Vector3()
+    const clock = new THREE.Clock()
 
     const animate = () => {
-      requestAnimationFrame(animate)
-      const elapsed = clock.getElapsedTime() // Ensure time progression
+      animationFrameRef.current = requestAnimationFrame(animate)
+      const elapsed = clock.getElapsedTime()
 
       if (!geometryRef.current) return
 
-      const { amplitude, scale, frequency, octaves, usePerlin } = perlinSettings
       const positions = geometryRef.current.attributes.position.array
+      const { amplitude, scale, frequency, octaves, usePerlin } = perlinSettings
 
       for (let i = 0; i < positions.length; i += 3) {
         const x = positions[i]
         const y = positions[i + 1]
 
-        let noiseValue
         let totalNoise = 0
         let amp = 1
         let freq = frequency
 
         for (let o = 0; o < octaves; o++) {
-          noiseVector.set(
-            x * scale * freq,
-            y * scale * freq,
-            elapsed // Change over time
-          )
-          totalNoise += usePerlin
-            ? perlin.get3(noiseVector) * amp
-            : simplex(x * scale, y * scale, elapsed)
+          if (usePerlin) {
+            noiseVector.set(x * scale * freq, y * scale * freq, elapsed)
+            totalNoise += perlin.get3(noiseVector) * amp
+          } else {
+            totalNoise += simplex(x * scale * freq, y * scale * freq, elapsed) * amp
+          }
           amp *= 0.5
           freq *= 2
         }
 
-        noiseValue = totalNoise
-        positions[i + 2] = noiseValue * amplitude
+        positions[i + 2] = totalNoise * amplitude
       }
 
       geometryRef.current.attributes.position.needsUpdate = true
       rendererRef.current.render(sceneRef.current, cameraRef.current)
     }
 
-    animate() // Ensure animation loop runs
+    animate()
 
     const handleResize = () => {
       const width = mountRef.current.clientWidth
@@ -205,31 +215,25 @@ const PerlinNoise = ({
       renderer.setSize(width, height)
     }
 
-    const lines = text.split("\n").filter(line => line.trim())
-    let currentIndex = 0
-
-    const updateText = () => {
-      setTextOpacity(0)
-      setTimeout(() => {
-        setTextOpacity(0)
-        setTimeout(() => {
-          currentTextRef.current = lines[currentIndex]
-          setTextOpacity(1)
-          currentIndex = (currentIndex + 1) % lines.length
-        }, 500)
-      }, 500)
-    }
-
-    updateText()
-
-    const textInterval = setInterval(updateText, 5000)
-
     const controls = new OrbitControls(camera, renderer.domElement)
     controls.enableDamping = true
     controls.dampingFactor = 0.05
     controls.enabled = false
     controls.minDistance = 50
     controls.maxDistance = 400
+
+    if (controlsTargetRef.current) {
+      controls.target.copy(controlsTargetRef.current)
+      controls.update()
+    }
+
+    const handleControlsChange = () => {
+      cameraPositionRef.current = camera.position.clone()
+      cameraRotationRef.current = camera.rotation.clone()
+      controlsTargetRef.current = controls.target.clone()
+    }
+
+    controls.addEventListener('change', handleControlsChange)
 
     const raycaster = new THREE.Raycaster()
     const mouse = new THREE.Vector2()
@@ -261,6 +265,10 @@ const PerlinNoise = ({
       if (controls.enabled) {
         renderer.domElement.style.cursor = "grab"
       }
+
+      cameraPositionRef.current = camera.position.clone()
+      cameraRotationRef.current = camera.rotation.clone()
+      controlsTargetRef.current = controls.target.clone()
 
       console.log("position", camera.position)
       const direction = new THREE.Vector3()
@@ -301,17 +309,16 @@ const PerlinNoise = ({
       if (mountRef.current && rendererRef.current) {
         mountRef.current.removeChild(rendererRef.current.domElement)
       }
-      controls.removeEventListener("change", () => {})
+      controls.removeEventListener('change', handleControlsChange)
       controls.dispose()
       if (rendererRef.current) {
         rendererRef.current.dispose()
       }
-      clearInterval(textInterval)
-      renderer.domElement.removeEventListener("pointermove", onPointerMove)
-      renderer.domElement.removeEventListener("pointerdown", onPointerDown)
-      renderer.domElement.removeEventListener("pointerup", onPointerUp)
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current)
+      }
     }
-  }, [data, enableOrbit, cameraParams, perlinSettings])
+  }, [perlinSettings])
 
   useEffect(() => {
     const mediaQuery = window.matchMedia("(max-width: 768px)")
@@ -367,6 +374,29 @@ const PerlinNoise = ({
   const toggleControls = () => {
     setControlsVisible(!controlsVisible)
   }
+
+  useEffect(() => {
+    const lines = text.split("\n").filter(line => line.trim())
+    
+    const updateText = () => {
+      setTextOpacity(0)
+      setTimeout(() => {
+        setTextOpacity(0)
+        setTimeout(() => {
+          currentTextRef.current = lines[currentIndexRef.current]
+          setTextOpacity(1)
+          currentIndexRef.current = (currentIndexRef.current + 1) % lines.length
+        }, 500)
+      }, 500)
+    }
+
+    updateText()
+    const textInterval = setInterval(updateText, 5000)
+
+    return () => {
+      clearInterval(textInterval)
+    }
+  }, [text])
 
   return (
     <div
