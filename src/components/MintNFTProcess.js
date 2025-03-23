@@ -315,6 +315,8 @@ const MintNFTProcess = ({ containerRef, perlinSettings, capturedImage, textFragm
         {`
           p {
             color: black !important;
+            font-size: 1rem;
+            margin-bottom: 1rem;
           }
         `}
       </style>
@@ -329,7 +331,7 @@ const MintNFTProcess = ({ containerRef, perlinSettings, capturedImage, textFragm
       {/* <pre style={{ backgroundColor: "#f8f9fa", padding: "10px" }}>
         {JSON.stringify(metadataJson, null, 2)}
       </pre> */}
-      <p style={{ color: "black", fontSize: "12px" }}>
+      <p >
         {gatewayImageUrl ? (
           <>
             <strong>
@@ -354,7 +356,7 @@ const MintNFTProcess = ({ containerRef, perlinSettings, capturedImage, textFragm
           <em>Waiting for image upload...</em>
         )}
       </p>
-      <p style={{ color: "black", fontSize: "12px" }}>
+      <p >
         {gatewayMetadataUrl ? (
           <>
             <strong>
@@ -374,7 +376,7 @@ const MintNFTProcess = ({ containerRef, perlinSettings, capturedImage, textFragm
         )}
       </p>
 
-      <div style={{ marginBottom: "20px" }}>
+      <div >
         {!isConnected ? (
           <Button
             variant="primary"
