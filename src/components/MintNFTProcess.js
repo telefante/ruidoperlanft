@@ -7,9 +7,9 @@ import { useWallet } from "./WalletContext"
 // import ipfsOnlyHash from "ipfs-only-hash"
 
 const MintNFTProcess = ({ containerRef, perlinSettings, capturedImage, textFragment }) => {
-  const [uploading, setUploading] = useState(false)
+  const [uploading, setUploading] = useState(false) // vielleicht nicht mehr nötig
   const [minting, setMinting] = useState(false)
-  const [ipfsUrl, setIpfsUrl] = useState(null)
+  const [ipfsUrl, setIpfsUrl] = useState(null) // vielleicht nicht mehr nötig
   const [gatewayImageUrl, setGatewayImageUrl] = useState(null)
   const [gatewayMetadataUrl, setGatewayMetadataUrl] = useState(null)
 
@@ -18,19 +18,41 @@ const MintNFTProcess = ({ containerRef, perlinSettings, capturedImage, textFragm
   const [currentSupply, setCurrentSupply] = useState(0)
   const [maxSupply, setMaxSupply] = useState(7)
 
+  // Get wallet context
+  const { 
+    isConnected, 
+    walletAddress, 
+    beaconWallet, 
+    tezos,
+    connectWallet // Add this to allow connecting from the component
+  } = useWallet()
+
+  // Add loading state for wallet
+  const [walletLoading, setWalletLoading] = useState(false)
+
+  // Check wallet connection and supply when component mounts or wallet state changes
+  useEffect(() => {
+    const initializeWalletState = async () => {
+      if (tezos && isConnected && walletAddress) {
+        try {
+          setWalletLoading(true)
+          await checkHolderStatus()
+          await checkSupply()
+        } catch (error) {
+          console.error("Error initializing wallet state:", error)
+        } finally {
+          setWalletLoading(false)
+        }
+      }
+    }
+
+    initializeWalletState()
+  }, [isConnected, walletAddress, tezos])
+
   useEffect(() => {
     console.log("textFragment changed:", textFragment)
   }, [textFragment])
 
-  // Add useEffect to check holder status and supply when wallet connects
-  useEffect(() => {
-    if (isConnected && walletAddress) {
-      checkHolderStatus()
-      checkSupply()
-    }
-  }, [isConnected, walletAddress])
-
-  const { isConnected, walletAddress, beaconWallet, tezos } = useWallet()
   const LIGHTHOUSE_API_KEY = process.env.GATSBY_LIGHTHOUSE_API_KEY
   const realtimeRPNFTContract = process.env.GATSBY_TEZOS_REALTIME_CONTRACT // p
   const FIRST_CREATOR = process.env.GATSBY_RPNNFT_CREATOR
@@ -332,30 +354,51 @@ const MintNFTProcess = ({ containerRef, perlinSettings, capturedImage, textFragm
       </p>
 
       <div style={{ marginBottom: "20px" }}>
-        <p>Current Supply: {currentSupply} / {maxSupply}</p>
-        <p>Minting Price: {
-          currentSupply < 3 ? "Free (First 3 tokens)" :
-          isHolderOfRareOrLegendary ? "Free (Rare/Legendary holder)" :
-          "5 TEZ"
-        }</p>
-      </div>
+        {!isConnected ? (
+          <Button
+            variant="primary"
+            onClick={connectWallet}
+            disabled={walletLoading}
+            style={{
+              fontFamily: "var(--primary-font)",
+              fontStyle: "italic",
+              fontWeight: "bold",
+              fontSize: "1.2rem",
+              maxWidth: "200px",
+            }}
+          >
+            Connect Wallet
+          </Button>
+        ) : (
+          <>
+            <p>Current Supply: {currentSupply} / {maxSupply}</p>
+            <p>Minting Price: {
+              currentSupply < 3 ? "Free (First 3 tokens)" :
+              isHolderOfRareOrLegendary ? "Free (Rare/Legendary holder)" :
+              "5 TEZ"
+            }</p>
+            <p>Connected Address: {walletAddress}</p>
 
-      <Button
-        variant="primary"
-        onClick={startMintingProcess}
-        disabled={minting || currentSupply >= maxSupply}
-        style={{
-          fontFamily: "var(--primary-font)",
-          fontStyle: "italic",
-          fontWeight: "bold",
-          fontSize: "1.2rem",
-          maxWidth: "200px",
-        }}
-      >
-        {minting ? "Minting..." : 
-         currentSupply >= maxSupply ? "Max Supply Reached" : 
-         "Mint this!"}
-      </Button>
+            <Button
+              variant="primary"
+              onClick={startMintingProcess}
+              disabled={minting || currentSupply >= maxSupply || walletLoading}
+              style={{
+                fontFamily: "var(--primary-font)",
+                fontStyle: "italic",
+                fontWeight: "bold",
+                fontSize: "1.2rem",
+                maxWidth: "200px",
+              }}
+            >
+              {walletLoading ? "Loading..." :
+               minting ? "Minting..." : 
+               currentSupply >= maxSupply ? "Max Supply Reached" : 
+               "Mint this!"}
+            </Button>
+          </>
+        )}
+      </div>
 
       {mintSuccess && (
         <p style={{ color: "green" }}>✅ NFT Minted Successfully!</p>
