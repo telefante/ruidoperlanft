@@ -55,9 +55,10 @@ const MintNFTProcess = ({ containerRef, perlinSettings, capturedImage, textFragm
   }, [textFragment])
 
   const LIGHTHOUSE_API_KEY = process.env.GATSBY_LIGHTHOUSE_API_KEY
-  const realtimeRPNFTContract = process.env.GATSBY_TEZOS_REALTIME_CONTRACT // p
+  const realtimeRPNFTContract = process.env.GATSBY_TEZOS_REALTIME_CONTRACT
   const FIRST_CREATOR = process.env.GATSBY_RPNNFT_CREATOR
-
+  const AMOUNT = 2.5; // 2.5 TEZ
+ 
   const startMintingProcess = async () => {
     console.log("🚀 Starting Minting Process...")
     setMinting(true) // Start minting process
@@ -274,7 +275,7 @@ const MintNFTProcess = ({ containerRef, perlinSettings, capturedImage, textFragm
       } else if (isHolderOfRareOrLegendary) {
         mintAmount = 0 // Free for holders of rare/legendary
       } else {
-        mintAmount = 5// 5 TEZ in mutez
+        mintAmount = AMOUNT 
       }
 
       console.log("📤 Sending mint transaction...")
@@ -384,7 +385,7 @@ const MintNFTProcess = ({ containerRef, perlinSettings, capturedImage, textFragm
               <p>Minting Price: {
                 currentSupply < 3 ? "Free (First 3 tokens)" :
                 isHolderOfRareOrLegendary ? "Free (Rare/Legendary holder)" :
-                "5 TEZ"
+                `${AMOUNT} TEZ`
               }</p>
               <p>Connected Address: {walletAddress}</p>
             </div>
