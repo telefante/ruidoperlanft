@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useCallback } from "react"
 import Draggable from "react-draggable"
 
 const PerlinControls = ({
@@ -17,6 +17,26 @@ const PerlinControls = ({
   controlsVisible,
   isMobile,
 }) => {
+  const handleAmplitudeChange = (e) => {
+    setAmplitude(parseFloat(e.target.value))
+  }
+
+  const handleScaleChange = (e) => {
+    setScale(parseFloat(e.target.value))
+  }
+
+  const handleFrequencyChange = (e) => {
+    setFrequency(parseFloat(e.target.value))
+  }
+
+  const handleOctavesChange = (e) => {
+    setOctaves(parseInt(e.target.value, 10))
+  }
+
+  const handlePerlinToggle = (e) => {
+    setUsePerlin(e.target.checked)
+  }
+
   return (
     <Draggable handle=".drag-handle" cancel="input, button, select, textarea">
       <div
@@ -64,7 +84,7 @@ const PerlinControls = ({
             <input
               type="checkbox"
               checked={usePerlin}
-              onChange={e => setUsePerlin(e.target.checked)}
+              onChange={handlePerlinToggle}
               style={{ marginLeft: "5px" }}
             />
           </label>
@@ -82,7 +102,8 @@ const PerlinControls = ({
               max="50"
               step="0.5"
               value={amplitude}
-              onChange={e => setAmplitude(parseFloat(e.target.value))}
+              onChange={handleAmplitudeChange}
+              onInput={handleAmplitudeChange}
               style={{ width: "100%" }}
             />
             <span style={{ fontSize: "0.8rem", color: "white" }}>
@@ -103,7 +124,8 @@ const PerlinControls = ({
               max="0.015"
               step="0.001"
               value={scale}
-              onChange={e => setScale(parseFloat(e.target.value))}
+              onChange={handleScaleChange}
+              onInput={handleScaleChange}
               style={{ width: "100%" }}
             />
             <span style={{ fontSize: "0.8rem", color: "white" }}>{scale}</span>
@@ -122,7 +144,8 @@ const PerlinControls = ({
               max="5"
               step="0.5"
               value={frequency}
-              onChange={e => setFrequency(parseFloat(e.target.value))}
+              onChange={handleFrequencyChange}
+              onInput={handleFrequencyChange}
               style={{ width: "100%" }}
             />
             <span style={{ fontSize: "0.8rem", color: "white" }}>
@@ -143,7 +166,8 @@ const PerlinControls = ({
               max="5"
               step="1"
               value={octaves}
-              onChange={e => setOctaves(parseInt(e.target.value, 10))}
+              onChange={handleOctavesChange}
+              onInput={handleOctavesChange}
               style={{ width: "100%" }}
             />
             <span style={{ fontSize: "0.8rem", color: "white" }}>
