@@ -234,6 +234,7 @@ const MintNFTProcess = ({
       // to determine if they're rare/legendary based on your metadata)
       for (const tokenId of userTokens) {
         const tokenMetadata = await storage.token_metadata.get(tokenId)
+        console.log(tokenMetadata)
         // Example check - modify based on your actual rarity criteria
         if (
           (tokenMetadata &&
