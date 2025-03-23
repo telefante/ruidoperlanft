@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect } from "react"
 import * as lighthouse from "@lighthouse-web3/sdk"
 // import html2canvas from "html2canvas"
-import { Button, Container, Row } from "react-bootstrap"
+import { Button, Container, Row, Col } from "react-bootstrap"
 import { MichelsonMap } from "@taquito/taquito"
 import { useWallet } from "./WalletContext"
 import { color } from "framer-motion"
@@ -331,43 +331,44 @@ const MintNFTProcess = ({ containerRef, perlinSettings, capturedImage, textFragm
       {/* <pre style={{ backgroundColor: "#f8f9fa", padding: "10px" }}>
         {JSON.stringify(metadataJson, null, 2)}
       </pre> */}
+<Row>
+      <Col md={6}>
       <p >
         {gatewayImageUrl ? (
           <>
             <strong>
-              <br />
-              IPFS Image URL:{" "}
+          
+              IPFS Image{" "}
               <a
                 href={gatewayImageUrl}
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                {gatewayImageUrl}
+                URL
               </a>
             </strong>
-            <br />
-            {/* <img
-              src={gatewayImageUrl}
-              alt="NFT Preview"
-              style={{ width: "200px", marginTop: "10px" }}
-            /> */}
+          
+            
           </>
         ) : (
           <em>Waiting for image upload...</em>
         )}
       </p>
+
+      </Col>
+<Col md={6}>
       <p >
         {gatewayMetadataUrl ? (
           <>
             <strong>
-              <br />
-              IPFS Metadata CID:{" "}
+             
+              Metadata {" "}
               <a
                 href={gatewayMetadataUrl}
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                {gatewayMetadataUrl}
+               CID URL
               </a>
             </strong>
           </>
@@ -375,6 +376,8 @@ const MintNFTProcess = ({ containerRef, perlinSettings, capturedImage, textFragm
           <em>Waiting for metadata upload...</em>
         )}
       </p>
+      </Col>
+      </Row>
 
       <div >
         {!isConnected ? (
@@ -427,18 +430,34 @@ const MintNFTProcess = ({ containerRef, perlinSettings, capturedImage, textFragm
       {mintSuccess && (
         <div>
           <p style={{ color: "green" }}>✅ NFT Minted Successfully!</p>
-          {mintSuccess.opHash && (
-            <p style={{ color: "black" }}>
-              View transaction on Better Call Dev:{" "}
-              <a 
-                href={mintSuccess.opHashUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                {mintSuccess.opHash}
-              </a>
-            </p>
-          )}
+          <Row>
+            <Col md={6}>
+              <p style={{ color: "black" }}>
+                Contract:{" "}
+                <a 
+                  href={`https://better-call.dev/ghostnet/KT1RJ6PbjHpwc3M5rw5s2Nbmefwbuwbdxton/operations`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  View on Better Call Dev
+                </a>
+              </p>
+            </Col>
+            <Col md={6}>
+              {mintSuccess.opHash && (
+                <p style={{ color: "black" }}>
+                  Transaction:{" "}
+                  <a 
+                    href={mintSuccess.opHashUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    View on Better Call Dev
+                  </a>
+                </p>
+              )}
+            </Col>
+          </Row>
         </div>
       )}
     </Container>
