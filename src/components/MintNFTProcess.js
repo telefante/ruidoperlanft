@@ -1,9 +1,10 @@
 import React, { useRef, useState, useEffect } from "react"
 import * as lighthouse from "@lighthouse-web3/sdk"
 // import html2canvas from "html2canvas"
-import { Button, Container, Modal } from "react-bootstrap"
+import { Button, Container, Row } from "react-bootstrap"
 import { MichelsonMap } from "@taquito/taquito"
 import { useWallet } from "./WalletContext"
+import { color } from "framer-motion"
 // import ipfsOnlyHash from "ipfs-only-hash"
 
 const MintNFTProcess = ({ containerRef, perlinSettings, capturedImage, textFragment }) => {
@@ -273,7 +274,7 @@ const MintNFTProcess = ({ containerRef, perlinSettings, capturedImage, textFragm
       } else if (isHolderOfRareOrLegendary) {
         mintAmount = 0 // Free for holders of rare/legendary
       } else {
-        mintAmount = 5000000 // 5 TEZ in mutez
+        mintAmount = 5// 5 TEZ in mutez
       }
 
       console.log("📤 Sending mint transaction...")
@@ -297,6 +298,13 @@ const MintNFTProcess = ({ containerRef, perlinSettings, capturedImage, textFragm
 
   return (
     <Container>
+      <style>
+        {`
+          p {
+            color: black !important;
+          }
+        `}
+      </style>
       {capturedImage && (
         <img
           src={capturedImage}
@@ -371,14 +379,15 @@ const MintNFTProcess = ({ containerRef, perlinSettings, capturedImage, textFragm
           </Button>
         ) : (
           <>
-            <p>Current Supply: {currentSupply} / {maxSupply}</p>
-            <p>Minting Price: {
-              currentSupply < 3 ? "Free (First 3 tokens)" :
-              isHolderOfRareOrLegendary ? "Free (Rare/Legendary holder)" :
-              "5 TEZ"
-            }</p>
-            <p>Connected Address: {walletAddress}</p>
-
+            <div style={{ color: "black" }}>
+              <p>Current Supply: {currentSupply} / {maxSupply}</p>
+              <p>Minting Price: {
+                currentSupply < 3 ? "Free (First 3 tokens)" :
+                isHolderOfRareOrLegendary ? "Free (Rare/Legendary holder)" :
+                "5 TEZ"
+              }</p>
+              <p>Connected Address: {walletAddress}</p>
+            </div>
             <Button
               variant="primary"
               onClick={startMintingProcess}
