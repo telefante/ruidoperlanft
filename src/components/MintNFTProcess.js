@@ -22,6 +22,8 @@ const MintNFTProcess = ({
   const [mintSuccess, setMintSuccess] = useState(false)
   const [currentSupply, setCurrentSupply] = useState(0)
   const [maxSupply, setMaxSupply] = useState(7)
+  const [holderStatus, setHolderStatus] = useState(null) // null: not checked, true: is holder, false: not holder
+  const [highestRarity, setHighestRarity] = useState(null) // 'Legendary', 'Rare', 'Common', or null
 
   // Get wallet context
   const {
@@ -42,6 +44,7 @@ const MintNFTProcess = ({
         try {
           setWalletLoading(true)
           await checkSupply()
+          await checkHolderStatus()
         } catch (error) {
           console.error("Error initializing wallet state:", error)
         } finally {
@@ -60,7 +63,10 @@ const MintNFTProcess = ({
   const LIGHTHOUSE_API_KEY = process.env.GATSBY_LIGHTHOUSE_API_KEY
   const realtimeRPNFTContract = process.env.GATSBY_TEZOS_REALTIME_CONTRACT
   const FIRST_CREATOR = process.env.GATSBY_RPNNFT_CREATOR
-  const MINT_AMOUNT = 1 // 1 TEZ fixed amount
+  const PreMintedRPNCollection= process.env.GATSBY_RUIDOPERLANFT_CONTRACT
+  const LEGENDARY_MINT_AMOUNT = 0 // Free for legendary holders
+  const RARE_MINT_AMOUNT = 1 // 1 TEZ for rare holders
+  const COMMON_MINT_AMOUNT = 2 // 2 TEZ for common holders
 
   const startMintingProcess = async () => {
     console.log("🚀 Starting Minting Process...")
@@ -234,11 +240,82 @@ const MintNFTProcess = ({
     }
   }
 
+  const checkHolderStatus = async () => {
+    try {
+      const contract = await tezos.wallet.at(PreMintedRPNCollection)
+      const storage = await contract.storage()
+      const ledger = await storage.assets.ledger
+      const tokenMetadata = await storage.assets.token_metadata
+
+      // Get all token IDs from metadata (usually 0 to total supply - 1)
+      const tokenIds = Array.from({ length: 10 }, (_, i) => i); // Check first 10 tokens
+
+      // Get all token IDs owned by the user
+      const userTokens = []
+      for (const tokenId of tokenIds) {
+        try {
+          // Create the key for the ledger big map
+          const key = { 0: walletAddress, 1: tokenId }
+          
+          // Check if this address owns this token
+          const balance = await ledger.get(key)
+          if (balance && balance.gt(0)) {
+            userTokens.push(tokenId)
+          }
+        } catch (err) {
+          console.log(`Error checking token ${tokenId}:`, err)
+          continue // Continue checking other tokens
+        }
+      }
+
+      // Check if user has any tokens
+      const isHolder = userTokens.length > 0
+      setHolderStatus(isHolder)
+
+      if (isHolder) {
+        // Check rarity of user's tokens
+        let highestRarityFound = 'Common'
+        for (const tokenId of userTokens) {
+          const metadata = await tokenMetadata.get(tokenId)
+          if (metadata) {
+            const attributes = metadata.extra
+            if (attributes) {
+              const rarity = attributes.find(attr => attr.name === "Rarity")
+              if (rarity) {
+                if (rarity.value === "Legendary") {
+                  highestRarityFound = "Legendary"
+                  break
+                } else if (rarity.value === "Rare" && highestRarityFound === "Common") {
+                  highestRarityFound = "Rare"
+                }
+              }
+            }
+          }
+        }
+        setHighestRarity(highestRarityFound)
+        console.log("Holder status:", isHolder, "Highest rarity:", highestRarityFound)
+      } else {
+        setHighestRarity(null)
+        console.log("Not a holder")
+      }
+    } catch (error) {
+      console.error("Error checking holder status:", error)
+      setHolderStatus(false)
+      setHighestRarity(null)
+    }
+  }
+
   const mintNFT = async (tokenId, metadataIpfsUrl, imageIpfsUrl) => {
     console.log("🚀 Minting NFT...")
 
     if (!isConnected || !walletAddress || !beaconWallet) {
       alert("Please connect your wallet first!")
+      setMinting(false)
+      return
+    }
+
+    if (!holderStatus) {
+      alert("You need to own at least one NFT from the collection to mint!")
       setMinting(false)
       return
     }
@@ -259,15 +336,32 @@ const MintNFTProcess = ({
       const metadataMap = new MichelsonMap()
       metadataMap.set("", Buffer.from(`${metadataIpfsUrl}`).toString("hex"))
 
+      // Determine mint amount based on highest rarity
+      let mintAmount
+      switch (highestRarity) {
+        case "Legendary":
+          mintAmount = LEGENDARY_MINT_AMOUNT
+          break
+        case "Rare":
+          mintAmount = RARE_MINT_AMOUNT
+          break
+        case "Common":
+          mintAmount = COMMON_MINT_AMOUNT
+          break
+        default:
+          mintAmount = COMMON_MINT_AMOUNT
+      }
+
       console.log("📤 Sending mint transaction with amount:", {
-        tez: MINT_AMOUNT,
-        mutez: MINT_AMOUNT * 1000000
+        tez: mintAmount,
+        mutez: mintAmount * 1000000,
+        rarity: highestRarity
       })
 
       const mintOp = await contract.methods
         .mint([{ metadata: metadataMap, to_: walletAddress }])
         .send({
-          amount: MINT_AMOUNT,
+          amount: mintAmount,
           mutez: false,
           storageLimit: 1000,
           gasLimit: 10000,
@@ -390,7 +484,30 @@ const MintNFTProcess = ({
               </Col>
               <Col md={6}>
                 <p>
-                  Minting Price: {MINT_AMOUNT} TEZ
+                  {holderStatus === null ? (
+                    "Checking holder status..."
+                  ) : holderStatus ? (
+                    <>
+                      Minting Price:{" "}
+                      {highestRarity === "Legendary" ? (
+                        <span style={{ color: "green" }}>
+                          Free (Legendary Holder)
+                        </span>
+                      ) : highestRarity === "Rare" ? (
+                        <span style={{ color: "blue" }}>
+                          {RARE_MINT_AMOUNT} TEZ (Rare Holder)
+                        </span>
+                      ) : (
+                        <span>
+                          {COMMON_MINT_AMOUNT} TEZ (Common Holder)
+                        </span>
+                      )}
+                    </>
+                  ) : (
+                    <span style={{ color: "red" }}>
+                      You need to own an NFT to mint
+                    </span>
+                  )}
                 </p>
               </Col>
 
@@ -400,7 +517,7 @@ const MintNFTProcess = ({
             <Button
               variant="primary"
               onClick={startMintingProcess}
-              disabled={minting || currentSupply >= maxSupply || walletLoading}
+              disabled={minting || currentSupply >= maxSupply || walletLoading || !holderStatus}
               style={{
                 fontFamily: "var(--primary-font)",
                 fontStyle: "italic",
@@ -415,6 +532,8 @@ const MintNFTProcess = ({
                 ? "Minting..."
                 : currentSupply >= maxSupply
                 ? "Max Supply Reached"
+                : !holderStatus
+                ? "Need NFT to Mint"
                 : "Mint this!"}
             </Button>
           </>
