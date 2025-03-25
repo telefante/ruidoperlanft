@@ -7,6 +7,9 @@ import { useWallet } from "./WalletContext"
 import { color } from "framer-motion"
 // import ipfsOnlyHash from "ipfs-only-hash"
 
+// Check if we're in a browser environment
+const isBrowser = typeof window !== "undefined"
+
 const MintNFTProcess = ({
   containerRef,
   perlinSettings,
@@ -41,7 +44,7 @@ const MintNFTProcess = ({
   // Check wallet connection and supply when component mounts or wallet state changes
   useEffect(() => {
     const initializeWalletState = async () => {
-      if (tezos && isConnected && walletAddress) {
+      if (isBrowser && tezos && isConnected && walletAddress) {
         try {
           setWalletLoading(true)
           await checkSupply()
@@ -249,12 +252,13 @@ const MintNFTProcess = ({
   }
 
   const checkSupply = async () => {
+    if (!isBrowser) return
+
     try {
       console.log("📊 Checking supply for contract:", realtimeRPNFTContract)
       const contract = await tezos.wallet.at(realtimeRPNFTContract)
       const storage = await contract.storage()
       
-      // Log the entire storage object to see what we're getting
       console.log("📦 Contract Storage:", storage)
       
       const current = await storage.current_supply
@@ -268,7 +272,6 @@ const MintNFTProcess = ({
         rawMax: max
       })
 
-      // Use the actual max supply from the contract
       setMaxSupply(max.toNumber())
       setCurrentSupply(current.toNumber())
     } catch (error) {
@@ -282,6 +285,8 @@ const MintNFTProcess = ({
   }
 
   const checkHolderStatus = async () => {
+    if (!isBrowser) return
+
     try {
       const contract = await tezos.wallet.at(PreMintedRPNCollection)
       const storage = await contract.storage()
@@ -347,6 +352,8 @@ const MintNFTProcess = ({
   }
 
   const mintNFT = async (tokenId, metadataIpfsUrl, imageIpfsUrl) => {
+    if (!isBrowser) return
+
     console.log("🚀 Minting NFT...")
 
     if (!isConnected || !walletAddress || !beaconWallet) {
