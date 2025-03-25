@@ -20,11 +20,11 @@ const MintNFTProcess = ({
   const [gatewayMetadataUrl, setGatewayMetadataUrl] = useState(null)
 
   const [mintSuccess, setMintSuccess] = useState(false)
-  const [isHolderOfRareOrLegendary, setIsHolderOfRareOrLegendary] =
-    useState(false)
   const [currentSupply, setCurrentSupply] = useState(0)
   const [maxSupply, setMaxSupply] = useState(7)
-  const [mintPrice, setMintPrice] = useState(0)
+  const [holderStatus, setHolderStatus] = useState(null) // null: not checked, true: is holder, false: not holder
+  const [highestRarity, setHighestRarity] = useState(null) // 'Legendary', 'Rare', 'Common', or null
+  const [imageMinted, setImageMinted] = useState(false) // New state to track if image has been minted
 
   // Get wallet context
   const {
@@ -44,9 +44,8 @@ const MintNFTProcess = ({
       if (tezos && isConnected && walletAddress) {
         try {
           setWalletLoading(true)
-          await checkHolderStatus()
           await checkSupply()
-          await getMintPrice()
+          await checkHolderStatus()
         } catch (error) {
           console.error("Error initializing wallet state:", error)
         } finally {
@@ -65,7 +64,31 @@ const MintNFTProcess = ({
   const LIGHTHOUSE_API_KEY = process.env.GATSBY_LIGHTHOUSE_API_KEY
   const realtimeRPNFTContract = process.env.GATSBY_TEZOS_REALTIME_CONTRACT
   const FIRST_CREATOR = process.env.GATSBY_RPNNFT_CREATOR
-  const AMOUNT = 1 // 2.5 TEZ
+  const PreMintedRPNCollection= process.env.GATSBY_RUIDOPERLANFT_CONTRACT
+
+  // console.log("🔍 Contract Addresses:", {
+  //   realtimeRPNFTContract,
+  //   PreMintedRPNCollection,
+  //   FIRST_CREATOR
+  // })
+
+  const TIER1_LIMIT = 10 // First 8 tokens
+  const TIER2_LIMIT = 15 // Next 2 tokens (tokens 9-10)
+  const TIER3_LIMIT = 16 // Last 2 tokens (tokens 11-12)
+  
+  const TIER1_PRICE = 2 // 2 TEZ
+  const TIER2_PRICE = 4 // 4 TEZ
+  const TIER3_PRICE = 10 // 10 TEZ
+
+  const getMintPrice = () => {
+    if (currentSupply >= TIER2_LIMIT) {
+      return TIER3_PRICE
+    } else if (currentSupply >= TIER1_LIMIT) {
+      return TIER2_PRICE
+    } else {
+      return TIER1_PRICE
+    }
+  }
 
   const startMintingProcess = async () => {
     console.log("🚀 Starting Minting Process...")
@@ -224,106 +247,102 @@ const MintNFTProcess = ({
       setUploading(false)
     }
   }
-  const getMintPrice = async () => {
+
+  const checkSupply = async () => {
     try {
+      console.log("📊 Checking supply for contract:", realtimeRPNFTContract)
       const contract = await tezos.wallet.at(realtimeRPNFTContract)
       const storage = await contract.storage()
-      const price = await storage.mint_price
-      const priceInMutez = price.toNumber()
-      const priceInTez = 0//priceInMutez / 1000000
-      setMintPrice(priceInTez)
-      console.log("Mint price details:", {
-        mutez: priceInMutez,
-        tez: priceInTez,
-        raw: price.toString()
+      
+      // Log the entire storage object to see what we're getting
+      console.log("📦 Contract Storage:", storage)
+      
+      const current = await storage.current_supply
+      const max = await storage.max_supply
+
+      console.log("📈 Supply Info:", {
+        current: current.toNumber(),
+        max: max.toNumber(),
+        contract: realtimeRPNFTContract,
+        rawCurrent: current,
+        rawMax: max
       })
-      return priceInMutez // Return the mutez value for direct use
+
+      // Use the actual max supply from the contract
+      setMaxSupply(max.toNumber())
+      setCurrentSupply(current.toNumber())
     } catch (error) {
-      console.error("Error fetching mint price:", error)
-      // If we can't get the price from contract, use a default value
-      const defaultPriceInMutez = 0 // 5 TEZ in mutez
-      setMintPrice(defaultPriceInMutez / 1000000)
-      return defaultPriceInMutez
+      console.error("Error checking supply:", error)
+      console.error("Contract address:", realtimeRPNFTContract)
+      console.error("Error details:", {
+        message: error.message,
+        stack: error.stack
+      })
     }
   }
 
   const checkHolderStatus = async () => {
     try {
-      const contract = await tezos.wallet.at(realtimeRPNFTContract)
-
-      // Get balance of user's tokens
+      const contract = await tezos.wallet.at(PreMintedRPNCollection)
       const storage = await contract.storage()
-      const userTokens = await storage.ledger.getKeys()
+      const ledger = await storage.assets.ledger
+      const tokenMetadata = await storage.assets.token_metadata
 
-      // Check if user holds any tokens
-      for (const tokenId of userTokens) {
-        const tokenMetadata = await storage.token_metadata.get(tokenId)
-        console.log(tokenMetadata)
-        if (
-          (tokenMetadata &&
-            tokenMetadata.token_info.get("rarity") === "rare") ||
-          tokenMetadata.token_info.get("rarity") === "legendary"
-        ) {
-          setIsHolderOfRareOrLegendary(true)
+      // Get all token IDs from metadata (usually 0 to total supply - 1)
+      const tokenIds = Array.from({ length: 10 }, (_, i) => i); // Check first 10 tokens
+
+      // Get all token IDs owned by the user
+      const userTokens = []
+      for (const tokenId of tokenIds) {
+        try {
+          // Create the key for the ledger big map
+          const key = { 0: walletAddress, 1: tokenId }
           
-          // Add wallet to whitelist if they hold a rare/legendary token
-          try {
-            console.log("Adding wallet to whitelist...")
-            const mintPriceInMutez = await getMintPrice()
-            if (!mintPriceInMutez) {
-              throw new Error("Failed to get mint price")
-            }
+          // Check if this address owns this token
+          const balance = await ledger.get(key)
+          if (balance && balance.gt(0)) {
+            userTokens.push(tokenId)
+          }
+        } catch (err) {
+          console.log(`Error checking token ${tokenId}:`, err)
+          continue // Continue checking other tokens
+        }
+      }
 
-            const whitelistOp = await contract.methods
-              .add_to_mint_whitelist(walletAddress)
-              .send({
-                amount: mintPriceInMutez / 1000000, // Convert mutez to TEZ
-                mutez: false,
-                storageLimit: 100,
-                gasLimit: 10000,
-              })
-            
-            console.log("Waiting for whitelist transaction confirmation...")
-            await whitelistOp.confirmation(1)
-            console.log("Successfully added wallet to whitelist")
-          } catch (whitelistError) {
-            console.error("Whitelist operation error details:", {
-              name: whitelistError.name,
-              message: whitelistError.message,
-              data: whitelistError.data
-            })
-            
-            if (whitelistError.message.includes("already whitelisted") || 
-                (whitelistError.data && whitelistError.data.some(err => 
-                  err.includes("already whitelisted") || 
-                  err.includes("ALREADY_WHITELISTED")))) {
-              console.log("Wallet is already whitelisted")
-            } else {
-              console.error("Failed to add wallet to whitelist:", whitelistError)
+      // Check if user has any tokens
+      const isHolder = userTokens.length > 0
+      setHolderStatus(isHolder)
+
+      if (isHolder) {
+        // Check rarity of user's tokens
+        let highestRarityFound = 'Common'
+        for (const tokenId of userTokens) {
+          const metadata = await tokenMetadata.get(tokenId)
+          if (metadata) {
+            const attributes = metadata.extra
+            if (attributes) {
+              const rarity = attributes.find(attr => attr.name === "Rarity")
+              if (rarity) {
+                if (rarity.value === "Legendary") {
+                  highestRarityFound = "Legendary"
+                  break
+                } else if (rarity.value === "Rare" && highestRarityFound === "Common") {
+                  highestRarityFound = "Rare"
+                }
+              }
             }
           }
-          
-          break
         }
+        setHighestRarity(highestRarityFound)
+        console.log("Holder status:", isHolder, "Highest rarity:", highestRarityFound)
+      } else {
+        setHighestRarity(null)
+        console.log("Not a holder")
       }
     } catch (error) {
       console.error("Error checking holder status:", error)
-      // If we can't check holder status, assume they're not a holder
-      setIsHolderOfRareOrLegendary(false)
-    }
-  }
-
-  const checkSupply = async () => {
-    try {
-      const contract = await tezos.wallet.at(realtimeRPNFTContract)
-      const storage = await contract.storage()
-      const current = await storage.current_supply
-      const max = await storage.max_supply
-
-      setCurrentSupply(current.toNumber())
-      setMaxSupply(max.toNumber())
-    } catch (error) {
-      console.error("Error checking supply:", error)
+      setHolderStatus(false)
+      setHighestRarity(null)
     }
   }
 
@@ -336,10 +355,22 @@ const MintNFTProcess = ({
       return
     }
 
+    if (!holderStatus) {
+      alert("You need to own at least one NFT from the collection to mint!")
+      setMinting(false)
+      return
+    }
+
     if (!metadataIpfsUrl || !imageIpfsUrl) {
       alert(
         "IPFS upload incomplete! Make sure both image and metadata are uploaded."
       )
+      setMinting(false)
+      return
+    }
+
+    if (imageMinted) {
+      alert("This image has already been minted!")
       setMinting(false)
       return
     }
@@ -352,26 +383,15 @@ const MintNFTProcess = ({
       const metadataMap = new MichelsonMap()
       metadataMap.set("", Buffer.from(`${metadataIpfsUrl}`).toString("hex"))
 
-      // Get the exact mint price from contract
-      const mintPriceInMutez = await getMintPrice()
-      if (!mintPriceInMutez) {
-        throw new Error("Failed to get mint price")
-      }
-
-      // Determine mint amount based on conditions
-      let mintAmount = 0
-      if (currentSupply < 3) {
-        mintAmount = 0 // First 3 tokens are free
-      } else if (isHolderOfRareOrLegendary) {
-        mintAmount = 0 // Free for holders of rare/legendary
-      } else {
-        mintAmount = 0 //mintPriceInMutez / 1000000 // Convert mutez to TEZ
-      }
+      // Get mint price based on current supply
+      const mintAmount = getMintPrice()
 
       console.log("📤 Sending mint transaction with amount:", {
         tez: mintAmount,
         mutez: mintAmount * 1000000,
-        raw: mintPriceInMutez
+        currentSupply,
+        tier: currentSupply >= TIER2_LIMIT ? "Tier 3" : 
+              currentSupply >= TIER1_LIMIT ? "Tier 2" : "Tier 1"
       })
 
       const mintOp = await contract.methods
@@ -379,7 +399,7 @@ const MintNFTProcess = ({
         .send({
           amount: mintAmount,
           mutez: false,
-          storageLimit: 100,
+          storageLimit: 1000,
           gasLimit: 10000,
         })
 
@@ -397,11 +417,13 @@ const MintNFTProcess = ({
 
       // Update supply after successful mint
       checkSupply()
+      setImageMinted(true) // Mark this image as minted
     } catch (error) {
       console.error("❌ Error minting NFT:", error)
-      // Check if the error is due to the contract being deprecated
       if (error.message.includes("Deprecated")) {
         alert("The contract is currently being updated. Please try again in a few minutes.")
+      } else if (error.message.includes("Incorrect payment amount")) {
+        alert("The minting price has changed. Please try again.")
       } else {
         alert("Failed to mint NFT: " + error.message)
       }
@@ -409,6 +431,12 @@ const MintNFTProcess = ({
       setMinting(false)
     }
   }
+
+  // Reset imageMinted when capturedImage changes
+  useEffect(() => {
+    setImageMinted(false)
+    setMintSuccess(false)
+  }, [capturedImage])
 
   return (
     <Container>
@@ -501,12 +529,30 @@ const MintNFTProcess = ({
               </Col>
               <Col md={6}>
                 <p>
-                  Minting Price:{" "}
-                  {currentSupply < 3
-                    ? "Free (First 3 tokens)"
-                    : isHolderOfRareOrLegendary
-                    ? "Free (Rare/Legendary holder)"
-                    : `${mintPrice} TEZ`}
+                  {holderStatus === null ? (
+                    "Checking holder status..."
+                  ) : holderStatus ? (
+                    <>
+                      Minting Price:{" "}
+                      {currentSupply >= TIER2_LIMIT ? (
+                        <span style={{ color: "red" }}>
+                          {TIER3_PRICE} TEZ (Tier 3)
+                        </span>
+                      ) : currentSupply >= TIER1_LIMIT ? (
+                        <span style={{ color: "orange" }}>
+                          {TIER2_PRICE} TEZ (Tier 2)
+                        </span>
+                      ) : (
+                        <span style={{ color: "green" }}>
+                          {TIER1_PRICE} TEZ (Tier 1)
+                        </span>
+                      )}
+                    </>
+                  ) : (
+                    <span style={{ color: "red" }}>
+                      You need to own an NFT to mint
+                    </span>
+                  )}
                 </p>
               </Col>
 
@@ -516,7 +562,7 @@ const MintNFTProcess = ({
             <Button
               variant="primary"
               onClick={startMintingProcess}
-              disabled={minting || currentSupply >= maxSupply || walletLoading}
+              disabled={minting || currentSupply >= maxSupply || walletLoading || !holderStatus || imageMinted}
               style={{
                 fontFamily: "var(--primary-font)",
                 fontStyle: "italic",
@@ -531,6 +577,10 @@ const MintNFTProcess = ({
                 ? "Minting..."
                 : currentSupply >= maxSupply
                 ? "Max Supply Reached"
+                : !holderStatus
+                ? "Need NFT to Mint"
+                : imageMinted
+                ? "Already Minted"
                 : "Mint this!"}
             </Button>
           </>
