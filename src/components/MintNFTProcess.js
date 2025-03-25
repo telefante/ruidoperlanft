@@ -2,13 +2,19 @@ import React, { useRef, useState, useEffect } from "react"
 import * as lighthouse from "@lighthouse-web3/sdk"
 // import html2canvas from "html2canvas"
 import { Button, Container, Row, Col } from "react-bootstrap"
-import { MichelsonMap } from "@taquito/taquito"
 import { useWallet } from "./WalletContext"
 import { color } from "framer-motion"
 // import ipfsOnlyHash from "ipfs-only-hash"
 
 // Check if we're in a browser environment
 const isBrowser = typeof window !== "undefined"
+
+// Dynamically import Tezos-related modules only in browser
+const getTezosModules = async () => {
+  if (!isBrowser) return null
+  const { MichelsonMap } = await import("@taquito/taquito")
+  return { MichelsonMap }
+}
 
 const MintNFTProcess = ({
   containerRef,
@@ -40,6 +46,18 @@ const MintNFTProcess = ({
 
   // Add loading state for wallet
   const [walletLoading, setWalletLoading] = useState(false)
+  const [tezosModules, setTezosModules] = useState(null)
+
+  // Load Tezos modules when component mounts
+  useEffect(() => {
+    const loadTezosModules = async () => {
+      if (isBrowser) {
+        const modules = await getTezosModules()
+        setTezosModules(modules)
+      }
+    }
+    loadTezosModules()
+  }, [])
 
   // Check wallet connection and supply when component mounts or wallet state changes
   useEffect(() => {
@@ -352,7 +370,7 @@ const MintNFTProcess = ({
   }
 
   const mintNFT = async (tokenId, metadataIpfsUrl, imageIpfsUrl) => {
-    if (!isBrowser) return
+    if (!isBrowser || !tezosModules) return
 
     console.log("🚀 Minting NFT...")
 
@@ -386,8 +404,8 @@ const MintNFTProcess = ({
       const contract = await tezos.wallet.at(realtimeRPNFTContract)
       console.log("✅ Contract successfully fetched:", realtimeRPNFTContract)
 
-      // Create metadata map
-      const metadataMap = new MichelsonMap()
+      // Create metadata map using dynamically imported MichelsonMap
+      const metadataMap = new tezosModules.MichelsonMap()
       metadataMap.set("", Buffer.from(`${metadataIpfsUrl}`).toString("hex"))
 
       // Get mint price based on current supply
@@ -569,7 +587,7 @@ const MintNFTProcess = ({
             <Button
               variant="primary"
               onClick={startMintingProcess}
-              disabled={minting || currentSupply >= maxSupply || walletLoading || !holderStatus || imageMinted}
+              disabled={minting || currentSupply >= maxSupply || walletLoading || !holderStatus || imageMinted || !tezosModules}
               style={{
                 fontFamily: "var(--primary-font)",
                 fontStyle: "italic",
@@ -588,6 +606,8 @@ const MintNFTProcess = ({
                 ? "Need NFT to Mint"
                 : imageMinted
                 ? "Already Minted"
+                : !tezosModules
+                ? "Loading Tezos..."
                 : "Mint this!"}
             </Button>
           </>
