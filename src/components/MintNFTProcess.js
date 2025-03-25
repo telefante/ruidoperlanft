@@ -24,6 +24,7 @@ const MintNFTProcess = ({
   const [maxSupply, setMaxSupply] = useState(7)
   const [holderStatus, setHolderStatus] = useState(null) // null: not checked, true: is holder, false: not holder
   const [highestRarity, setHighestRarity] = useState(null) // 'Legendary', 'Rare', 'Common', or null
+  const [imageMinted, setImageMinted] = useState(false) // New state to track if image has been minted
 
   // Get wallet context
   const {
@@ -368,6 +369,12 @@ const MintNFTProcess = ({
       return
     }
 
+    if (imageMinted) {
+      alert("This image has already been minted!")
+      setMinting(false)
+      return
+    }
+
     try {
       const contract = await tezos.wallet.at(realtimeRPNFTContract)
       console.log("✅ Contract successfully fetched:", realtimeRPNFTContract)
@@ -410,6 +417,7 @@ const MintNFTProcess = ({
 
       // Update supply after successful mint
       checkSupply()
+      setImageMinted(true) // Mark this image as minted
     } catch (error) {
       console.error("❌ Error minting NFT:", error)
       if (error.message.includes("Deprecated")) {
@@ -423,6 +431,12 @@ const MintNFTProcess = ({
       setMinting(false)
     }
   }
+
+  // Reset imageMinted when capturedImage changes
+  useEffect(() => {
+    setImageMinted(false)
+    setMintSuccess(false)
+  }, [capturedImage])
 
   return (
     <Container>
@@ -548,7 +562,7 @@ const MintNFTProcess = ({
             <Button
               variant="primary"
               onClick={startMintingProcess}
-              disabled={minting || currentSupply >= maxSupply || walletLoading || !holderStatus}
+              disabled={minting || currentSupply >= maxSupply || walletLoading || !holderStatus || imageMinted}
               style={{
                 fontFamily: "var(--primary-font)",
                 fontStyle: "italic",
@@ -565,6 +579,8 @@ const MintNFTProcess = ({
                 ? "Max Supply Reached"
                 : !holderStatus
                 ? "Need NFT to Mint"
+                : imageMinted
+                ? "Already Minted"
                 : "Mint this!"}
             </Button>
           </>
