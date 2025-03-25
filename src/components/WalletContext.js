@@ -1,7 +1,6 @@
 // WalletContext.js
 import React, { createContext, useState, useEffect, useContext } from "react";
 import { BeaconWallet } from "@taquito/beacon-wallet";
-import { TezosToolkit } from "@taquito/taquito";
 
 // Check if we're in a browser environment
 const isBrowser = typeof window !== "undefined";
@@ -20,8 +19,13 @@ const WalletProvider = ({ children }) => {
   useEffect(() => {
     if (isBrowser) {
       try {
-        const tezosToolkit = new TezosToolkit(RPC_URL);
-        setTezos(tezosToolkit);
+        // Dynamically import TezosToolkit only in browser
+        import("@taquito/taquito").then(({ TezosToolkit }) => {
+          const tezosToolkit = new TezosToolkit(RPC_URL);
+          setTezos(tezosToolkit);
+        }).catch(error => {
+          console.error("Error loading TezosToolkit:", error);
+        });
       } catch (error) {
         console.error("Error initializing TezosToolkit:", error);
       }
