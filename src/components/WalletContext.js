@@ -1,10 +1,9 @@
 // WalletContext.js
 import React, { createContext, useState, useEffect, useContext } from "react";
 import { BeaconWallet } from "@taquito/beacon-wallet";
+import { TezosToolkit } from "@taquito/taquito";
 
-// Check if we're in a browser environment
-const isBrowser = typeof window !== "undefined";
-
+// const RPC_URL = "https://rpc.tzkt.io/ghostnet";
 const RPC_URL = process.env.GATSBY_TEZOS_RPC_URL || "https://rpc.tzkt.io/ghostnet";
 const preferedNetworkType = process.env.GATSBY_NETWORK_TYPE || "ghostnet"; 
 const WalletContext = createContext();
@@ -17,25 +16,12 @@ const WalletProvider = ({ children }) => {
 
   // Create TezosToolkit instance on component mount
   useEffect(() => {
-    if (isBrowser) {
-      try {
-        // Dynamically import TezosToolkit only in browser
-        import("@taquito/taquito").then(({ TezosToolkit }) => {
-          const tezosToolkit = new TezosToolkit(RPC_URL);
-          setTezos(tezosToolkit);
-        }).catch(error => {
-          console.error("Error loading TezosToolkit:", error);
-        });
-      } catch (error) {
-        console.error("Error initializing TezosToolkit:", error);
-      }
-    }
+    const tezosToolkit = new TezosToolkit(RPC_URL);
+    setTezos(tezosToolkit);
   }, []);
 
   useEffect(() => {
     const initBeaconWallet = async () => {
-      if (!isBrowser) return;
-      
       try {
         const wallet = new BeaconWallet({
           name: "Ruido Perla",
@@ -64,7 +50,7 @@ const WalletProvider = ({ children }) => {
   }, [tezos]);
 
   const connectWallet = async () => {
-    if (!isBrowser || !beaconWallet) {
+    if (!beaconWallet) {
       console.error("❌ Beacon Wallet instance is missing.");
       return;
     }
@@ -82,7 +68,7 @@ const WalletProvider = ({ children }) => {
   };
 
   const disconnectWallet = async () => {
-    if (!isBrowser || !beaconWallet) return;
+    if (!beaconWallet) return;
     try {
       await beaconWallet.clearActiveAccount();
       setWalletAddress(null);
