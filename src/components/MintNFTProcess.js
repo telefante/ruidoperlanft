@@ -64,9 +64,30 @@ const MintNFTProcess = ({
   const realtimeRPNFTContract = process.env.GATSBY_TEZOS_REALTIME_CONTRACT
   const FIRST_CREATOR = process.env.GATSBY_RPNNFT_CREATOR
   const PreMintedRPNCollection= process.env.GATSBY_RUIDOPERLANFT_CONTRACT
-  const LEGENDARY_MINT_AMOUNT = 0 // Free for legendary holders
-  const RARE_MINT_AMOUNT = 1 // 1 TEZ for rare holders
-  const COMMON_MINT_AMOUNT = 2 // 2 TEZ for common holders
+
+  // console.log("🔍 Contract Addresses:", {
+  //   realtimeRPNFTContract,
+  //   PreMintedRPNCollection,
+  //   FIRST_CREATOR
+  // })
+
+  const TIER1_LIMIT = 10 // First 8 tokens
+  const TIER2_LIMIT = 15 // Next 2 tokens (tokens 9-10)
+  const TIER3_LIMIT = 16 // Last 2 tokens (tokens 11-12)
+  
+  const TIER1_PRICE = 2 // 2 TEZ
+  const TIER2_PRICE = 4 // 4 TEZ
+  const TIER3_PRICE = 10 // 10 TEZ
+
+  const getMintPrice = () => {
+    if (currentSupply >= TIER2_LIMIT) {
+      return TIER3_PRICE
+    } else if (currentSupply >= TIER1_LIMIT) {
+      return TIER2_PRICE
+    } else {
+      return TIER1_PRICE
+    }
+  }
 
   const startMintingProcess = async () => {
     console.log("🚀 Starting Minting Process...")
@@ -228,15 +249,34 @@ const MintNFTProcess = ({
 
   const checkSupply = async () => {
     try {
+      console.log("📊 Checking supply for contract:", realtimeRPNFTContract)
       const contract = await tezos.wallet.at(realtimeRPNFTContract)
       const storage = await contract.storage()
+      
+      // Log the entire storage object to see what we're getting
+      console.log("📦 Contract Storage:", storage)
+      
       const current = await storage.current_supply
       const max = await storage.max_supply
 
-      setCurrentSupply(current.toNumber())
+      console.log("📈 Supply Info:", {
+        current: current.toNumber(),
+        max: max.toNumber(),
+        contract: realtimeRPNFTContract,
+        rawCurrent: current,
+        rawMax: max
+      })
+
+      // Use the actual max supply from the contract
       setMaxSupply(max.toNumber())
+      setCurrentSupply(current.toNumber())
     } catch (error) {
       console.error("Error checking supply:", error)
+      console.error("Contract address:", realtimeRPNFTContract)
+      console.error("Error details:", {
+        message: error.message,
+        stack: error.stack
+      })
     }
   }
 
@@ -336,26 +376,15 @@ const MintNFTProcess = ({
       const metadataMap = new MichelsonMap()
       metadataMap.set("", Buffer.from(`${metadataIpfsUrl}`).toString("hex"))
 
-      // Determine mint amount based on highest rarity
-      let mintAmount
-      switch (highestRarity) {
-        case "Legendary":
-          mintAmount = LEGENDARY_MINT_AMOUNT
-          break
-        case "Rare":
-          mintAmount = RARE_MINT_AMOUNT
-          break
-        case "Common":
-          mintAmount = COMMON_MINT_AMOUNT
-          break
-        default:
-          mintAmount = COMMON_MINT_AMOUNT
-      }
+      // Get mint price based on current supply
+      const mintAmount = getMintPrice()
 
       console.log("📤 Sending mint transaction with amount:", {
         tez: mintAmount,
         mutez: mintAmount * 1000000,
-        rarity: highestRarity
+        currentSupply,
+        tier: currentSupply >= TIER2_LIMIT ? "Tier 3" : 
+              currentSupply >= TIER1_LIMIT ? "Tier 2" : "Tier 1"
       })
 
       const mintOp = await contract.methods
@@ -385,6 +414,8 @@ const MintNFTProcess = ({
       console.error("❌ Error minting NFT:", error)
       if (error.message.includes("Deprecated")) {
         alert("The contract is currently being updated. Please try again in a few minutes.")
+      } else if (error.message.includes("Incorrect payment amount")) {
+        alert("The minting price has changed. Please try again.")
       } else {
         alert("Failed to mint NFT: " + error.message)
       }
@@ -489,17 +520,17 @@ const MintNFTProcess = ({
                   ) : holderStatus ? (
                     <>
                       Minting Price:{" "}
-                      {highestRarity === "Legendary" ? (
-                        <span style={{ color: "green" }}>
-                          Free (Legendary Holder)
+                      {currentSupply >= TIER2_LIMIT ? (
+                        <span style={{ color: "red" }}>
+                          {TIER3_PRICE} TEZ (Tier 3)
                         </span>
-                      ) : highestRarity === "Rare" ? (
-                        <span style={{ color: "blue" }}>
-                          {RARE_MINT_AMOUNT} TEZ (Rare Holder)
+                      ) : currentSupply >= TIER1_LIMIT ? (
+                        <span style={{ color: "orange" }}>
+                          {TIER2_PRICE} TEZ (Tier 2)
                         </span>
                       ) : (
-                        <span>
-                          {COMMON_MINT_AMOUNT} TEZ (Common Holder)
+                        <span style={{ color: "green" }}>
+                          {TIER1_PRICE} TEZ (Tier 1)
                         </span>
                       )}
                     </>
