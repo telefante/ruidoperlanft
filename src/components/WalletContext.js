@@ -1,9 +1,17 @@
 // WalletContext.js
 import React, { createContext, useState, useEffect, useContext } from "react";
 import { BeaconWallet } from "@taquito/beacon-wallet";
-import { TezosToolkit } from "@taquito/taquito";
 
-// const RPC_URL = "https://rpc.tzkt.io/ghostnet";
+// Check if we're in a browser environment
+const isBrowser = typeof window !== "undefined";
+
+// Dynamically import TezosToolkit only in browser
+const getTezosToolkit = async () => {
+  if (!isBrowser) return null;
+  const { TezosToolkit } = await import("@taquito/taquito");
+  return TezosToolkit;
+};
+
 const RPC_URL = process.env.GATSBY_TEZOS_RPC_URL || "https://rpc.tzkt.io/ghostnet";
 const preferedNetworkType = process.env.GATSBY_NETWORK_TYPE || "ghostnet"; 
 const WalletContext = createContext();
@@ -16,12 +24,26 @@ const WalletProvider = ({ children }) => {
 
   // Create TezosToolkit instance on component mount
   useEffect(() => {
-    const tezosToolkit = new TezosToolkit(RPC_URL);
-    setTezos(tezosToolkit);
+    const initTezos = async () => {
+      if (isBrowser) {
+        try {
+          const TezosToolkit = await getTezosToolkit();
+          if (TezosToolkit) {
+            const tezosToolkit = new TezosToolkit(RPC_URL);
+            setTezos(tezosToolkit);
+          }
+        } catch (error) {
+          console.error("Error initializing TezosToolkit:", error);
+        }
+      }
+    };
+    initTezos();
   }, []);
 
   useEffect(() => {
     const initBeaconWallet = async () => {
+      if (!isBrowser) return;
+      
       try {
         const wallet = new BeaconWallet({
           name: "Ruido Perla",
@@ -50,7 +72,7 @@ const WalletProvider = ({ children }) => {
   }, [tezos]);
 
   const connectWallet = async () => {
-    if (!beaconWallet) {
+    if (!isBrowser || !beaconWallet) {
       console.error("❌ Beacon Wallet instance is missing.");
       return;
     }
@@ -68,7 +90,7 @@ const WalletProvider = ({ children }) => {
   };
 
   const disconnectWallet = async () => {
-    if (!beaconWallet) return;
+    if (!isBrowser || !beaconWallet) return;
     try {
       await beaconWallet.clearActiveAccount();
       setWalletAddress(null);
