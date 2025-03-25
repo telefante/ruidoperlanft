@@ -12,6 +12,7 @@ import "./src/styles/global.css";
 import { TrackingProvider } from "./src/contexts/TrackingContext";
 import { WalletProvider } from "./src/components/WalletContext";
 
+// Ensure window is defined
 export const onInitialClientRender = () => {
   const script = document.createElement("script");
   script.src = "https://cloud.umami.is/script.js";

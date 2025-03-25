@@ -8,26 +8,16 @@ exports.createPages = async ({ actions }) => {
   });
 };
 
-exports.onCreateWebpackConfig = ({ stage, actions }) => {
+exports.onCreateWebpackConfig = ({ actions }) => {
   actions.setWebpackConfig({
     resolve: {
       fallback: {
-        stream: require.resolve("stream-browserify"),
-        crypto: require.resolve("crypto-browserify"),
-        buffer: require.resolve("buffer/"),
-        process: require.resolve("process/browser"),
-      },
-      alias: {
-        crypto: require.resolve("crypto-browserify"),
+        "crypto": require.resolve("crypto-browserify"),
+        "stream": require.resolve("stream-browserify"),
+        "buffer": require.resolve("buffer/"),
+        "process": require.resolve("process/browser"),
       },
     },
-    
-    plugins: [
-      new (require("webpack")).ProvidePlugin({
-        Buffer: ["buffer", "Buffer"],
-        process: "process/browser",
-      }),
-    ],
   });
 
   // ✅ Exclude browser-only modules from SSR to fix "window is not defined" error
