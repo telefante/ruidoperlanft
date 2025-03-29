@@ -2,17 +2,18 @@ import React, { useState, useEffect } from "react";
 import { request, gql } from "graphql-request";
 import { useWallet } from "./WalletContext";
 import { Container, Row } from "react-bootstrap";
-import { TezosToolkit } from "@taquito/taquito";
 import { BigNumber } from 'bignumber.js';
 
-const objktapi =
-  process.env.GATSBY_OBJKT_GRAPHQL_URL;
+// Check if we're in a browser environment
+const isBrowser = typeof window !== "undefined";
+
+const objktapi = process.env.GATSBY_OBJKT_GRAPHQL_URL;
 const RuidoPerlaNFTContract = process.env.GATSBY_RUIDOPERLANFT_CONTRACT;
 const CACHE_KEY = "nftOwnershipCache";
 const CACHE_EXPIRY = 5 * 60 * 1000; // Cache for 5 minutes
 
-// Add tezos instance
-const tezos = new TezosToolkit(process.env.GATSBY_TEZOS_RPC_URL);
+// Remove direct TezosToolkit initialization
+// const tezos = new TezosToolkit(process.env.GATSBY_TEZOS_RPC_URL);
 
 const isGreaterThanZero = (value) => {
   if (!value) return false;
@@ -24,53 +25,37 @@ const isGreaterThanZero = (value) => {
 };
 
 const NFTVerification = ({ setAccessGranted }) => {
-  const { walletAddress, isConnected, beaconWallet, setWalletAddress, setIsConnected } = useWallet();
   const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
   const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(false);
+  const { walletAddress } = useWallet();
+  const [tezos, setTezos] = useState(null);
 
-  // Ensure wallet state updates correctly
+  // Initialize TezosToolkit only in browser
   useEffect(() => {
-    const checkWalletConnection = async () => {
-      if (!walletAddress || !isConnected) {
-        console.log("🔄 Checking active wallet session...");
-        const activeAccount = await beaconWallet?.client.getActiveAccount();
-        if (activeAccount) {
-          setWalletAddress(activeAccount.address);
-          setIsConnected(true);
-          console.log("✅ Auto-updated wallet connection:", activeAccount.address);
+    const initTezos = async () => {
+      if (isBrowser) {
+        try {
+          const { TezosToolkit } = await import("@taquito/taquito");
+          const tezosToolkit = new TezosToolkit(process.env.GATSBY_TEZOS_RPC_URL);
+          setTezos(tezosToolkit);
+        } catch (error) {
+          console.error("Error initializing TezosToolkit:", error);
         }
       }
     };
-    checkWalletConnection();
-  }, [walletAddress, isConnected, beaconWallet, setWalletAddress, setIsConnected]);
-
-  useEffect(() => {
-    console.log("🟡 useEffect triggered in NFTVerification.");
-    console.log("📌 Wallet Address:", walletAddress);
-    console.log("📌 Wallet Connected:", isConnected);
-
-    if (!walletAddress || !isConnected) {
-      console.log("❌ No wallet connected. Denying access.");
-      setAccessGranted(false);
-      return;
-    }
-
-    // Check cache first
-    const cachedResult = getCachedOwnership(walletAddress);
-    if (cachedResult !== null) {
-      console.log("Using cached result:", cachedResult);
-      setAccessGranted(cachedResult);
-      setSuccess(cachedResult);
-      return;
-    }
-
-    verifyOwnership(walletAddress);
-  }, [walletAddress, isConnected, setAccessGranted]);
+    initTezos();
+  }, []);
 
   const verifyOwnership = async (address) => {
     console.log("🟡 Verifying NFT ownership for wallet:", address);
     setLoading(true);
+    
+    if (!isBrowser || !tezos) {
+      console.log("TezosToolkit not available, skipping verification");
+      setLoading(false);
+      return;
+    }
     
     try {
       const contract = await tezos.wallet.at(RuidoPerlaNFTContract);
