@@ -80,11 +80,11 @@ const NFTVerification = ({ setAccessGranted }) => {
       
       // Get the total supply to know how many tokens to check
       const totalSupplyMap = storage.assets.token_total_supply;
-      const tokenMetadataMap = storage.assets.token_metadata;
+      // const tokenMetadataMap = storage.assets.token_metadata;
       const ledgerMap = storage.assets.ledger;
 
       // Get token IDs from metadata (usually 0 to total supply - 1)
-      const tokenIds = Array.from({ length: 10 }, (_, i) => i); // Check first 10 tokens
+      const tokenIds = Array.from({ length: totalSupplyMap }, (_, i) => i); // Check first 10 tokens
       
       // Check each token ID
       for (const tokenId of tokenIds) {
@@ -122,18 +122,18 @@ const NFTVerification = ({ setAccessGranted }) => {
       console.error("Error checking holder status:", error);
       
       // Fallback to TzKT API
-      try {
-        const tzktResult = await checkNFTOwnershipTzKT(address);
-        if (tzktResult) {
-          setAccessGranted(true);
-          setSuccess(true);
-          setError(null);
-          cacheOwnership(address, true);
-          return;
-        }
-      } catch (fallbackErr) {
-        console.error("Fallback verification failed:", fallbackErr);
-      }
+      // try {
+      //   const tzktResult = await checkNFTOwnershipTzKT(address);
+      //   if (tzktResult) {
+      //     setAccessGranted(true);
+      //     setSuccess(true);
+      //     setError(null);
+      //     cacheOwnership(address, true);
+      //     return;
+      //   }
+      // } catch (fallbackErr) {
+      //   console.error("Fallback verification failed:", fallbackErr);
+      // }
       
       setError("Failed to verify NFT ownership. Please try again later.");
       setAccessGranted(false);
@@ -144,16 +144,20 @@ const NFTVerification = ({ setAccessGranted }) => {
   };
 
   const getCachedOwnership = (address) => {
-    const cache = localStorage.getItem(CACHE_KEY);
-    if (cache) {
-      const parsedCache = JSON.parse(cache);
-      const cachedEntry = parsedCache[address];
-
-      if (cachedEntry && Date.now() - cachedEntry.timestamp < CACHE_EXPIRY) {
-        return cachedEntry.ownsNFT;
-      }
-    }
+    // Temporarily disable cache by always returning null
     return null;
+
+    // Original cache logic (commented out)
+    // const cache = localStorage.getItem(CACHE_KEY);
+    // if (cache) {
+    //   const parsedCache = JSON.parse(cache);
+    //   const cachedEntry = parsedCache[address];
+
+    //   if (cachedEntry && Date.now() - cachedEntry.timestamp < CACHE_EXPIRY) {
+    //     return cachedEntry.ownsNFT;
+    //   }
+    // }
+    // return null;
   };
 
   const cacheOwnership = (address, ownsNFT) => {
