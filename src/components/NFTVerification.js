@@ -28,7 +28,7 @@ const NFTVerification = ({ setAccessGranted }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
-  const { walletAddress } = useWallet();
+  const { walletAddress, isConnected } = useWallet();
   const [tezos, setTezos] = useState(null);
 
   // Initialize TezosToolkit only in browser
@@ -46,6 +46,23 @@ const NFTVerification = ({ setAccessGranted }) => {
     };
     initTezos();
   }, []);
+
+  useEffect(() => {
+    if (walletAddress && isConnected) {
+      console.log("🔍 Wallet connected, verifying NFT ownership...");
+      const cachedResult = getCachedOwnership(walletAddress);
+      if (cachedResult !== null) {
+        console.log("Using cached result:", cachedResult);
+        setAccessGranted(cachedResult);
+        setSuccess(cachedResult);
+        return;
+      }
+      verifyOwnership(walletAddress);
+    } else {
+      console.log("⚠️ No wallet connected, restricting access.");
+      setAccessGranted(false);
+    }
+  }, [walletAddress, isConnected]);
 
   const verifyOwnership = async (address) => {
     console.log("🟡 Verifying NFT ownership for wallet:", address);
