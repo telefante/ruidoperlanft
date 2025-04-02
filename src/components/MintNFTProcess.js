@@ -93,9 +93,9 @@ const MintNFTProcess = ({
   //   FIRST_CREATOR
   // })
 
-  const TIER1_LIMIT = 10 // First 8 tokens
-  const TIER2_LIMIT = 15 // Next 2 tokens (tokens 9-10)
-  const TIER3_LIMIT = 16 // Last 2 tokens (tokens 11-12)
+  const TIER1_LIMIT = 1343 // First 8 tokens
+  const TIER2_LIMIT = 1582 // Next 2 tokens (tokens 9-10)
+  const TIER3_LIMIT = 1583 // Last 2 tokens (tokens 11-12)
   
   const TIER1_PRICE = 2 // 2 TEZ
   const TIER2_PRICE = 4 // 4 TEZ
