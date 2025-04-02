@@ -131,44 +131,60 @@ const MintNFTProcess = ({
     }
   }
 
+  const uploadWithRetry = async (file, retries = 3) => {
+    for (let attempt = 1; attempt <= retries; attempt++) {
+      try {
+        const fileResponse = await lighthouse.upload([file], LIGHTHOUSE_API_KEY);
+        if (fileResponse.data && fileResponse.data.Hash) {
+          return fileResponse;
+        }
+      } catch (error) {
+        console.error(`Attempt ${attempt} failed:`, error);
+        if (attempt === retries) throw error;
+      }
+    }
+  };
+
   const uploadImageToIPFS = async () => {
-    console.log("📤 Uploading Image to IPFS...")
-    setUploading(true)
+    console.log("📤 Uploading Image to IPFS...");
+    setUploading(true);
 
     try {
       if (!capturedImage) {
-        throw new Error("No captured image provided")
+        throw new Error("No captured image provided");
       }
 
-      const response = await fetch(capturedImage)
-      const imageBlob = await response.blob()
+      const response = await fetch(capturedImage);
+      const imageBlob = await response.blob();
       const file = new File([imageBlob], `RuidoPerla-${Date.now()}.png`, {
         type: "image/png",
-      })
+      });
 
-      const fileResponse = await lighthouse.upload([file], LIGHTHOUSE_API_KEY)
-      if (fileResponse.data && fileResponse.data.Hash) {
-        const imageCid = fileResponse.data.Hash
-        const ipfsImageUrl = `ipfs://${imageCid}`
-        setIpfsUrl(ipfsImageUrl)
-        console.log(
-          `✅ Image Uploaded: https://gateway.lighthouse.storage/ipfs/${
-            ipfsImageUrl.split("ipfs://")[1]
-          }`
-        )
+      console.log("Image size:", file.size, "Image type:", file.type);
 
-        return ipfsImageUrl // ✅ Return image URL for metadata upload
-      } else {
-        throw new Error("Image upload failed.")
-      }
+      const fileResponse = await uploadWithRetry(file);
+      const imageCid = fileResponse.data.Hash;
+      const ipfsImageUrl = `ipfs://${imageCid}`;
+      setIpfsUrl(ipfsImageUrl);
+      console.log(
+        `✅ Image Uploaded: https://gateway.lighthouse.storage/ipfs/${
+          ipfsImageUrl.split("ipfs://")[1]
+        }`
+      );
+
+      return ipfsImageUrl;
     } catch (error) {
-      console.error("❌ Error uploading image:", error)
-      setMinting(false)
-      return null
+      console.error("❌ Error uploading image:", error);
+      setMinting(false);
+      return null;
     } finally {
-      setUploading(false)
+      setUploading(false);
     }
   }
+  
+
+  
+
   const uploadMetadataToIPFS = async imageIpfsUrl => {
     console.log("📤 Uploading Metadata to IPFS...")
     setUploading(true)
@@ -280,7 +296,7 @@ const MintNFTProcess = ({
       console.log("📦 Contract Storage:", storage)
       
       const current = await storage.current_supply
-      const max = await storage.max_supply
+      const max = await storage.MAX_SUPPLY
 
       console.log("📈 Supply Info:", {
         current: current.toNumber(),
