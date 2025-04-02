@@ -8,7 +8,7 @@ import { BigNumber } from 'bignumber.js';
 const isBrowser = typeof window !== "undefined";
 
 const objktapi = process.env.GATSBY_OBJKT_GRAPHQL_URL;
-const RuidoPerlaNFTContract = process.env.GATSBY_RUIDOPERLANFT_CONTRACT;
+const RuidoPerlaNFTContract = process.env.GATSBY_RUIDOPERLANFT_CONTRACT; 
 const CACHE_KEY = "nftOwnershipCache";
 const CACHE_EXPIRY = 5 * 60 * 1000; // Cache for 5 minutes
 

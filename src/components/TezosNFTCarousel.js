@@ -40,11 +40,11 @@ const TezosNFTCarousel = () => {
   console.log("COLLECTION_CONTRACT:", COLLECTION_CONTRACT)
 
   // Debugging wallet state
-  useEffect(() => {
-    console.log("Wallet Connection State Updated:")
-    console.log("Address:", walletAddress)
-    console.log("Is Connected:", isConnected)
-  }, [walletAddress, isConnected])
+  // useEffect(() => {
+  //   console.log("Wallet Connection State Updated:")
+  //   console.log("Address:", walletAddress)
+  //   console.log("Is Connected:", isConnected)
+  // }, [walletAddress, isConnected])
 
   // Fetch NFTs when the wallet is connected
   useEffect(() => {
