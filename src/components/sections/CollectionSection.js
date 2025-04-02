@@ -14,7 +14,7 @@ const DescriptionText = styled.p`
 `
 
 const CollectionSection = () => {
-  const DROP = false // Define DROP here or get it from props/context
+  const DROP = true // Define DROP here or get it from props/context
   const dropDate = "April 2, 2025" // Replace with your actual drop date
   const COLLECTION_CONTRACT = process.env.GATSBY_RUIDOPERLANFT_CONTRACT
 
