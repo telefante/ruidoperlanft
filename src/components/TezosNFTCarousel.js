@@ -48,12 +48,25 @@ const SwiperContainer = styled.div`
   }
 `
 
+const SlideCounter = styled.div`
+  position: relative;
+  tops: 0px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: white;
+  font-size: 2rem;
+  font-weight: bold;
+  font-family: var(--primary-font);
+  z-index: 10;
+`
+
 const TezosNFTCarousel = () => {
   const { walletAddress, isConnected } = useWallet() // Get wallet state from context
   const [nfts, setNfts] = useState([])
   const [showModal, setShowModal] = useState(false)
   const [modalImage, setModalImage] = useState("")
   const [selectedNft, setSelectedNft] = useState(null) // new state
+  const [currentSlide, setCurrentSlide] = useState(1)
 
   // const RPC_URL = process.env.GATSBY_TEZOS_RPC_URL;
   const TzKT_API = process.env.GATSBY_TZKT_API_URL
@@ -116,15 +129,23 @@ const TezosNFTCarousel = () => {
     setSelectedNft(null) // Clear the selected NFT
   }
 
+  const handleSlideChange = swiper => {
+    setCurrentSlide(swiper.activeIndex + 1)
+  }
+
   return (
     <Container className="flex flex-col items-center p-4">
       {nfts.length > 0 ? (
         <Container className="flex flex-col items-center p-0">
           <SwiperContainer>
+          <SlideCounter>
+              {currentSlide} / {nfts.length}
+            </SlideCounter>
             <Swiper
               modules={[Pagination, Navigation]} // Add Navigation to modules
               spaceBetween={10}
               slidesPerView={1}
+              loop={true}
               pagination={{
                 clickable: true,
                 renderBullet: () => {
@@ -142,6 +163,7 @@ const TezosNFTCarousel = () => {
               }}
               simulateTouch={true} // Enable touch simulation
               touchEventsTarget="container" // Ensure events are captured within the container
+              onSlideChange={handleSlideChange}
             >
               <NavigationButton className="swiper-button-prev" />
               <NavigationButton className="swiper-button-next" />
@@ -242,6 +264,7 @@ const TezosNFTCarousel = () => {
                 )
               })}
             </Swiper>
+          
           </SwiperContainer>
           <div style={{ display: "flex", justifyContent: "center" }}>
             <DescriptionText>
