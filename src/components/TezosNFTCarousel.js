@@ -162,7 +162,7 @@ const TezosNFTCarousel = () => {
                         onClick={handleImageClick} // Call the new function
                       />
                     </Col>
-                    <Col>
+                    <Col className="d-none d-md-block">
                       {nft.metadata?.attributes && (
                         <Card
                           noborder
