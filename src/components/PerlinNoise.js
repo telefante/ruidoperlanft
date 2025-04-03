@@ -5,12 +5,13 @@ import { Perlin } from "three-noise"
 import { createNoise3D } from "simplex-noise"
 import html2canvas from "html2canvas"
 import { useStaticQuery, graphql } from "gatsby"
-import { Modal, Button, Row, Container } from "react-bootstrap"
+import { Modal, Row, Container } from "react-bootstrap"
 import PerlinControls from "./PerlinControls"
 import { useWallet } from "./WalletContext"
 import NFTVerification from "./NFTVerification"
 import MintNFTProcess from "./MintNFTProcess"
 import * as styles from "./PerlinNoise.module.css"
+import Draggable from "react-draggable"
 
 const PerlinNoise = ({
   showControls = true,
@@ -62,11 +63,11 @@ const PerlinNoise = ({
   const currentTextRef = useRef("")
   const geometryRef = useRef(null)
   const animationFrameRef = useRef(null)
-  const clockRef = useRef(new THREE.Clock())
-  const noiseVectorRef = useRef(new THREE.Vector3())
-  const perlinRef = useRef(new Perlin())
-  const simplexRef = useRef(createNoise3D())
-  const animateRef = useRef(null)
+  // const clockRef = useRef(new THREE.Clock())
+  // const noiseVectorRef = useRef(new THREE.Vector3())
+  // const perlinRef = useRef(new Perlin())
+  // const simplexRef = useRef(createNoise3D())
+  // const animateRef = useRef(null)
   const currentIndexRef = useRef(0)
 
   const [perlinSettings, setPerlinSettings] = useState({
@@ -190,7 +191,8 @@ const PerlinNoise = ({
             noiseVector.set(x * scale * freq, y * scale * freq, elapsed)
             totalNoise += perlin.get3(noiseVector) * amp
           } else {
-            totalNoise += simplex(x * scale * freq, y * scale * freq, elapsed) * amp
+            totalNoise +=
+              simplex(x * scale * freq, y * scale * freq, elapsed) * amp
           }
           amp *= 0.5
           freq *= 2
@@ -233,7 +235,7 @@ const PerlinNoise = ({
       controlsTargetRef.current = controls.target.clone()
     }
 
-    controls.addEventListener('change', handleControlsChange)
+    controls.addEventListener("change", handleControlsChange)
 
     const raycaster = new THREE.Raycaster()
     const mouse = new THREE.Vector2()
@@ -309,7 +311,7 @@ const PerlinNoise = ({
       if (mountRef.current && rendererRef.current) {
         mountRef.current.removeChild(rendererRef.current.domElement)
       }
-      controls.removeEventListener('change', handleControlsChange)
+      controls.removeEventListener("change", handleControlsChange)
       controls.dispose()
       if (rendererRef.current) {
         rendererRef.current.dispose()
@@ -377,7 +379,7 @@ const PerlinNoise = ({
 
   useEffect(() => {
     const lines = text.split("\n").filter(line => line.trim())
-    
+
     const updateText = () => {
       setTextOpacity(0)
       setTimeout(() => {
@@ -477,7 +479,15 @@ const PerlinNoise = ({
       </Container>
 
       <div className={styles.modal}>
-        <Modal show={showModal} onHide={handleClose} size="lg">
+      <Draggable handle=".modal-header">
+        <Modal
+          show={showModal}
+          onHide={handleClose}
+          size="lg"
+          style={{ cursor: "move",
+          
+           }}
+        >
           <Modal.Header closeButton>
             <Modal.Title
               style={{ fontFamily: "var(--primary-font)", fontWeight: "bold" }}
@@ -494,6 +504,7 @@ const PerlinNoise = ({
             />
           </Modal.Body>
         </Modal>
+        </Draggable>
       </div>
     </div>
   )
