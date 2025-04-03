@@ -145,6 +145,7 @@ const TezosNFTCarousel = () => {
               modules={[Pagination, Navigation]} // Add Navigation to modules
               spaceBetween={10}
               slidesPerView={1}
+              loop={true}
               pagination={{
                 clickable: true,
                 renderBullet: () => {
