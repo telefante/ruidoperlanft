@@ -21,7 +21,7 @@ const WalletConnection = () => {
   
     try {
       await beaconWallet.requestPermissions({
-        network: { type: "ghostnet", rpcUrl: "https://ghostnet.tezos.ecadinfra.com" },
+        network: { type: process.env.GATSBY_NETWORK_TYPE, rpcUrl: process.env.GATSBY_TEZOS_RPC_URL },
       });
       const address = await beaconWallet.getPKH();
       console.log("✅ Wallet Connected:", address);

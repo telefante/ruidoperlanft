@@ -81,6 +81,18 @@ const NFTVerification = ({ setAccessGranted }) => {
     }
 
     try {
+      // Primary check using Objkt API
+      const objktResult = await checkNFTOwnershipObjkt(address);
+      if (objktResult) {
+        console.log("🎉 Found token ownership for address via Objkt API:", address);
+        setAccessGranted(true);
+        setSuccess(true);
+        setError(null);
+        cacheOwnership(address, true);
+        return;
+      }
+
+      // Fallback to contract ledger check
       const contract = await tezos.wallet.at(RuidoPerlaNFTContract);
       const storage = await contract.storage();
       const totalSupplyMap = storage.assets.token_total_supply;
@@ -109,7 +121,7 @@ const NFTVerification = ({ setAccessGranted }) => {
 
       // Check if any token is owned
       if (results.some((ownsToken) => ownsToken)) {
-        console.log("🎉 Found token ownership for address:", address);
+        console.log("🎉 Found token ownership for address via contract ledger:", address);
         setAccessGranted(true);
         setSuccess(true);
         setError(null);
@@ -123,21 +135,6 @@ const NFTVerification = ({ setAccessGranted }) => {
       }
     } catch (error) {
       console.error("Error checking holder status:", error);
-      
-      // Fallback to Objkt API
-      try {
-        const objktResult = await checkNFTOwnershipObjkt(address);
-        if (objktResult) {
-          setAccessGranted(true);
-          setSuccess(true);
-          setError(null);
-          cacheOwnership(address, true);
-          return;
-        }
-      } catch (fallbackErr) {
-        console.error("Fallback verification failed:", fallbackErr);
-      }
-      
       setError("Failed to verify NFT ownership. Please try again later.");
       setAccessGranted(false);
       setSuccess(false);
