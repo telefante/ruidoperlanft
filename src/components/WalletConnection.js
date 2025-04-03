@@ -9,7 +9,14 @@ const WalletConnection = () => {
 
   useEffect(() => {
     const tezos = new TezosToolkit(process.env.GATSBY_TEZOS_RPC_URL || "https://ghostnet.api.tez.ie");
-    const wallet = new BeaconWallet({ name: "Ruido Perla Taquito" });
+    const networkType = process.env.NODE_ENV === "development" ? "ghostnet" : process.env.GATSBY_NETWORK_TYPE;
+    const rpcUrl = process.env.NODE_ENV === "development" ? "https://ghostnet.api.tez.ie" : process.env.GATSBY_TEZOS_RPC_URL;
+
+    const wallet = new BeaconWallet({
+      name: "Ruido Perla Taquito",
+      preferredNetwork: networkType,
+      rpcUrl: rpcUrl,
+    });
 
     // Set the wallet provider for Tezos
     tezos.setWalletProvider(wallet);
@@ -36,8 +43,11 @@ const WalletConnection = () => {
     }
 
     try {
+      const networkType = process.env.NODE_ENV === "development" ? "ghostnet" : process.env.GATSBY_NETWORK_TYPE;
+      const rpcUrl = process.env.NODE_ENV === "development" ? "https://ghostnet.api.tez.ie" : process.env.GATSBY_TEZOS_RPC_URL;
+
       await beaconWallet.requestPermissions({
-        network: { type: process.env.GATSBY_NETWORK_TYPE, rpcUrl: process.env.GATSBY_TEZOS_RPC_URL },
+        network: { type: networkType, rpcUrl: rpcUrl },
       });
       const address = await beaconWallet.getPKH();
       console.log("✅ Wallet Connected:", address);
