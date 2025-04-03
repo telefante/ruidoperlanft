@@ -129,6 +129,7 @@ const SimulationSection = ({ account, connectWallet, disconnectWallet }) => {
             fontWeight: "bold",
             fontSize: "1.2rem",
             maxWidth: "200px",
+            zIndex: "1000",
           }}
           onClick={handleCollectNowClick(`${process.env.GATSBY_OBJKT_COLLECTION_URL}/${COLLECTION_CONTRACT}`)}
         >
