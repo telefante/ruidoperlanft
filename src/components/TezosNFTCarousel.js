@@ -119,7 +119,7 @@ const TezosNFTCarousel = () => {
   return (
     <Container className="flex flex-col items-center p-4">
       {nfts.length > 0 ? (
-        <Container className="flex flex-col items-center p-4">
+        <Container className="flex flex-col items-center p-0">
           <SwiperContainer>
             <Swiper
               modules={[Pagination, Navigation]} // Add Navigation to modules
