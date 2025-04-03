@@ -126,7 +126,7 @@ const TezosNFTCarousel = () => {
               spaceBetween={10}
               slidesPerView={1}
               pagination={{
-                clickable: false,
+                clickable: true,
                 renderBullet: () => {
                   return `<span class="swiper-pagination-bullet"></span>`
                 },
@@ -140,6 +140,8 @@ const TezosNFTCarousel = () => {
                 height: "100%",
                 backgroundColor: "transparent",
               }}
+              simulateTouch={true} // Enable touch simulation
+              touchEventsTarget="container" // Ensure events are captured within the container
             >
               <NavigationButton className="swiper-button-prev" />
               <NavigationButton className="swiper-button-next" />
@@ -209,7 +211,9 @@ const TezosNFTCarousel = () => {
                           attr => attr.name === "Rarity"
                         )?.value || "No rarity available"}
                       </h3>
-                      <div style={{ display: "flex", justifyContent: "center" }}>
+                      <div
+                        style={{ display: "flex", justifyContent: "center" }}
+                      >
                         <DescriptionText>
                           {nft.metadata?.description ||
                             "No description available"}
