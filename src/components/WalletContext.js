@@ -56,7 +56,7 @@ const WalletProvider = ({ children }) => {
     }
     try {
       await beaconWallet.requestPermissions({
-        network: { type: "ghostnet" },
+        network: { type: process.env.GATSBY_NETWORK_TYPE, rpcUrl: RPC_URL },
       });
       const address = await beaconWallet.getPKH();
       setWalletAddress(address);

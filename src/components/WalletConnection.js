@@ -8,8 +8,8 @@ const WalletConnection = () => {
   const { setWalletAddress, setIsConnected, isConnected, beaconWallet, setTezos } = useWallet();
 
   useEffect(() => {
-    const tezos = new TezosToolkit(process.env.GATSBY_TEZOS_RPC_URL || "https://mainnet.api.tez.ie");
-    const wallet = new BeaconWallet({ name: "Beacon Docs Taquito" });
+    const tezos = new TezosToolkit(process.env.GATSBY_TEZOS_RPC_URL || "https://ghostnet.api.tez.ie");
+    const wallet = new BeaconWallet({ name: "Ruido Perla Taquito" });
 
     // Set the wallet provider for Tezos
     tezos.setWalletProvider(wallet);
