@@ -3,6 +3,7 @@ import { request, gql } from "graphql-request";
 import { useWallet } from "./WalletContext";
 import { Container, Row } from "react-bootstrap";
 import { BigNumber } from 'bignumber.js';
+import pLimit from 'p-limit';
 
 // Check if we're in a browser environment
 const isBrowser = typeof window !== "undefined";
@@ -16,9 +17,9 @@ const CACHE_EXPIRY = 5 * 60 * 1000; // Cache for 5 minutes
 // const tezos = new TezosToolkit(process.env.GATSBY_TEZOS_RPC_URL);
 
 // Example environment variables
-const BASE_URL = process.env.GATSBY_TZKT_API_URL; // e.g., "https://api.tzkt.io"
-const API_VERSION = process.env.GATSBY_API_VERSION; // e.g., "v1"
-const NETWORK = process.env.GATSBY_NETWORK; // e.g., "ghostnet"
+// const BASE_URL = process.env.GATSBY_TZKT_API_URL; // e.g., "https://api.tzkt.io"
+// const API_VERSION = process.env.GATSBY_API_VERSION; // e.g., "v1"
+// const NETWORK = process.env.GATSBY_NETWORK; // e.g., "ghostnet"
 
 const isGreaterThanZero = (value) => {
   if (!value) return false;
@@ -84,10 +85,13 @@ const NFTVerification = ({ setAccessGranted }) => {
       const storage = await contract.storage();
       const totalSupplyMap = storage.assets.token_total_supply;
       const ledgerMap = storage.assets.ledger;
-      const tokenIds = Array.from({ length: totalSupplyMap }, (_, i) => i);
+      const tokenIds = Array.from({ length: 100 }, (_, i) => i);
 
-      // Create an array of promises for each token check
-      const tokenCheckPromises = tokenIds.map(async (tokenId) => {
+      // Limit the number of concurrent requests
+      const limit = pLimit(5); // Adjust the number to control concurrency
+
+      // Create an array of limited promises for each token check
+      const tokenCheckPromises = tokenIds.map((tokenId) => limit(async () => {
         try {
           const key = { 0: address, 1: tokenId };
           const balance = await ledgerMap.get(key);
@@ -97,9 +101,9 @@ const NFTVerification = ({ setAccessGranted }) => {
           console.log(`Error checking token ${tokenId}:`, err);
           return false;
         }
-      });
+      }));
 
-      // Execute all token checks in parallel
+      // Execute all token checks with concurrency control
       const results = await Promise.all(tokenCheckPromises);
 
       // Check if any token is owned
@@ -118,6 +122,21 @@ const NFTVerification = ({ setAccessGranted }) => {
       }
     } catch (error) {
       console.error("Error checking holder status:", error);
+      
+      // Fallback to Objkt API
+      try {
+        const objktResult = await checkNFTOwnershipObjkt(address);
+        if (objktResult) {
+          setAccessGranted(true);
+          setSuccess(true);
+          setError(null);
+          cacheOwnership(address, true);
+          return;
+        }
+      } catch (fallbackErr) {
+        console.error("Fallback verification failed:", fallbackErr);
+      }
+      
       setError("Failed to verify NFT ownership. Please try again later.");
       setAccessGranted(false);
       setSuccess(false);

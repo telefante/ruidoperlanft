@@ -27,6 +27,7 @@
     "html2canvas": "^1.4.1",
     "ipfs-only-hash": "^4.0.0",
     "nft.storage": "^7.2.0",
+    "p-limit": "^6.2.0",
     "postcss": "^8.5.2",
     "postcss-loader": "^8.1.1",
     "process": "^0.11.10",
