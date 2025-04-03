@@ -72,74 +72,52 @@ const NFTVerification = ({ setAccessGranted }) => {
   const verifyOwnership = async (address) => {
     console.log("🟡 Verifying NFT ownership for wallet:", address);
     setLoading(true);
-    
+
     if (!isBrowser || !tezos) {
       console.log("TezosToolkit not available, skipping verification");
       setLoading(false);
       return;
     }
-    
+
     try {
       const contract = await tezos.wallet.at(RuidoPerlaNFTContract);
       const storage = await contract.storage();
-      
-      // Get the total supply to know how many tokens to check
       const totalSupplyMap = storage.assets.token_total_supply;
-      // const tokenMetadataMap = storage.assets.token_metadata;
       const ledgerMap = storage.assets.ledger;
+      const tokenIds = Array.from({ length: totalSupplyMap }, (_, i) => i);
 
-      // Get token IDs from metadata (usually 0 to total supply - 1)
-      const tokenIds = Array.from({ length: totalSupplyMap }, (_, i) => i); // Check first 10 tokens
-      
-      // Check each token ID
-      for (const tokenId of tokenIds) {
+      // Create an array of promises for each token check
+      const tokenCheckPromises = tokenIds.map(async (tokenId) => {
         try {
-          // Create the key for the ledger big map (format depends on your contract)
-          const key = { 0: address, 1: tokenId }; // or `${address},${tokenId}` depending on your contract
-          
-          // Check if this address owns this token
+          const key = { 0: address, 1: tokenId };
           const balance = await ledgerMap.get(key);
           console.log(`Checking token ${tokenId} for address ${address}:`, balance);
-          
-          if (balance && balance.gt(0)) {
-            console.log("🎉 Found token ownership for address:", address);
-            setAccessGranted(true);
-            setSuccess(true);
-            setError(null);
-            cacheOwnership(address, true);
-            setLoading(false);
-            return;
-          }
+          return balance && balance.gt(0);
         } catch (err) {
           console.log(`Error checking token ${tokenId}:`, err);
-          continue; // Continue checking other tokens
+          return false;
         }
-      }
+      });
 
-      // If we get here, no tokens were found
-      console.log("❌ No tokens found for address:", address);
-      setAccessGranted(false);
-      setSuccess(false);
-      setError("You do not own an NFT from this collection.");
-      cacheOwnership(address, false);
-      
+      // Execute all token checks in parallel
+      const results = await Promise.all(tokenCheckPromises);
+
+      // Check if any token is owned
+      if (results.some((ownsToken) => ownsToken)) {
+        console.log("🎉 Found token ownership for address:", address);
+        setAccessGranted(true);
+        setSuccess(true);
+        setError(null);
+        cacheOwnership(address, true);
+      } else {
+        console.log("❌ No tokens found for address:", address);
+        setAccessGranted(false);
+        setSuccess(false);
+        setError("You do not own an NFT from this collection.");
+        cacheOwnership(address, false);
+      }
     } catch (error) {
       console.error("Error checking holder status:", error);
-      
-      // Fallback to TzKT API
-      try {
-        const tzktResult = await checkNFTOwnershipTzKT(address);
-        if (tzktResult) {
-          setAccessGranted(true);
-          setSuccess(true);
-          setError(null);
-          cacheOwnership(address, true);
-          return;
-        }
-      } catch (fallbackErr) {
-        console.error("Fallback verification failed:", fallbackErr);
-      }
-      
       setError("Failed to verify NFT ownership. Please try again later.");
       setAccessGranted(false);
       setSuccess(false);
