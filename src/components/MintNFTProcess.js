@@ -5,6 +5,7 @@ import { Button, Container, Row, Col } from "react-bootstrap"
 import { useWallet } from "./WalletContext"
 import { color } from "framer-motion"
 // import ipfsOnlyHash from "ipfs-only-hash"
+import { TezosToolkit } from "@taquito/taquito"; // Add this import
 
 // Check if we're in a browser environment
 const isBrowser = typeof window !== "undefined"
@@ -31,8 +32,6 @@ const MintNFTProcess = ({
   const [mintSuccess, setMintSuccess] = useState(false)
   const [currentSupply, setCurrentSupply] = useState(0)
   const [maxSupply, setMaxSupply] = useState(7)
-  const [holderStatus, setHolderStatus] = useState(null) // null: not checked, true: is holder, false: not holder
-  const [highestRarity, setHighestRarity] = useState(null) // 'Legendary', 'Rare', 'Common', or null
   const [imageMinted, setImageMinted] = useState(false) // New state to track if image has been minted
 
   // Get wallet context
@@ -66,7 +65,7 @@ const MintNFTProcess = ({
         try {
           setWalletLoading(true)
           await checkSupply()
-          await checkHolderStatus()
+          // await checkHolderStatus()
         } catch (error) {
           console.error("Error initializing wallet state:", error)
         } finally {
@@ -286,104 +285,62 @@ const MintNFTProcess = ({
   }
 
   const checkSupply = async () => {
-    if (!isBrowser) return
+    if (!isBrowser) return;
+
+    const primaryRpc = process.env.GATSBY_TEZOS_RPC_URL;
+    const backupRpc = process.env.GATSBY_TEZOS_RPC_URL_BACKUP;
 
     try {
-      console.log("📊 Checking supply for contract:", realtimeRPNFTContract)
-      const contract = await tezos.wallet.at(realtimeRPNFTContract)
-      const storage = await contract.storage()
-      
-      console.log("📦 Contract Storage:", storage)
-      
-      const current = await storage.current_supply
-      const max = await storage.MAX_SUPPLY
+      console.log("📊 Checking supply for contract:", realtimeRPNFTContract);
+      const tezosInstance = new TezosToolkit(primaryRpc); // TezosToolkit is now defined
+      const contract = await tezosInstance.wallet.at(realtimeRPNFTContract);
+      const storage = await contract.storage();
+
+      console.log("📦 Contract Storage:", storage);
+
+      const current = await storage.current_supply;
+      const max = await storage.MAX_SUPPLY;
 
       console.log("📈 Supply Info:", {
         current: current.toNumber(),
         max: max.toNumber(),
         contract: realtimeRPNFTContract,
-        rawCurrent: current,
-        rawMax: max
-      })
+      });
 
-      setMaxSupply(max.toNumber())
-      setCurrentSupply(current.toNumber())
+      setMaxSupply(max.toNumber());
+      setCurrentSupply(current.toNumber());
     } catch (error) {
-      console.error("Error checking supply:", error)
-      console.error("Contract address:", realtimeRPNFTContract)
-      console.error("Error details:", {
-        message: error.message,
-        stack: error.stack
-      })
-    }
-  }
+      console.error("Error checking supply with primary RPC:", error.message);
 
-  const checkHolderStatus = async () => {
-    if (!isBrowser) return
-
-    try {
-      const contract = await tezos.wallet.at(PreMintedRPNCollection)
-      const storage = await contract.storage()
-      const ledger = await storage.assets.ledger
-      const tokenMetadata = await storage.assets.token_metadata
-
-      // Get all token IDs from metadata (usually 0 to total supply - 1)
-      const tokenIds = Array.from({ length: 10 }, (_, i) => i); // Check first 10 tokens
-
-      // Get all token IDs owned by the user
-      const userTokens = []
-      for (const tokenId of tokenIds) {
+      if (backupRpc) {
         try {
-          // Create the key for the ledger big map
-          const key = { 0: walletAddress, 1: tokenId }
-          
-          // Check if this address owns this token
-          const balance = await ledger.get(key)
-          if (balance && balance.gt(0)) {
-            userTokens.push(tokenId)
-          }
-        } catch (err) {
-          console.log(`Error checking token ${tokenId}:`, err)
-          continue // Continue checking other tokens
-        }
-      }
+          console.log("🔄 Retrying with backup RPC:", backupRpc);
+          const tezosInstance = new TezosToolkit(backupRpc); // TezosToolkit is now defined
+          const contract = await tezosInstance.wallet.at(realtimeRPNFTContract);
+          const storage = await contract.storage();
 
-      // Check if user has any tokens
-      const isHolder = userTokens.length > 0
-      setHolderStatus(isHolder)
+          console.log("📦 Contract Storage (Backup):", storage);
 
-      if (isHolder) {
-        // Check rarity of user's tokens
-        let highestRarityFound = 'Common'
-        for (const tokenId of userTokens) {
-          const metadata = await tokenMetadata.get(tokenId)
-          if (metadata) {
-            const attributes = metadata.extra
-            if (attributes) {
-              const rarity = attributes.find(attr => attr.name === "Rarity")
-              if (rarity) {
-                if (rarity.value === "Legendary") {
-                  highestRarityFound = "Legendary"
-                  break
-                } else if (rarity.value === "Rare" && highestRarityFound === "Common") {
-                  highestRarityFound = "Rare"
-                }
-              }
-            }
-          }
+          const current = await storage.current_supply;
+          const max = await storage.MAX_SUPPLY;
+
+          console.log("📈 Supply Info (Backup):", {
+            current: current.toNumber(),
+            max: max.toNumber(),
+            contract: realtimeRPNFTContract,
+          });
+
+          setMaxSupply(max.toNumber());
+          setCurrentSupply(current.toNumber());
+        } catch (backupError) {
+          console.error("Error checking supply with backup RPC:", backupError.message);
+          alert("Network error: Unable to connect to any RPC endpoint. Please try again later.");
         }
-        setHighestRarity(highestRarityFound)
-        console.log("Holder status:", isHolder, "Highest rarity:", highestRarityFound)
       } else {
-        setHighestRarity(null)
-        console.log("Not a holder")
+        alert("Network error: Unable to connect to the RPC endpoint. Please check your internet connection or try again later.");
       }
-    } catch (error) {
-      console.error("Error checking holder status:", error)
-      setHolderStatus(false)
-      setHighestRarity(null)
     }
-  }
+  };
 
   const mintNFT = async (tokenId, metadataIpfsUrl, imageIpfsUrl) => {
     if (!isBrowser || !tezosModules) return
@@ -392,12 +349,6 @@ const MintNFTProcess = ({
 
     if (!isConnected || !walletAddress || !beaconWallet) {
       alert("Please connect your wallet first!")
-      setMinting(false)
-      return
-    }
-
-    if (!holderStatus) {
-      alert("You need to own at least one NFT from the collection to mint!")
       setMinting(false)
       return
     }
@@ -570,40 +521,29 @@ const MintNFTProcess = ({
               </Col>
               <Col md={6}>
                 <p>
-                  {holderStatus === null ? (
-                    "Checking holder status..."
-                  ) : holderStatus ? (
-                    <>
-                      Minting Price:{" "}
-                      {currentSupply >= TIER2_LIMIT ? (
-                        <span style={{ color: "red" }}>
-                          {TIER3_PRICE} TEZ (Tier 3)
-                        </span>
-                      ) : currentSupply >= TIER1_LIMIT ? (
-                        <span style={{ color: "orange" }}>
-                          {TIER2_PRICE} TEZ (Tier 2)
-                        </span>
-                      ) : (
-                        <span style={{ color: "green" }}>
-                          {TIER1_PRICE} TEZ (Tier 1)
-                        </span>
-                      )}
-                    </>
-                  ) : (
+                  Minting Price:{" "}
+                  {currentSupply >= TIER2_LIMIT ? (
                     <span style={{ color: "red" }}>
-                      You need to own an NFT to mint
+                      {TIER3_PRICE} TEZ (Tier 3)
+                    </span>
+                  ) : currentSupply >= TIER1_LIMIT ? (
+                    <span style={{ color: "orange" }}>
+                      {TIER2_PRICE} TEZ (Tier 2)
+                    </span>
+                  ) : (
+                    <span style={{ color: "green" }}>
+                      {TIER1_PRICE} TEZ (Tier 1)
                     </span>
                   )}
                 </p>
               </Col>
-
               <p>from Wallet: {walletAddress}</p>
             </Row>
 
             <Button
               variant="primary"
               onClick={startMintingProcess}
-              disabled={minting || currentSupply >= maxSupply || walletLoading || !holderStatus || imageMinted || !tezosModules}
+              disabled={minting || currentSupply >= maxSupply || walletLoading || imageMinted || !tezosModules}
               style={{
                 fontFamily: "var(--primary-font)",
                 fontStyle: "italic",
@@ -618,8 +558,6 @@ const MintNFTProcess = ({
                 ? "Minting..."
                 : currentSupply >= maxSupply
                 ? "Max Supply Reached"
-                : !holderStatus
-                ? "Need NFT to Mint"
                 : imageMinted
                 ? "Already Minted"
                 : !tezosModules
