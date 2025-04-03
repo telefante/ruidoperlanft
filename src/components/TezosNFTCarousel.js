@@ -130,7 +130,13 @@ const TezosNFTCarousel = () => {
   }
 
   const handleSlideChange = swiper => {
-    setCurrentSlide(swiper.activeIndex + 1)
+    let slideNumber = swiper.realIndex + 1;
+    if (slideNumber > nfts.length) {
+      slideNumber = 1;
+    } else if (slideNumber < 1) {
+      slideNumber = nfts.length;
+    }
+    setCurrentSlide(slideNumber);
   }
 
   return (
@@ -279,7 +285,7 @@ const TezosNFTCarousel = () => {
               it gives you some secret powers
               <br /> 🔵
               <strong>Rare (very Limited Editions)</strong> → Echoes of
-              complexity, held in scarce iterations.
+                complexity, held in scarce iterations.
               <br /> ⚪<strong>Common (Small Batch)</strong> → A fleeting
               glimpse into the infinite, yet still finite. Holding one grants
               you private access to an exclusive generative simulation, where
