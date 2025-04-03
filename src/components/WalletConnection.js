@@ -68,7 +68,7 @@ const WalletConnection = () => {
           Disconnect Wallet
         </Button>
       ) : (
-        <Button variant="primary" onClick={connectWallet}>
+        <Button variant="primary" onClick={connectWallet} style={{ fontFamily: "var(--primary-font)", fontStyle: "italic" , fontWeight: "bold"}}>
           Connect Wallet
         </Button>
       )}
