@@ -15,6 +15,11 @@ const CACHE_EXPIRY = 5 * 60 * 1000; // Cache for 5 minutes
 // Remove direct TezosToolkit initialization
 // const tezos = new TezosToolkit(process.env.GATSBY_TEZOS_RPC_URL);
 
+// Example environment variables
+const BASE_URL = process.env.GATSBY_TZKT_API_URL; // e.g., "https://api.tzkt.io"
+const API_VERSION = process.env.GATSBY_API_VERSION; // e.g., "v1"
+const NETWORK = process.env.GATSBY_NETWORK; // e.g., "ghostnet"
+
 const isGreaterThanZero = (value) => {
   if (!value) return false;
   try {
@@ -122,18 +127,18 @@ const NFTVerification = ({ setAccessGranted }) => {
       console.error("Error checking holder status:", error);
       
       // Fallback to TzKT API
-      // try {
-      //   const tzktResult = await checkNFTOwnershipTzKT(address);
-      //   if (tzktResult) {
-      //     setAccessGranted(true);
-      //     setSuccess(true);
-      //     setError(null);
-      //     cacheOwnership(address, true);
-      //     return;
-      //   }
-      // } catch (fallbackErr) {
-      //   console.error("Fallback verification failed:", fallbackErr);
-      // }
+      try {
+        const tzktResult = await checkNFTOwnershipTzKT(address);
+        if (tzktResult) {
+          setAccessGranted(true);
+          setSuccess(true);
+          setError(null);
+          cacheOwnership(address, true);
+          return;
+        }
+      } catch (fallbackErr) {
+        console.error("Fallback verification failed:", fallbackErr);
+      }
       
       setError("Failed to verify NFT ownership. Please try again later.");
       setAccessGranted(false);
@@ -145,19 +150,19 @@ const NFTVerification = ({ setAccessGranted }) => {
 
   const getCachedOwnership = (address) => {
     // Temporarily disable cache by always returning null
-    return null;
+    // return null;
 
     // Original cache logic (commented out)
-    // const cache = localStorage.getItem(CACHE_KEY);
-    // if (cache) {
-    //   const parsedCache = JSON.parse(cache);
-    //   const cachedEntry = parsedCache[address];
+    const cache = localStorage.getItem(CACHE_KEY);
+    if (cache) {
+      const parsedCache = JSON.parse(cache);
+      const cachedEntry = parsedCache[address];
 
-    //   if (cachedEntry && Date.now() - cachedEntry.timestamp < CACHE_EXPIRY) {
-    //     return cachedEntry.ownsNFT;
-    //   }
-    // }
-    // return null;
+      if (cachedEntry && Date.now() - cachedEntry.timestamp < CACHE_EXPIRY) {
+        return cachedEntry.ownsNFT;
+      }
+    }
+    return null;
   };
 
   const cacheOwnership = (address, ownsNFT) => {
@@ -173,7 +178,9 @@ const NFTVerification = ({ setAccessGranted }) => {
   };
 
   const checkNFTOwnershipTzKT = async (address) => {
-    const apiUrl = `https://ghostnet.tzkt.io/v1/tokens/balances?account=${address}&token.contract=${RuidoPerlaNFTContract}`;
+    // Construct the URL using environment variables
+    const apiUrl = `${process.env.GATSBY_TZKT_API_URL}/${process.env.GATSBY_API_VERSION}/tokens/balances?account=${address}&token.contract=${RuidoPerlaNFTContract}`;
+    
     console.log("TzKT API Request:", apiUrl);
     try {
       const response = await fetch(apiUrl);

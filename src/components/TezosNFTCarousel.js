@@ -56,7 +56,7 @@ const TezosNFTCarousel = () => {
   const fetchNFTsfromCollection = async () => {
     const apiUrl = `${TzKT_API}v1/tokens?contract=${COLLECTION_CONTRACT}&limit=200`
     // GET https://api.tzkt.io/v1/tokens?contract=KT1[CollectionAddress]&limit=100
-
+    
     console.log("Fetching NFTs from:", apiUrl)
     try {
       // console.log("Fetching NFTs for:", walletAddress)
@@ -65,7 +65,7 @@ const TezosNFTCarousel = () => {
       // https://api.tzkt.io/v1/tokens/balances?account=${walletAddress}&token.standard=fa2`
       const data = await response.json()
 
-      console.log("Raw NFT Data:", data)
+      // console.log("Raw NFT Data:", data)
 
       if (!Array.isArray(data)) {
         console.error("Unexpected response format", data)
@@ -73,7 +73,7 @@ const TezosNFTCarousel = () => {
       }
 
       const nftsWithImages = data.filter(nft => nft?.metadata?.artifactUri)
-      console.log("NFTs with Images:", nftsWithImages)
+      // console.log("NFTs with Images:", nftsWithImages)
 
       setNfts(nftsWithImages)
     } catch (error) {

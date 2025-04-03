@@ -270,12 +270,12 @@ const PerlinNoise = ({
       cameraRotationRef.current = camera.rotation.clone()
       controlsTargetRef.current = controls.target.clone()
 
-      console.log("position", camera.position)
-      const direction = new THREE.Vector3()
-      camera.getWorldDirection(direction)
-      const lookAtPoint = new THREE.Vector3()
-      lookAtPoint.addVectors(camera.position, direction.multiplyScalar(100))
-      console.log("lookAt", lookAtPoint)
+      // console.log("position", camera.position)
+      // const direction = new THREE.Vector3()
+      // camera.getWorldDirection(direction)
+      // const lookAtPoint = new THREE.Vector3()
+      // lookAtPoint.addVectors(camera.position, direction.multiplyScalar(100))
+      // console.log("lookAt", lookAtPoint)
     }
 
     renderer.domElement.addEventListener("pointermove", onPointerMove)
