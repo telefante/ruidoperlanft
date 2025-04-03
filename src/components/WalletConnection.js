@@ -1,16 +1,32 @@
 import React, { useEffect } from "react";
 import { Button } from "react-bootstrap";
 import { useWallet } from "./WalletContext"; // Import WalletContext
+import { BeaconWallet } from "@taquito/beacon-wallet";
+import { TezosToolkit } from "@taquito/taquito";
 
 const WalletConnection = () => {
-  const { setWalletAddress, setIsConnected, isConnected, beaconWallet, tezos } = useWallet();
+  const { setWalletAddress, setIsConnected, isConnected, beaconWallet, setTezos } = useWallet();
 
-  // (Optional) If you still want to set the wallet provider here, ensure tezos is defined.
   useEffect(() => {
-    if (tezos && beaconWallet) {
-      tezos.setWalletProvider(beaconWallet);
-    }
-  }, [tezos, beaconWallet]);
+    const tezos = new TezosToolkit(process.env.GATSBY_TEZOS_RPC_URL || "https://mainnet.api.tez.ie");
+    const wallet = new BeaconWallet({ name: "Beacon Docs Taquito" });
+
+    // Set the wallet provider for Tezos
+    tezos.setWalletProvider(wallet);
+    // setTezos(tezos); // Store the Tezos instance in context
+
+    // Check for an active account on component mount
+    const checkActiveAccount = async () => {
+      const activeAccount = await wallet.client.getActiveAccount();
+      if (activeAccount) {
+        console.log("Active account found:", activeAccount);
+        setWalletAddress(activeAccount.address);
+        setIsConnected(true);
+      }
+    };
+
+    checkActiveAccount();
+  }, [setWalletAddress, setIsConnected, setTezos]);
 
   const connectWallet = async () => {
     console.log("🔄 Connecting wallet...");
@@ -18,20 +34,15 @@ const WalletConnection = () => {
       console.error("❌ Beacon Wallet instance is missing.");
       return;
     }
-  
+
     try {
       await beaconWallet.requestPermissions({
-        network: { type: "ghostnet", rpcUrl: "https://ghostnet.tezos.ecadinfra.com" },
+        network: { type: process.env.GATSBY_NETWORK_TYPE, rpcUrl: process.env.GATSBY_TEZOS_RPC_URL },
       });
       const address = await beaconWallet.getPKH();
       console.log("✅ Wallet Connected:", address);
-  
       setWalletAddress(address);
       setIsConnected(true);
-  
-      // Reconfigure the Tezos instance with the connected wallet
-      tezos.setWalletProvider(beaconWallet);
-      console.log("Tezos signer:", tezos.signer);
     } catch (error) {
       console.error("❌ Wallet connection failed:", error);
     }
@@ -50,18 +61,14 @@ const WalletConnection = () => {
     }
   };
 
-  useEffect(() => {
-    console.log("isConnected:", isConnected);
-  }, [isConnected]);
-
   return (
     <div className="wallet-connection">
       {isConnected ? (
-        <Button variant="danger" style={{ fontFamily: "var(--primary-font)" }} onClick={disconnectWallet}>
+        <Button variant="danger" onClick={disconnectWallet}>
           Disconnect Wallet
         </Button>
       ) : (
-        <Button variant="primary" style={{ fontFamily: "var(--primary-font)" }} onClick={connectWallet}>
+        <Button variant="primary" onClick={connectWallet}>
           Connect Wallet
         </Button>
       )}
