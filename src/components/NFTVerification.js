@@ -256,14 +256,15 @@ const NFTVerification = ({ setAccessGranted }) => {
       {success && (
         <Container id="communication">
           <Row>
-            <h3>Congratulations! You are already a Ruido Perla's collector</h3>
+            <h3>as holder of RuidoPerla NFT you can mint an image from the simulation</h3>
           </Row>
         </Container>
       )}
       {!success && (
         <Container>
           <Row>
-            <h3>Become a collector of Ruido Perla to play with the simulation.</h3>
+            <h2>Becoming a <a  href="#collection">collector</a> of Ruido Perla you will be able to mint in real time</h2>
+   
           </Row>
         </Container>
       )}
