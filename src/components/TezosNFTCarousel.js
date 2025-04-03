@@ -23,6 +23,19 @@ const DescriptionText = styled.p`
 // Custom styles for navigation buttons
 const NavigationButton = styled.div`
   color: white; /* Change the color here */
+  &.swiper-button-next,
+  &.swiper-button-prev {
+    color: var(--primary-color);
+    &:after {
+      font-size: 2rem;
+      font-weight: bold;
+    }
+  }
+
+  /* Hide pagination bullets */
+  .swiper-pagination-bullet {
+    display: none;
+  }
 `
 
 const TezosNFTCarousel = () => {
@@ -39,13 +52,6 @@ const TezosNFTCarousel = () => {
   console.log("TzKT_API:", TzKT_API)
   console.log("COLLECTION_CONTRACT:", COLLECTION_CONTRACT)
 
-  // Debugging wallet state
-  // useEffect(() => {
-  //   console.log("Wallet Connection State Updated:")
-  //   console.log("Address:", walletAddress)
-  //   console.log("Is Connected:", isConnected)
-  // }, [walletAddress, isConnected])
-
   // Fetch NFTs when the wallet is connected
   useEffect(() => {
     if (isConnected && walletAddress) {
@@ -56,7 +62,7 @@ const TezosNFTCarousel = () => {
   const fetchNFTsfromCollection = async () => {
     const apiUrl = `${TzKT_API}v1/tokens?contract=${COLLECTION_CONTRACT}&limit=200`
     // GET https://api.tzkt.io/v1/tokens?contract=KT1[CollectionAddress]&limit=100
-    
+
     console.log("Fetching NFTs from:", apiUrl)
     try {
       // console.log("Fetching NFTs for:", walletAddress)
@@ -108,7 +114,12 @@ const TezosNFTCarousel = () => {
             modules={[Pagination, Navigation]} // Add Navigation to modules
             spaceBetween={10}
             slidesPerView={1}
-            pagination={{ clickable: true }}
+            pagination={{
+              clickable: false,
+              renderBullet: () => {
+                return `<span class="swiper-pagination-bullet"></span>`
+              },
+            }}
             navigation={{
               nextEl: ".swiper-button-next",
               prevEl: ".swiper-button-prev",
@@ -197,7 +208,7 @@ const TezosNFTCarousel = () => {
                   <div style={{ display: "flex", justifyContent: "center" }}>
                     <Row>
                       <Button
-                        href={`${OBJKT_TOKEN_URL}/${COLLECTION_CONTRACT}/${nft.tokenId}`}
+                        href={`${OBJKT_TOKEN_URL}${COLLECTION_CONTRACT}/${nft.tokenId}`}
                         target="_blank"
                         variant="primary"
                         style={{
@@ -225,16 +236,16 @@ const TezosNFTCarousel = () => {
                 process.
               </Row>
               🟢
-              <strong>Legendary (1/1)</strong> → Singular moments of entropy - it
-              gives you some secret powers
+              <strong>Legendary (1/1)</strong> → Singular moments of entropy -
+              it gives you some secret powers
               <br /> 🔵
               <strong>Rare (very Limited Editions)</strong> → Echoes of
               complexity, held in scarce iterations.
-              <br /> ⚪
-              <strong>Common (Small Batch)</strong> → A fleeting glimpse into the
-              infinite, yet still finite. Holding one grants you private access
-              to an exclusive generative simulation, where landscapes reshape
-              and dissolve in real time. Limited Supply. No Second Chances. 👉
+              <br /> ⚪<strong>Common (Small Batch)</strong> → A fleeting
+              glimpse into the infinite, yet still finite. Holding one grants
+              you private access to an exclusive generative simulation, where
+              landscapes reshape and dissolve in real time. Limited Supply. No
+              Second Chances. 👉
               <Row>
                 <Button
                   m-4
