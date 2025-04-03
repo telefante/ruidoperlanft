@@ -287,7 +287,7 @@ const PerlinNoise = ({
     const lookAtPoint = new THREE.Vector3()
     lookAtPoint.addVectors(camera.position, direction.multiplyScalar(100))
 
-    console.log("position", camera.position)
+    // console.log("position", camera.position)
 
     cameraSetupRef.current = {
       position: {

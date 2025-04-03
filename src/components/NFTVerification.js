@@ -94,11 +94,12 @@ const NFTVerification = ({ setAccessGranted }) => {
       const tokenCheckPromises = tokenIds.map((tokenId) => limit(async () => {
         try {
           const key = { 0: address, 1: tokenId };
+          console.log(`Fetching big map value for key:`, key);
           const balance = await ledgerMap.get(key);
           console.log(`Checking token ${tokenId} for address ${address}:`, balance);
           return balance && balance.gt(0);
         } catch (err) {
-          console.log(`Error checking token ${tokenId}:`, err);
+          console.error(`Error fetching big map value for token ${tokenId}:`, err);
           return false;
         }
       }));
