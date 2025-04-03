@@ -354,6 +354,8 @@ const PerlinNoise = ({
         backgroundColor: "#000000",
         scale: 1,
         logging: true,
+        width: 800, // Constrain the width of the capture
+        height: 600, // Constrain the height of the capture
         ignoreElements: element => {
           return (
             element.classList.contains("controls") ||
