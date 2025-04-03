@@ -31,56 +31,88 @@ const isGreaterThanZero = (value) => {
 };
 
 const NFTVerification = ({ setAccessGranted }) => {
+  const { walletAddress, isConnected, tezos } = useWallet();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
-  const { walletAddress, isConnected } = useWallet();
-  const [tezos, setTezos] = useState(null);
 
-  // Initialize TezosToolkit only in browser
+  // Add dependency array items to track
+  const [lastVerifiedAddress, setLastVerifiedAddress] = useState(null);
+
   useEffect(() => {
-    const initTezos = async () => {
-      if (isBrowser) {
-        try {
-          const { TezosToolkit } = await import("@taquito/taquito");
-          const tezosToolkit = new TezosToolkit(process.env.GATSBY_TEZOS_RPC_URL);
-          setTezos(tezosToolkit);
-        } catch (error) {
-          console.error("Error initializing TezosToolkit:", error);
+    const initVerification = async () => {
+      // Log current state for debugging
+      console.log("NFTVerification - State Update:", {
+        walletAddress,
+        isConnected,
+        hasTezos: !!tezos,
+        lastVerifiedAddress,
+        loading
+      });
+
+      // Only proceed if we have all required values and haven't verified this address yet
+      if (walletAddress && 
+          isConnected && 
+          tezos && 
+          walletAddress !== lastVerifiedAddress && 
+          !loading) {
+        
+        console.log("🔍 Starting new verification for address:", walletAddress);
+        setLastVerifiedAddress(walletAddress);
+
+        // Check cache first
+        const cachedResult = getCachedOwnership(walletAddress);
+        if (cachedResult !== null) {
+          console.log("Using cached verification result for:", walletAddress);
+          setAccessGranted(cachedResult);
+          setSuccess(cachedResult);
+          setError(null);
+          return;
+        }
+
+        // If no cache or expired, proceed with verification
+        await verifyOwnership(walletAddress);
+      } else {
+        console.log("⚠️ Verification skipped:", {
+          hasAddress: !!walletAddress,
+          isConnected,
+          hasTezos: !!tezos,
+          isSameAddress: walletAddress === lastVerifiedAddress,
+          isLoading: loading
+        });
+        
+        if (!walletAddress || !isConnected) {
+          setAccessGranted(false);
+          setSuccess(false);
+          setError(null);
         }
       }
     };
-    initTezos();
-  }, []);
 
-  useEffect(() => {
-    if (walletAddress && isConnected) {
-      console.log("🔍 Wallet connected, verifying NFT ownership...");
-      const cachedResult = getCachedOwnership(walletAddress);
-      if (cachedResult !== null) {
-        console.log("Using cached result:", cachedResult);
-        setAccessGranted(cachedResult);
-        setSuccess(cachedResult);
-        return;
-      }
-      verifyOwnership(walletAddress);
-    } else {
-      console.log("⚠️ No wallet connected, restricting access.");
-      setAccessGranted(false);
-    }
-  }, [walletAddress, isConnected]);
+    initVerification();
+  }, [walletAddress, isConnected, tezos, lastVerifiedAddress, loading]);
 
   const verifyOwnership = async (address) => {
+    if (!address || !tezos) {
+      console.log("Missing requirements for verification");
+      return;
+    }
+    
     console.log("🟡 Verifying NFT ownership for wallet:", address);
     setLoading(true);
 
-    if (!isBrowser || !tezos) {
-      console.log("TezosToolkit not available, skipping verification");
-      setLoading(false);
-      return;
-    }
-
     try {
+      // Check cache first
+      const cachedResult = getCachedOwnership(address);
+      if (cachedResult !== null) {
+        console.log("Using cached verification result");
+        setAccessGranted(cachedResult);
+        setSuccess(cachedResult);
+        setError(null);
+        setLoading(false);
+        return;
+      }
+
       // Primary check using Objkt API
       const objktResult = await checkNFTOwnershipObjkt(address);
       if (objktResult) {
@@ -89,6 +121,7 @@ const NFTVerification = ({ setAccessGranted }) => {
         setSuccess(true);
         setError(null);
         cacheOwnership(address, true);
+        setLoading(false);
         return;
       }
 
@@ -134,7 +167,7 @@ const NFTVerification = ({ setAccessGranted }) => {
         cacheOwnership(address, false);
       }
     } catch (error) {
-      console.error("Error checking holder status:", error);
+      console.error("Verification error:", error);
       setError("Failed to verify NFT ownership. Please try again later.");
       setAccessGranted(false);
       setSuccess(false);
