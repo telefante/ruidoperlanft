@@ -38,6 +38,16 @@ const NavigationButton = styled.div`
   }
 `
 
+const SwiperContainer = styled.div`
+  width: 100%;
+  height: 100%;
+  background-color: transparent;
+
+  @media (max-width: 768px) {
+    width: 100%; /* Make Swiper full width on mobile */
+  }
+`
+
 const TezosNFTCarousel = () => {
   const { walletAddress, isConnected } = useWallet() // Get wallet state from context
   const [nfts, setNfts] = useState([])
@@ -110,123 +120,125 @@ const TezosNFTCarousel = () => {
     <Container className="flex flex-col items-center p-4">
       {nfts.length > 0 ? (
         <Container className="flex flex-col items-center p-4">
-          <Swiper
-            modules={[Pagination, Navigation]} // Add Navigation to modules
-            spaceBetween={10}
-            slidesPerView={1}
-            pagination={{
-              clickable: false,
-              renderBullet: () => {
-                return `<span class="swiper-pagination-bullet"></span>`
-              },
-            }}
-            navigation={{
-              nextEl: ".swiper-button-next",
-              prevEl: ".swiper-button-prev",
-            }} // Enable navigation arrows and specify custom classes
-            style={{
-              width: "100%",
-              height: "100%",
-              backgroundColor: "transparent",
-            }}
-          >
-            <NavigationButton className="swiper-button-prev" />
-            <NavigationButton className="swiper-button-next" />
-            {nfts.map((nft, index) => {
-              const thumbnailUrl =
-                nft.metadata.thumbnailUri?.replace(
-                  "ipfs://",
-                  "https://dweb.link/ipfs/"
-                ) || placeholderImage
+          <SwiperContainer>
+            <Swiper
+              modules={[Pagination, Navigation]} // Add Navigation to modules
+              spaceBetween={10}
+              slidesPerView={1}
+              pagination={{
+                clickable: false,
+                renderBullet: () => {
+                  return `<span class="swiper-pagination-bullet"></span>`
+                },
+              }}
+              navigation={{
+                nextEl: ".swiper-button-next",
+                prevEl: ".swiper-button-prev",
+              }} // Enable navigation arrows and specify custom classes
+              style={{
+                width: "100%",
+                height: "100%",
+                backgroundColor: "transparent",
+              }}
+            >
+              <NavigationButton className="swiper-button-prev" />
+              <NavigationButton className="swiper-button-next" />
+              {nfts.map((nft, index) => {
+                const thumbnailUrl =
+                  nft.metadata.thumbnailUri?.replace(
+                    "ipfs://",
+                    "https://dweb.link/ipfs/"
+                  ) || placeholderImage
 
-              // Create a function to handle the click event
-              const handleImageClick = () => {
-                openModal(nft)
-              }
+                // Create a function to handle the click event
+                const handleImageClick = () => {
+                  openModal(nft)
+                }
 
-              return (
-                <SwiperSlide key={index}>
-                  <Row>
-                    <Col>
-                      <h2>{nft.metadata?.name || "Unnamed NFT"}</h2>
-                      <img
-                        src={thumbnailUrl}
-                        alt={nft.metadata?.name || "Unnamed NFT"}
-                        style={{
-                          maxWidth: "80%",
-                          minWidth: "200px",
-                          // maxHeight: ",
-                          marginRight: "20px",
-                          cursor: "pointer", // Add cursor pointer
-                        }}
-                        onClick={handleImageClick} // Call the new function
-                      />
-                    </Col>
-                    <Col className="d-none d-md-block">
-                      {nft.metadata?.attributes && (
-                        <Card
-                          noborder
+                return (
+                  <SwiperSlide key={index}>
+                    <Row>
+                      <Col>
+                        <h2>{nft.metadata?.name || "Unnamed NFT"}</h2>
+                        <img
+                          src={thumbnailUrl}
+                          alt={nft.metadata?.name || "Unnamed NFT"}
                           style={{
-                            width: "18rem",
-                            margin: "10px",
-                            backgroundColor: "transparent",
+                            maxWidth: "80%",
+                            minWidth: "200px",
+                            // maxHeight: ",
+                            marginRight: "20px",
+                            cursor: "pointer", // Add cursor pointer
+                          }}
+                          onClick={handleImageClick} // Call the new function
+                        />
+                      </Col>
+                      <Col className="d-none d-md-block">
+                        {nft.metadata?.attributes && (
+                          <Card
+                            noborder
+                            style={{
+                              width: "18rem",
+                              margin: "10px",
+                              backgroundColor: "transparent",
+                            }}
+                          >
+                            <div className="card-body custom-card-body">
+                              <h3 className="card-title custom-card-title">
+                                attributes
+                              </h3>
+                              <ul className="list-group list-group-flush custom-list-group">
+                                {nft.metadata.attributes.map((attr, i) => (
+                                  <li
+                                    key={i}
+                                    className="list-group-item custom-list-item"
+                                  >
+                                    <strong>{attr.name}:</strong> {attr.value}
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          </Card>
+                        )}
+                      </Col>
+                    </Row>
+                    <Row mt-8 centered>
+                      <h3>
+                        Rarity:{" "}
+                        {nft.metadata.attributes.find(
+                          attr => attr.name === "Rarity"
+                        )?.value || "No rarity available"}
+                      </h3>
+                      <div style={{ display: "flex", justifyContent: "center" }}>
+                        <DescriptionText>
+                          {nft.metadata?.description ||
+                            "No description available"}
+                        </DescriptionText>
+                      </div>
+                    </Row>
+                    <div style={{ display: "flex", justifyContent: "center" }}>
+                      <Row>
+                        <Button
+                          href={`${OBJKT_TOKEN_URL}${COLLECTION_CONTRACT}/${nft.tokenId}`}
+                          target="_blank"
+                          variant="primary"
+                          style={{
+                            fontFamily: "var(--primary-font)",
+                            fontStyle: "italic",
+                            fontWeight: "bold",
+                            fontSize: "1.5rem",
+                            maxWidth: "200px",
                           }}
                         >
-                          <div className="card-body custom-card-body">
-                            <h3 className="card-title custom-card-title">
-                              attributes
-                            </h3>
-                            <ul className="list-group list-group-flush custom-list-group">
-                              {nft.metadata.attributes.map((attr, i) => (
-                                <li
-                                  key={i}
-                                  className="list-group-item custom-list-item"
-                                >
-                                  <strong>{attr.name}:</strong> {attr.value}
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        </Card>
-                      )}
-                    </Col>
-                  </Row>
-                  <Row mt-8 centered>
-                    <h3>
-                      Rarity:{" "}
-                      {nft.metadata.attributes.find(
-                        attr => attr.name === "Rarity"
-                      )?.value || "No rarity available"}
-                    </h3>
-                    <div style={{ display: "flex", justifyContent: "center" }}>
-                      <DescriptionText>
-                        {nft.metadata?.description ||
-                          "No description available"}
-                      </DescriptionText>
+                          Collect now on Objkt
+                        </Button>
+                      </Row>
                     </div>
-                  </Row>
-                  <div style={{ display: "flex", justifyContent: "center" }}>
-                    <Row>
-                      <Button
-                        href={`${OBJKT_TOKEN_URL}${COLLECTION_CONTRACT}/${nft.tokenId}`}
-                        target="_blank"
-                        variant="primary"
-                        style={{
-                          fontFamily: "var(--primary-font)",
-                          fontStyle: "italic",
-                          fontWeight: "bold",
-                          fontSize: "1.5rem",
-                          maxWidth: "200px",
-                        }}
-                      >
-                        Collect now on Objkt
-                      </Button>
-                    </Row>
-                  </div>
-                </SwiperSlide>
-              )
-            })}
-          </Swiper>
+                  </SwiperSlide>
+                )
+              })}
+            </Swiper>
+          </SwiperContainer>
           <div style={{ display: "flex", justifyContent: "center" }}>
             <DescriptionText>
               <Row className="align-items-center mb-4">
