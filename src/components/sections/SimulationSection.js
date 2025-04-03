@@ -84,27 +84,10 @@ const SimulationSection = ({ account, connectWallet, disconnectWallet }) => {
           Ruido Perla is a unique NFT collection of poetry and digital
           simulation 
           <br />
-          Collectors don’t just own an artwork— they gain access to control thesimulation.
+          Collectors don’t just own an artwork— they gain access to mint images from simulation.
        
       </DescriptionText>
-      <Row>
-        
-        <Button
-          href={`${process.env.GATSBY_OBJKT_COLLECTION_URL}/${COLLECTION_CONTRACT}`}
-          target="_blank"
-          variant="primary"
-          style={{
-            fontFamily: "var(--primary-font)",
-            fontStyle: "italic",
-            fontWeight: "bold",
-            fontSize: "1.2rem",
-            maxWidth: "200px",
-          }}
-          onClick={handleCollectNowClick(`${process.env.GATSBY_OBJKT_COLLECTION_URL}/${COLLECTION_CONTRACT}`)}
-        >
-          Collect now
-        </Button>
-      </Row>
+      
 
       {/* Full viewport width and height container */}
       <div
@@ -133,6 +116,25 @@ const SimulationSection = ({ account, connectWallet, disconnectWallet }) => {
           setControlsVisible={setControlsVisible} // Pass the setter function
         />
       </div>
+
+      <Row>
+        
+        <Button
+          href={`${process.env.GATSBY_OBJKT_COLLECTION_URL}/${COLLECTION_CONTRACT}`}
+          target="_blank"
+          variant="primary"
+          style={{
+            fontFamily: "var(--primary-font)",
+            fontStyle: "italic",
+            fontWeight: "bold",
+            fontSize: "1.2rem",
+            maxWidth: "200px",
+          }}
+          onClick={handleCollectNowClick(`${process.env.GATSBY_OBJKT_COLLECTION_URL}/${COLLECTION_CONTRACT}`)}
+        >
+          Collect now
+        </Button>
+      </Row>
     </SectionContainer>
   )
 }
