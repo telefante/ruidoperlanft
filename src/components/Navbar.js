@@ -33,7 +33,7 @@ const StyledNavbarCollapse = styled(Navbar.Collapse)`
 const sections = [
   { name: "hello", path: "introduction" },
   { name: "collection", path: "collection" },
-  { name: "poetry", path: "simulation" },
+  { name: "mint poetry", path: "simulation" },
   { name: "whitepaper", path: "installation" },
   { name: "installation", path: "about" },
 ];

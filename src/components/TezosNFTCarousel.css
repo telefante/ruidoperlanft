@@ -34,3 +34,7 @@
 .card {
   border: none; /* Removes the border/line */
 }
+
+.swiper-pagination-bullet {
+  display: none;
+}
