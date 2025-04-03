@@ -492,7 +492,7 @@ const PerlinNoise = ({
             <Modal.Title
               style={{ fontFamily: "var(--primary-font)", fontWeight: "bold" }}
             >
-              Mint this Pearl for your collection?
+              Mint this beatiful Pearl for contract: {process.env.GATSBY_TEZOS_REALTIME_CONTRACT}
             </Modal.Title>
           </Modal.Header>
           <Modal.Body>

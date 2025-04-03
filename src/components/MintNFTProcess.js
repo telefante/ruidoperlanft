@@ -597,7 +597,7 @@ const MintNFTProcess = ({
                 </p>
               </Col>
 
-              <p>Connected Address: {walletAddress}</p>
+              <p>from Wallet: {walletAddress}</p>
             </Row>
 
             <Button
