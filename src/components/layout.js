@@ -1,7 +1,7 @@
 import * as React from "react";
 import { useStaticQuery, graphql } from "gatsby";
 import Header from "./header";
-import Seo from "./seo"; // Import SEO component
+// import Seo from "./seo"; // Import SEO component
 import { useEffect, useState } from "react";
 import "./layout.css"; // Import global styles
 import Footer from "./Footer";
@@ -45,12 +45,12 @@ const Layout = ({ children, seoProps }) => {
   return (
     <>
       {/* SEO Component */}
-      <Seo
+      {/* <Seo
         title={seoProps?.title || data.site.siteMetadata.title}
         description={seoProps?.description || data.site.siteMetadata.description}
         image={seoProps?.image || imageSrc}
         keywords={seoProps?.keywords || data.site.siteMetadata.keywords}
-      />
+      /> */}
 
       {/* Moving Background */}
       <div className="gradient-bg" style={{ transform: `translateY(${scrollY}px)` }}></div>
