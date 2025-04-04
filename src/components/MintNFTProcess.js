@@ -336,7 +336,7 @@ const MintNFTProcess = ({
 
   const checkRpcHealth = async (rpcUrl) => {
     try {
-      const tezosInstance = new TezosToolkit(rpcUrl);
+       const tezosInstance = new TezosToolkit(rpcUrl);
       await tezosInstance.rpc.getBlockHeader(); // Check if the RPC node responds
       console.log(`✅ RPC node is healthy: ${rpcUrl}`);
       return true;
@@ -388,9 +388,10 @@ const MintNFTProcess = ({
       const tezosInstance = new TezosToolkit(rpcUrlToUse);
   
       // Configure the signer using the beaconWallet
-      tezosInstance.setProvider({ signer: await beaconWallet.getSigner() });
+      // tezosInstance.setProvider({ signer: await beaconWallet.getSigner() });
   
-      const contract = await tezosInstance.wallet.at(realtimeRPNFTContract);
+      // const contract = await tezosInstance.wallet.at(realtimeRPNFTContract);
+      const contract = await tezos.wallet.at(realtimeRPNFTContract)
       console.log("✅ Contract successfully fetched:", realtimeRPNFTContract);
   
       const metadataMap = new tezosModules.MichelsonMap();
