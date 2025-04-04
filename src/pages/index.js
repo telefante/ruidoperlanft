@@ -9,12 +9,15 @@ import AboutSection from "../components/sections/AboutSection"
 import CollectionSection from "../components/sections/CollectionSection"
 import { ContractProvider } from "../components/ContractContext" // Adjust the path as necessary
 import { WalletProvider } from "../components/WalletContext"
-import Seo from "../components/seo"; // Import SEO component
+import { Seo } from "../components/seo";
+
 // Debug: Log Components
 // console.log("InstallationSection:", InstallationSection);
 // console.log("SimulationSection:", SimulationSection);
 // console.log("AssetsSection:", AssetsSection);
 // console.log("AboutSection:", AboutSection);
+
+
 
 export const Head = () => (
   <Seo
@@ -26,6 +29,7 @@ export const Head = () => (
   />
   // <Seo
 );
+
 
 const IndexPage = () => {
   return (
