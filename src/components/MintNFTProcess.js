@@ -292,46 +292,38 @@ const MintNFTProcess = ({
 
     try {
       console.log("📊 Checking supply for contract:", realtimeRPNFTContract);
-      const tezosInstance = new TezosToolkit(primaryRpc); // TezosToolkit is now defined
+      const tezosInstance = new TezosToolkit(primaryRpc);
       const contract = await tezosInstance.wallet.at(realtimeRPNFTContract);
       const storage = await contract.storage();
 
       console.log("📦 Contract Storage:", storage);
 
-      const current = await storage.current_supply;
-      const max = await storage.MAX_SUPPLY;
+      const current = storage.current_supply?.toNumber?.() || 0;
+      const max = storage.max_supply?.toNumber?.() || 0;
 
-      console.log("📈 Supply Info:", {
-        current: current.toNumber(),
-        max: max.toNumber(),
-        contract: realtimeRPNFTContract,
-      });
+      console.log("📈 Supply Info:", { current, max, contract: realtimeRPNFTContract });
 
-      setMaxSupply(max.toNumber());
-      setCurrentSupply(current.toNumber());
+      setMaxSupply(max);
+      setCurrentSupply(current);
     } catch (error) {
       console.error("Error checking supply with primary RPC:", error.message);
 
       if (backupRpc) {
         try {
           console.log("🔄 Retrying with backup RPC:", backupRpc);
-          const tezosInstance = new TezosToolkit(backupRpc); // TezosToolkit is now defined
+          const tezosInstance = new TezosToolkit(backupRpc);
           const contract = await tezosInstance.wallet.at(realtimeRPNFTContract);
           const storage = await contract.storage();
 
           console.log("📦 Contract Storage (Backup):", storage);
 
-          const current = await storage.current_supply;
-          const max = await storage.MAX_SUPPLY;
+          const current = storage.current_supply?.toNumber?.() || 0;
+          const max = storage.max_supply?.toNumber?.() || 0;
 
-          console.log("📈 Supply Info (Backup):", {
-            current: current.toNumber(),
-            max: max.toNumber(),
-            contract: realtimeRPNFTContract,
-          });
+          console.log("📈 Supply Info (Backup):", { current, max, contract: realtimeRPNFTContract });
 
-          setMaxSupply(max.toNumber());
-          setCurrentSupply(current.toNumber());
+          setMaxSupply(max);
+          setCurrentSupply(current);
         } catch (backupError) {
           console.error("Error checking supply with backup RPC:", backupError.message);
           alert("Network error: Unable to connect to any RPC endpoint. Please try again later.");
@@ -342,41 +334,65 @@ const MintNFTProcess = ({
     }
   };
 
-  const mintNFT = async (tokenId, metadataIpfsUrl, imageIpfsUrl) => {
-    if (!isBrowser || !tezosModules) return
+  const checkRpcHealth = async (rpcUrl) => {
+    try {
+      const tezosInstance = new TezosToolkit(rpcUrl);
+      await tezosInstance.rpc.getBlockHeader(); // Check if the RPC node responds
+      console.log(`✅ RPC node is healthy: ${rpcUrl}`);
+      return true;
+    } catch (error) {
+      console.error(`❌ RPC node is unreachable: ${rpcUrl}`, error.message);
+      return false;
+    }
+  };
 
-    console.log("🚀 Minting NFT...")
+  const mintNFT = async (tokenId, metadataIpfsUrl, imageIpfsUrl) => {
+    if (!isBrowser || !tezosModules) return;
+
+    console.log("🚀 Minting NFT...");
 
     if (!isConnected || !walletAddress || !beaconWallet) {
-      alert("Please connect your wallet first!")
-      setMinting(false)
-      return
+      alert("Please connect your wallet first!");
+      setMinting(false);
+      return;
     }
 
     if (!metadataIpfsUrl || !imageIpfsUrl) {
-      alert(
-        "IPFS upload incomplete! Make sure both image and metadata are uploaded."
-      )
-      setMinting(false)
-      return
+      alert("IPFS upload incomplete! Make sure both image and metadata are uploaded.");
+      setMinting(false);
+      return;
     }
 
     if (imageMinted) {
-      alert("This image has already been minted!")
-      setMinting(false)
-      return
+      alert("This image has already been minted!");
+      setMinting(false);
+      return;
     }
 
+    const primaryRpc = process.env.GATSBY_TEZOS_RPC_URL;
+    const backupRpc = process.env.GATSBY_TEZOS_RPC_URL_BACKUP;
+
+    // Check RPC health before proceeding
+    const isPrimaryRpcHealthy = await checkRpcHealth(primaryRpc);
+    const isBackupRpcHealthy = backupRpc ? await checkRpcHealth(backupRpc) : false;
+
+    if (!isPrimaryRpcHealthy && !isBackupRpcHealthy) {
+      alert("All RPC nodes are unreachable. Please try again later.");
+      setMinting(false);
+      return;
+    }
+
+    const rpcUrlToUse = isPrimaryRpcHealthy ? primaryRpc : backupRpc;
+
     try {
-      const contract = await tezos.wallet.at(realtimeRPNFTContract)
-      console.log("✅ Contract successfully fetched:", realtimeRPNFTContract)
+      const tezosInstance = new TezosToolkit(rpcUrlToUse);
+      const contract = await tezosInstance.wallet.at(realtimeRPNFTContract);
+      console.log("✅ Contract successfully fetched:", realtimeRPNFTContract);
 
-      // Create metadata map using dynamically imported MichelsonMap
-      const metadataMap = new tezosModules.MichelsonMap()
-      metadataMap.set("", Buffer.from(`${metadataIpfsUrl}`).toString("hex"))
+      const metadataMap = new tezosModules.MichelsonMap();
+      metadataMap.set("", Buffer.from(`${metadataIpfsUrl}`).toString("hex"));
 
-      // Get mint price based on current supply
-      const mintAmount = getMintPrice()
+      const mintAmount = getMintPrice();
 
       console.log("📤 Sending mint transaction with amount:", {
         tez: mintAmount,
@@ -384,7 +400,7 @@ const MintNFTProcess = ({
         currentSupply,
         tier: currentSupply >= TIER2_LIMIT ? "Tier 3" : 
               currentSupply >= TIER1_LIMIT ? "Tier 2" : "Tier 1"
-      })
+      });
 
       const mintOp = await contract.methods
         .mint([{ metadata: metadataMap, to_: walletAddress }])
@@ -393,34 +409,32 @@ const MintNFTProcess = ({
           mutez: false,
           storageLimit: 1000,
           gasLimit: 10000,
-        })
+        });
 
-      await mintOp.confirmation(1)
+      await mintOp.confirmation(1);
 
-      // Add operation hash link
-      const opHashUrl = `https://better-call.dev/ghostnet/opg/${mintOp.opHash}/contents`
-      console.log(`✅ NFT Minted! View transaction: ${opHashUrl}`)
+      const opHashUrl = `https://better-call.dev/ghostnet/opg/${mintOp.opHash}/contents`;
+      console.log(`✅ NFT Minted! View transaction: ${opHashUrl}`);
 
       setMintSuccess({
         success: true,
         opHash: mintOp.opHash,
         opHashUrl: opHashUrl,
-      })
+      });
 
-      // Update supply after successful mint
-      checkSupply()
-      setImageMinted(true) // Mark this image as minted
+      checkSupply();
+      setImageMinted(true);
     } catch (error) {
-      console.error("❌ Error minting NFT:", error)
-      if (error.message.includes("Deprecated")) {
-        alert("The contract is currently being updated. Please try again in a few minutes.")
+      console.error("❌ Error minting NFT:", error);
+      if (error.message.includes("Failed to fetch")) {
+        alert("Network error: Unable to connect to the blockchain. Please try again later.");
       } else if (error.message.includes("Incorrect payment amount")) {
-        alert("The minting price has changed. Please try again.")
+        alert("The minting price has changed. Please try again.");
       } else {
-        alert("Failed to mint NFT: " + error.message)
+        alert("Failed to mint NFT: " + error.message);
       }
     } finally {
-      setMinting(false)
+      setMinting(false);
     }
   }
 
