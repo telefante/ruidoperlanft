@@ -9,14 +9,7 @@ const WalletConnection = () => {
 
   useEffect(() => {
     const tezos = new TezosToolkit(process.env.GATSBY_TEZOS_RPC_URL || "https://ghostnet.api.tez.ie");
-    const networkType = process.env.NODE_ENV === "development" ? "ghostnet" : process.env.GATSBY_NETWORK_TYPE;
-    const rpcUrl = process.env.NODE_ENV === "development" ? "https://ghostnet.api.tez.ie" : process.env.GATSBY_TEZOS_RPC_URL;
-
-    const wallet = new BeaconWallet({
-      name: "Ruido Perla Taquito",
-      preferredNetwork: networkType,
-      rpcUrl: rpcUrl,
-    });
+    const wallet = new BeaconWallet({ name: "Ruido Perla Taquito" });
 
     // Set the wallet provider for Tezos
     tezos.setWalletProvider(wallet);
@@ -43,18 +36,13 @@ const WalletConnection = () => {
     }
 
     try {
-      const networkType = process.env.NODE_ENV === "development" ? "ghostnet" : process.env.GATSBY_NETWORK_TYPE;
-      const rpcUrl = process.env.NODE_ENV === "development" ? "https://ghostnet.api.tez.ie" : process.env.GATSBY_TEZOS_RPC_URL;
-
       await beaconWallet.requestPermissions({
-        network: { type: networkType, rpcUrl: rpcUrl },
+        network: { type: process.env.GATSBY_NETWORK_TYPE, rpcUrl: process.env.GATSBY_TEZOS_RPC_URL },
       });
       const address = await beaconWallet.getPKH();
       console.log("✅ Wallet Connected:", address);
       setWalletAddress(address);
       setIsConnected(true);
-       // Force a page refresh after wallet connection
-       window.location.reload();
     } catch (error) {
       console.error("❌ Wallet connection failed:", error);
     }
@@ -76,11 +64,11 @@ const WalletConnection = () => {
   return (
     <div className="wallet-connection">
       {isConnected ? (
-        <Button variant="danger" onClick={disconnectWallet} style={{ fontFamily: "var(--primary-font)", fontStyle: "italic" , fontWeight: "bold"}}>
+        <Button variant="danger" onClick={disconnectWallet}>
           Disconnect Wallet
         </Button>
       ) : (
-        <Button variant="primary" onClick={connectWallet} style={{ fontFamily: "var(--primary-font)", fontStyle: "italic" , fontWeight: "bold"}}>
+        <Button variant="primary" onClick={connectWallet}>
           Connect Wallet
         </Button>
       )}

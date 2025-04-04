@@ -39,12 +39,6 @@ const PerlinNoise = ({
           rawMarkdownBody
         }
       }
-      site {
-        siteMetadata {
-          contractNumber
-          rpcUrl
-        }
-      }
     }
   `)
 

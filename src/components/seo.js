@@ -49,3 +49,5 @@ export function Seo({ title, description, image, keywords, canonicalUrl }) {
     </>
   );
 }
+
+export default Seo;
