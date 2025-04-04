@@ -26,7 +26,7 @@ const Layout = ({ children }) => {
   `);
 
   // Extract fallback image for SEO (if available)
-  const imageSrc = data.headerImage?.childImageSharp?.gatsbyImageData?.images?.fallback?.src;
+  // const imageSrc = data.headerImage?.childImageSharp?.gatsbyImageData?.images?.fallback?.src;
 
   // State to control background movement
   const [scrollY, setScrollY] = useState(0);

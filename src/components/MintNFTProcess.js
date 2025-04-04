@@ -78,7 +78,7 @@ const MintNFTProcess = ({
   const LIGHTHOUSE_API_KEY = process.env.GATSBY_LIGHTHOUSE_API_KEY
   const realtimeRPNFTContract = process.env.GATSBY_TEZOS_REALTIME_CONTRACT
   const FIRST_CREATOR = process.env.GATSBY_RPNNFT_CREATOR
-  const PreMintedRPNCollection = process.env.GATSBY_RUIDOPERLANFT_CONTRACT
+  // const PreMintedRPNCollection = process.env.GATSBY_RUIDOPERLANFT_CONTRACT
   const NETWORK_TYPE = process.env.GATSBY_NETWORK_TYPE || "ghostnet" // Default to ghostnet
 
   // console.log("🔍 Contract Addresses:", {
@@ -89,7 +89,7 @@ const MintNFTProcess = ({
 
   const TIER1_LIMIT = 10 // First 8 tokens
   const TIER2_LIMIT = 15 // Next 2 tokens (tokens 9-10)
-  const TIER3_LIMIT = 16 // Last 2 tokens (tokens 11-12)
+  // const TIER3_LIMIT = 16 // Last 2 tokens (tokens 11-12)
 
   const TIER1_PRICE = 2 // 2 TEZ
   const TIER2_PRICE = 4 // 4 TEZ
