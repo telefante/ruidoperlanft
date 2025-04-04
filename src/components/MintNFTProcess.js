@@ -348,52 +348,56 @@ const MintNFTProcess = ({
 
   const mintNFT = async (tokenId, metadataIpfsUrl, imageIpfsUrl) => {
     if (!isBrowser || !tezosModules) return;
-
+  
     console.log("🚀 Minting NFT...");
-
+  
     if (!isConnected || !walletAddress || !beaconWallet) {
       alert("Please connect your wallet first!");
       setMinting(false);
       return;
     }
-
+  
     if (!metadataIpfsUrl || !imageIpfsUrl) {
       alert("IPFS upload incomplete! Make sure both image and metadata are uploaded.");
       setMinting(false);
       return;
     }
-
+  
     if (imageMinted) {
       alert("This image has already been minted!");
       setMinting(false);
       return;
     }
-
+  
     const primaryRpc = process.env.GATSBY_TEZOS_RPC_URL;
     const backupRpc = process.env.GATSBY_TEZOS_RPC_URL_BACKUP;
-
+  
     // Check RPC health before proceeding
     const isPrimaryRpcHealthy = await checkRpcHealth(primaryRpc);
     const isBackupRpcHealthy = backupRpc ? await checkRpcHealth(backupRpc) : false;
-
+  
     if (!isPrimaryRpcHealthy && !isBackupRpcHealthy) {
       alert("All RPC nodes are unreachable. Please try again later.");
       setMinting(false);
       return;
     }
-
+  
     const rpcUrlToUse = isPrimaryRpcHealthy ? primaryRpc : backupRpc;
-
+  
     try {
       const tezosInstance = new TezosToolkit(rpcUrlToUse);
+  
+      // Configure the signer using the beaconWallet
+      tezosInstance.setProvider({ signer: await beaconWallet.getSigner() });
+  
       const contract = await tezosInstance.wallet.at(realtimeRPNFTContract);
       console.log("✅ Contract successfully fetched:", realtimeRPNFTContract);
-
+  
       const metadataMap = new tezosModules.MichelsonMap();
       metadataMap.set("", Buffer.from(`${metadataIpfsUrl}`).toString("hex"));
-
+  
       const mintAmount = getMintPrice();
-
+  
       console.log("📤 Sending mint transaction with amount:", {
         tez: mintAmount,
         mutez: mintAmount * 1000000,
@@ -401,7 +405,7 @@ const MintNFTProcess = ({
         tier: currentSupply >= TIER2_LIMIT ? "Tier 3" : 
               currentSupply >= TIER1_LIMIT ? "Tier 2" : "Tier 1"
       });
-
+  
       const mintOp = await contract.methods
         .mint([{ metadata: metadataMap, to_: walletAddress }])
         .send({
@@ -410,18 +414,18 @@ const MintNFTProcess = ({
           storageLimit: 1000,
           gasLimit: 10000,
         });
-
+  
       await mintOp.confirmation(1);
-
+  
       const opHashUrl = `https://better-call.dev/ghostnet/opg/${mintOp.opHash}/contents`;
       console.log(`✅ NFT Minted! View transaction: ${opHashUrl}`);
-
+  
       setMintSuccess({
         success: true,
         opHash: mintOp.opHash,
         opHashUrl: opHashUrl,
       });
-
+  
       checkSupply();
       setImageMinted(true);
     } catch (error) {
@@ -436,7 +440,8 @@ const MintNFTProcess = ({
     } finally {
       setMinting(false);
     }
-  }
+  };
+  
 
   // Reset imageMinted when capturedImage changes
   useEffect(() => {
