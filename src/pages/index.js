@@ -19,16 +19,16 @@ import { Seo } from "../components/seo";
 
 
 
-export const Head = () => (
-  <Seo
-    title="Ruido Perla NFT Collection"
-    description="Explore the Ruido Perla NFT Collection - a unique digital art series blending noise and pearl aesthetics. Discover exclusive digital collectibles created by Luis Negrón van Grieekn."
-    image="/og-image.jpg" // Ensure this image exists
-    keywords="NFT collection, digital art, Ruido Perla, Luis Negrón van Grieken, blockchain art, crypto art, pearl aesthetics, noise art, digital collectibles, unique NFTs, ethereum NFT, web3 art, contemporary digital art, generative art"
-    canonicalUrl="https://ruidoperlanft.netlify.app" // Ensure this URL is correct
-  />
-  // <Seo
-);
+// export const Head = () => (
+//   <Seo
+//     title="Ruido Perla NFT Collection"
+//     description="Explore the Ruido Perla NFT Collection - a unique digital art series blending noise and pearl aesthetics. Discover exclusive digital collectibles created by Luis Negrón van Grieekn."
+//     image="/og-image.jpg" // Ensure this image exists
+//     keywords="NFT collection, digital art, Ruido Perla, Luis Negrón van Grieken, blockchain art, crypto art, pearl aesthetics, noise art, digital collectibles, unique NFTs, ethereum NFT, web3 art, contemporary digital art, generative art"
+//     canonicalUrl="https://ruidoperlanft.netlify.app" // Ensure this URL is correct
+//   />
+//   // <Seo
+// ); 
 
 
 const IndexPage = () => {
