@@ -108,7 +108,7 @@ const TezosNFTCarousel = () => {
 
       // Cache thumbnail URLs and binaries
       const newThumbnailCache = {};
-      for (const nft of nftsWithImages) {
+      const promises = nftsWithImages.map(async nft => {
         const thumbnailUrl =
           nft.metadata.thumbnailUri?.replace("ipfs://", "https://dweb.link/ipfs/") ||
           placeholderImage;
@@ -118,18 +118,23 @@ const TezosNFTCarousel = () => {
           const blob = await imageResponse.blob();
           const reader = new FileReader();
 
-          reader.onloadend = () => {
-            newThumbnailCache[nft.tokenId] = {
-              url: thumbnailUrl,
-              binary: reader.result, // Base64 representation of the image
+          return new Promise(resolve => {
+            reader.onloadend = () => {
+              newThumbnailCache[nft.tokenId] = {
+                url: thumbnailUrl,
+                binary: reader.result, // Base64 representation of the image
+              };
+              resolve();
             };
-          };
-          reader.readAsDataURL(blob);
+            reader.readAsDataURL(blob);
+          });
         } catch (error) {
           console.error(`Error fetching thumbnail for tokenId ${nft.tokenId}:`, error);
           newThumbnailCache[nft.tokenId] = { url: thumbnailUrl, binary: null };
         }
-      }
+      });
+
+      await Promise.all(promises);
 
       // Save data to state
       setThumbnailCache(newThumbnailCache);
@@ -209,7 +214,8 @@ const TezosNFTCarousel = () => {
               <NavigationButton className="swiper-button-prev" />
               <NavigationButton className="swiper-button-next" />
               {nfts.map((nft, index) => {
-                const thumbnailUrl = thumbnailCache[nft.tokenId] || placeholderImage // Use cached thumbnail
+                const thumbnailData = thumbnailCache[nft.tokenId];
+                const thumbnailUrl = thumbnailData?.binary || thumbnailData?.url || placeholderImage; // Use binary if available
 
                 // Create a function to handle the click event
                 const handleImageClick = () => {
