@@ -45,7 +45,7 @@ export function Seo({ title, description, image, keywords, canonicalUrl }) {
       <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:title" content={title || defaultTitle} />
       <meta name="twitter:description" content={description || defaultDescription} />
-      <meta name="twitter:image" content={image || defaultImage} />
+      <meta name="twitter:image" content={defaultImage} />
     </>
   );
 }
