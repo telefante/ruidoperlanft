@@ -53,6 +53,8 @@ const WalletConnection = () => {
       console.log("✅ Wallet Connected:", address);
       setWalletAddress(address);
       setIsConnected(true);
+       // Force a page refresh after wallet connection
+       window.location.reload();
     } catch (error) {
       console.error("❌ Wallet connection failed:", error);
     }
