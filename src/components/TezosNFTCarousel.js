@@ -86,7 +86,7 @@ const TezosNFTCarousel = () => {
   const fetchNFTsfromCollection = async () => {
     const cachedData = localStorage.getItem("nftsCache");
     if (cachedData) {
-      console.log("Using cached NFTs data.");
+      console.log("Using cached NFTs data from localStorage:", cachedData); // Debug log
       const parsedData = JSON.parse(cachedData);
       setNfts(parsedData.nfts);
       setThumbnailCache(parsedData.thumbnailCache);
@@ -141,10 +141,27 @@ const TezosNFTCarousel = () => {
       setNfts(nftsWithImages);
 
       // Cache data in localStorage
-      localStorage.setItem(
-        "nftsCache",
-        JSON.stringify({ nfts: nftsWithImages, thumbnailCache: newThumbnailCache })
-      );
+      const cacheData = JSON.stringify({ nfts: nftsWithImages, thumbnailCache: newThumbnailCache });
+      try {
+        console.log("Saving NFTs data to localStorage:", cacheData); // Debug log
+        localStorage.setItem("nftsCache", cacheData);
+      } catch (error) {
+        if (error.name === "QuotaExceededError") {
+          console.warn("Quota exceeded. Saving minimal data to localStorage.");
+          const minimalCacheData = JSON.stringify({
+            nfts: nftsWithImages.map(nft => ({
+              tokenId: nft.tokenId,
+              metadata: nft.metadata,
+            })),
+            thumbnailCache: Object.fromEntries(
+              Object.entries(newThumbnailCache).map(([key, value]) => [key, { url: value.url }])
+            ),
+          });
+          localStorage.setItem("nftsCache", minimalCacheData);
+        } else {
+          console.error("Error saving to localStorage:", error);
+        }
+      }
     } catch (error) {
       console.error("Error fetching NFTs:", error);
     }
