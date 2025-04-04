@@ -43,7 +43,15 @@ const UsingTypescript: React.FC<PageProps<DataProps>> = ({
   </Layout>
 )
 
-export const Head: HeadFC<DataProps> = () => <Seo title="Using TypeScript" />
+export const Head: HeadFC<DataProps> = () => (
+  <Seo
+    title="Using TypeScript"
+    description="Learn how to use TypeScript with Gatsby."
+    image="/default-image.jpg"
+    keywords={["gatsby", "typescript", "react"]}
+    canonicalUrl="https://www.example.com/using-typescript"
+  />
+)
 
 export default UsingTypescript
 

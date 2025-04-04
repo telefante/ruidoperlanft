@@ -2,7 +2,7 @@ import * as React from "react"
 import { useEffect } from "react"
 
 import Layout from "../components/layout"
-// import Seo from "../components/seo"
+import Seo from "../components/seo"
 
 const NotFoundPage = () => {
   // Check if running in the browser
@@ -24,6 +24,9 @@ const NotFoundPage = () => {
   );
 }
 
-export const Head = () => <Seo title="404: Not Found" />
+export const Head = () => {
+  // Explicitly import Seo here
+  return <Seo title="404: Not Found" />
+}
 
 export default NotFoundPage
