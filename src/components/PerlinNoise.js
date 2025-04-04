@@ -440,26 +440,7 @@ const PerlinNoise = ({
       )}
 
       <Container>
-        <Row>
-          <div
-            style={{
-              position: "absolute",
-              top: "10%",
-              left: "50%",
-              transform: "translateX(-50%)",
-              color: "white",
-              fontSize: "1rem",
-              fontFamily: "var(--primary-font)",
-              textAlign: "center",
-              pointerEvents: "none",
-              zIndex: 1000,
-              textShadow: "2px 2px 4px rgba(0,0,0,0.5)",
-            }}
-            id="click-and-drag-instruction"
-          >
-            Click and drag to move the geometry!
-          </div>
-        </Row>
+      
 
         <div
           style={{
@@ -483,6 +464,27 @@ const PerlinNoise = ({
         >
           {currentTextRef.current}
         </div>
+
+        <Row>
+          <div
+            style={{
+              position: "absolute",
+              bottom: "10%",
+              left: "50%",
+              transform: "translateX(-50%)",
+              color: "white",
+              fontSize: "1rem",
+              fontFamily: "var(--primary-font)",
+              textAlign: "center",
+              pointerEvents: "none",
+              zIndex: 1000,
+              textShadow: "2px 2px 4px rgba(0,0,0,0.5)",
+            }}
+            id="click-and-drag-instruction"
+          >
+            Click and drag to move the geometry!
+          </div>
+        </Row>
       </Container>
 
       <div className={styles.modal}>
