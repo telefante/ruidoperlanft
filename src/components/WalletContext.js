@@ -3,14 +3,9 @@ import React, { createContext, useState, useEffect, useContext } from "react";
 import { BeaconWallet } from "@taquito/beacon-wallet";
 import { TezosToolkit } from "@taquito/taquito";
 
-const RPC_URL = process.env.NODE_ENV === "development" 
-  ? "https://ghostnet.api.tez.ie" 
-  : process.env.GATSBY_TEZOS_RPC_URL || "https://rpc.tzkt.io/ghostnet";
-
-const preferedNetworkType = process.env.NODE_ENV === "development" 
-  ? "ghostnet" 
-  : process.env.GATSBY_NETWORK_TYPE || "ghostnet";
-
+// const RPC_URL = "https://rpc.tzkt.io/ghostnet";
+const RPC_URL = process.env.GATSBY_TEZOS_RPC_URL || "https://rpc.tzkt.io/ghostnet";
+const preferedNetworkType = process.env.GATSBY_NETWORK_TYPE || "ghostnet"; 
 const WalletContext = createContext();
 
 const WalletProvider = ({ children }) => {
@@ -31,7 +26,6 @@ const WalletProvider = ({ children }) => {
         const wallet = new BeaconWallet({
           name: "Ruido Perla",
           preferredNetwork: preferedNetworkType,
-          rpcUrl: RPC_URL,
         });
         setBeaconWallet(wallet);
 
