@@ -3,6 +3,7 @@ import { Button } from "react-bootstrap";
 import { useWallet } from "./WalletContext"; // Import WalletContext
 import { BeaconWallet } from "@taquito/beacon-wallet";
 import { TezosToolkit } from "@taquito/taquito";
+import "./walletConnection.css"; // Import your CSS file
 
 const WalletConnection = () => {
   const { setWalletAddress, setIsConnected, isConnected, beaconWallet, setTezos } = useWallet();
