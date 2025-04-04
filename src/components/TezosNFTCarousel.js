@@ -69,6 +69,21 @@ const TezosNFTCarousel = () => {
   const [currentSlide, setCurrentSlide] = useState(1)
   const [thumbnailCache, setThumbnailCache] = useState({}) // Cache for thumbnails
   const [resolvedThumbnails, setResolvedThumbnails] = useState({}); // Store resolved thumbnail URLs
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const mobileCheck = () => {
+      setIsMobile(window.innerWidth <= 768); // Example: Adjust the breakpoint as needed
+    };
+
+    mobileCheck(); // Check on initial load
+
+    window.addEventListener("resize", mobileCheck); // Check on window resize
+
+    return () => {
+      window.removeEventListener("resize", mobileCheck); // Clean up the event listener
+    };
+  }, []);
 
   // const RPC_URL = process.env.GATSBY_TEZOS_RPC_URL;
   const TzKT_API = process.env.GATSBY_TZKT_API_URL
@@ -77,12 +92,6 @@ const TezosNFTCarousel = () => {
   // console.log("TzKT_API:", TzKT_API)
   // console.log("COLLECTION_CONTRACT:", COLLECTION_CONTRACT)
 
-  // Fetch NFTs when the wallet is connected
-  // useEffect(() => {
-  //   if (isConnected && walletAddress) {
-  //     fetchNFTsfromCollection(walletAddress)
-  //   }
-  // }, [isConnected, walletAddress])
 
   const fetchNFTsfromCollection = async () => {
     const cacheName = "nftsCache";
@@ -98,7 +107,8 @@ const TezosNFTCarousel = () => {
       return;
     }
 
-    const apiUrl = `${TzKT_API}v1/tokens?contract=${COLLECTION_CONTRACT}&limit=104`;
+    // const apiUrl = `${TzKT_API}v1/tokens?contract=${COLLECTION_CONTRACT}&limit=104`;
+    const apiUrl = `${TzKT_API}v1/tokens?contract=${COLLECTION_CONTRACT}&limit=${isMobile ? 25 : 104}`;
     console.log("Fetching NFTs from:", apiUrl);
     try {
       const response = await fetch(apiUrl);
