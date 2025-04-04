@@ -114,6 +114,7 @@ const SimulationSection = ({ account, connectWallet, disconnectWallet }) => {
           fontSize="8vw"
           controlsVisible={controlsVisible} // Pass the state
           setControlsVisible={setControlsVisible} // Pass the setter function
+          verificationEnabled={true} // Pass verificationEnabled
         />
       </div>
 
