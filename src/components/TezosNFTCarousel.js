@@ -68,54 +68,119 @@ const TezosNFTCarousel = () => {
   const [selectedNft, setSelectedNft] = useState(null) // new state
   const [currentSlide, setCurrentSlide] = useState(1)
   const [thumbnailCache, setThumbnailCache] = useState({}) // Cache for thumbnails
+  const [resolvedThumbnails, setResolvedThumbnails] = useState({}); // Store resolved thumbnail URLs
 
   // const RPC_URL = process.env.GATSBY_TEZOS_RPC_URL;
   const TzKT_API = process.env.GATSBY_TZKT_API_URL
   const COLLECTION_CONTRACT = process.env.GATSBY_RUIDOPERLANFT_CONTRACT
   const OBJKT_TOKEN_URL = process.env.GATSBY_OBJKT_TOKEN_URL
-  console.log("TzKT_API:", TzKT_API)
-  console.log("COLLECTION_CONTRACT:", COLLECTION_CONTRACT)
+  // console.log("TzKT_API:", TzKT_API)
+  // console.log("COLLECTION_CONTRACT:", COLLECTION_CONTRACT)
 
   // Fetch NFTs when the wallet is connected
-  useEffect(() => {
-    if (isConnected && walletAddress) {
-      fetchNFTsfromCollection(walletAddress)
-    }
-  }, [isConnected, walletAddress])
+  // useEffect(() => {
+  //   if (isConnected && walletAddress) {
+  //     fetchNFTsfromCollection(walletAddress)
+  //   }
+  // }, [isConnected, walletAddress])
 
   const fetchNFTsfromCollection = async () => {
-    const apiUrl = `${TzKT_API}v1/tokens?contract=${COLLECTION_CONTRACT}&limit=200`
-    console.log("Fetching NFTs from:", apiUrl)
+    const cacheName = "nftsCache";
+    const cache = await caches.open(cacheName);
+
+    // Check if data is already cached
+    const cachedResponse = await cache.match("nftsData");
+    if (cachedResponse) {
+      console.log("Using cached NFTs data from Cache Storage.");
+      const cachedData = await cachedResponse.json();
+      setNfts(cachedData.nfts);
+      setThumbnailCache(cachedData.thumbnailCache);
+      return;
+    }
+
+    const apiUrl = `${TzKT_API}v1/tokens?contract=${COLLECTION_CONTRACT}&limit=104`;
+    console.log("Fetching NFTs from:", apiUrl);
     try {
-      const response = await fetch(apiUrl)
-      const data = await response.json()
+      const response = await fetch(apiUrl);
+      const data = await response.json();
 
       if (!Array.isArray(data)) {
-        console.error("Unexpected response format", data)
-        return
+        console.error("Unexpected response format", data);
+        return;
       }
 
-      const nftsWithImages = data.filter(nft => nft?.metadata?.artifactUri)
+      const nftsWithImages = data.filter(nft => nft?.metadata?.artifactUri);
 
-      // Cache thumbnail URLs
-      const newThumbnailCache = {}
-      nftsWithImages.forEach(nft => {
+      // Cache thumbnail URLs and binaries
+      const newThumbnailCache = {};
+      const promises = nftsWithImages.map(async nft => {
         const thumbnailUrl =
           nft.metadata.thumbnailUri?.replace("ipfs://", "https://dweb.link/ipfs/") ||
-          placeholderImage
-        newThumbnailCache[nft.tokenId] = thumbnailUrl
-      })
-      setThumbnailCache(newThumbnailCache)
+          placeholderImage;
 
-      setNfts(nftsWithImages)
+        try {
+          const imageResponse = await fetch(thumbnailUrl);
+          const blob = await imageResponse.blob();
+
+          // Store the image in Cache Storage
+          const imageCacheKey = `thumbnail-${nft.tokenId}`;
+          await cache.put(imageCacheKey, new Response(blob));
+
+          newThumbnailCache[nft.tokenId] = {
+            url: thumbnailUrl,
+            cacheKey: imageCacheKey, // Reference to the cache key
+          };
+        } catch (error) {
+          console.error(`Error fetching thumbnail for tokenId ${nft.tokenId}:`, error);
+          newThumbnailCache[nft.tokenId] = { url: thumbnailUrl, cacheKey: null };
+        }
+      });
+
+      await Promise.all(promises);
+
+      // Save data to state
+      setThumbnailCache(newThumbnailCache);
+      setNfts(nftsWithImages);
+
+      // Cache metadata in Cache Storage
+      const metadata = new Response(
+        JSON.stringify({ nfts: nftsWithImages, thumbnailCache: newThumbnailCache })
+      );
+      await cache.put("nftsData", metadata);
+      console.log("Saved NFTs data to Cache Storage.");
     } catch (error) {
-      console.error("Error fetching NFTs:", error)
+      console.error("Error fetching NFTs:", error);
     }
   }
 
   useEffect(() => {
     fetchNFTsfromCollection()
   }, [])
+
+  useEffect(() => {
+    const resolveThumbnails = async () => {
+      const resolved = {};
+      for (const nft of nfts) {
+        const thumbnailData = thumbnailCache[nft.tokenId];
+        if (thumbnailData?.cacheKey) {
+          const cachedResponse = await caches.match(thumbnailData.cacheKey);
+          if (cachedResponse) {
+            const blob = await cachedResponse.blob();
+            resolved[nft.tokenId] = URL.createObjectURL(blob);
+          } else {
+            resolved[nft.tokenId] = thumbnailData?.url || placeholderImage;
+          }
+        } else {
+          resolved[nft.tokenId] = thumbnailData?.url || placeholderImage;
+        }
+      }
+      setResolvedThumbnails(resolved);
+    };
+
+    if (nfts.length > 0) {
+      resolveThumbnails();
+    }
+  }, [nfts, thumbnailCache]);
 
   const openModal = nft => {
     setModalImage(
@@ -177,12 +242,13 @@ const TezosNFTCarousel = () => {
               <NavigationButton className="swiper-button-prev" />
               <NavigationButton className="swiper-button-next" />
               {nfts.map((nft, index) => {
-                const thumbnailUrl = thumbnailCache[nft.tokenId] || placeholderImage // Use cached thumbnail
+                const thumbnailUrl =
+                  resolvedThumbnails[nft.tokenId] || placeholderImage;
 
                 // Create a function to handle the click event
                 const handleImageClick = () => {
-                  openModal(nft)
-                }
+                  openModal(nft);
+                };
 
                 return (
                   <SwiperSlide key={index}>
@@ -195,7 +261,6 @@ const TezosNFTCarousel = () => {
                           style={{
                             maxWidth: "80%",
                             minWidth: "200px",
-                            // maxHeight: ",
                             marginRight: "20px",
                             cursor: "pointer", // Add cursor pointer
                           }}
@@ -329,7 +394,7 @@ const TezosNFTCarousel = () => {
                   fontWeight: "bold",
                 }}
                 variant="primary"
-                href={`${OBJKT_TOKEN_URL}/${COLLECTION_CONTRACT}/${selectedNft.tokenId}`}
+                href={`${OBJKT_TOKEN_URL}${COLLECTION_CONTRACT}/${selectedNft.tokenId}`}
               >
                 Buy
               </Button>
