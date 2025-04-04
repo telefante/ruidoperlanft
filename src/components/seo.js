@@ -1,52 +1,51 @@
-import React from "react";
-import { Helmet } from "react-helmet";
+// src/components/seo.js
+import * as React from "react";
 import { useStaticQuery, graphql } from "gatsby";
 
-const Seo = ({ title, description, image, keywords, canonicalUrl }) => {
+export function Seo({ title, description, image, keywords, canonicalUrl }) {
   const { site } = useStaticQuery(graphql`
     query {
       site {
         siteMetadata {
+          title
+          description
+          keywords
           siteUrl
         }
       }
     }
   `);
 
-  const defaultTitle = "CNE: ¿Dónde está mi acta?";
-  const defaultDescription =
-    "“¿Dónde está mi acta?” es una plataforma que denuncia la falta de transparencia en las elecciones de Venezuela 2024.";
-  const defaultImage = `${site.siteMetadata.siteUrl}/og-image.jpg`; // Ensure this image exists
-  const defaultKeywords =
-    "¿Dónde está mi acta?, cne, venezuela, transparencia electoral, elecciones 2024";
+  const defaultTitle = site.siteMetadata.title || "Ruido Perla NFT Collection";
+  const defaultDescription = site.siteMetadata.description || "Explore the Ruido Perla NFT Collection - a unique digital art series blending noise and pearl aesthetics.";
+  const defaultKeywords = site.siteMetadata.keywords || "NFT, digital art, web3, crypto art, Luis Negrón";
   const siteUrl = site.siteMetadata.siteUrl;
+  const defaultImage = `${siteUrl}/og-image.jpg`;
 
   return (
-    <Helmet>
-      {/* ✅ Force Open Graph Tags to Be at the Top */}
+    <>
+      <title>{title || defaultTitle}</title>
       <meta charSet="utf-8" />
       <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
+      <meta name="viewport" content="width=device-width, initial-scale=1" />
+      
+      {/* SEO Basic */}
+      <meta name="description" content={description || defaultDescription} />
+      <meta name="keywords" content={keywords || defaultKeywords} />
+      <link rel="canonical" href={canonicalUrl || siteUrl} />
 
-      {/* ✅ Open Graph Meta Tags */}
+      {/* Open Graph */}
       <meta property="og:title" content={title || defaultTitle} />
       <meta property="og:description" content={description || defaultDescription} />
       <meta property="og:image" content={image || defaultImage} />
       <meta property="og:url" content={canonicalUrl || siteUrl} />
       <meta property="og:type" content="website" />
 
-      {/* ✅ Twitter Meta Tags */}
+      {/* Twitter */}
       <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:title" content={title || defaultTitle} />
       <meta name="twitter:description" content={description || defaultDescription} />
-      <meta name="twitter:image" content={image || defaultImage} />
-
-      {/* ✅ Basic SEO Meta Tags */}
-      <title>{title || defaultTitle}</title>
-      <meta name="description" content={description || defaultDescription} />
-      <meta name="keywords" content={keywords || defaultKeywords} />
-      <link rel="canonical" href={canonicalUrl || siteUrl} />
-    </Helmet>
+      <meta name="twitter:image" content={defaultImage} />
+    </>
   );
-};
-
-export default Seo;
+}

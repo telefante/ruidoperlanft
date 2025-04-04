@@ -11,7 +11,7 @@ module.exports = {
   siteMetadata: {
     title: `Ruido Perla NFT Collection`,
     description: `Explore the Ruido Perla NFT Collection - a unique digital art series blending noise and pearl aesthetics. Discover exclusive digital collectibles created by Luis Negrón van Grieekn.`,
-    keywords: `NFT collection, digital art, Ruido Perla, Luis Negrón van Grieekn, blockchain art, crypto art, pearl aesthetics, noise art, digital collectibles, unique NFTs, ethereum NFT, web3 art, contemporary digital art, generative art`, // SEO optimized keywords
+    keywords: `NFT collection, digital art, Ruido Perla, Luis Negrón van Grieken, blockchain art, crypto art, pearl aesthetics, noise art, digital collectibles, unique NFTs, ethereum NFT, web3 art, contemporary digital art, generative art`, // SEO optimized keywords
     author: 'Luis Negrón van Grieekn',
     authorUrl: 'https://luis.negronvangrieken.com',
     siteUrl: `https://ruidoperlanft.netlify.app`,
