@@ -346,13 +346,29 @@ const PerlinNoise = ({
     if (!containerRef.current) return
 
     try {
+      // Define the desired aspect ratio (4:3)
+      const aspectRatio = 4 / 3;
+
+      // Calculate the width and height based on the container's dimensions
+      let containerWidth = containerRef.current.offsetWidth;
+      let containerHeight = containerRef.current.offsetHeight;
+
+      // Determine whether to fit the width or height to maintain the aspect ratio
+      if (containerWidth / containerHeight > aspectRatio) {
+        // Container is wider than the desired aspect ratio, so fit the height
+        containerHeight = containerWidth / aspectRatio;
+      } else {
+        // Container is taller than the desired aspect ratio, so fit the width
+        containerWidth = containerHeight * aspectRatio;
+      }
+
       const capturedCanvas = await html2canvas(containerRef.current, {
         useCORS: true,
         backgroundColor: "#000000",
         scale: 1,
         logging: true,
-        width: 800, // Constrain the width of the capture
-        height: 600, // Constrain the height of the capture
+        // width: containerWidth, // Use calculated width
+        // height: containerHeight, // Use calculated height
         ignoreElements: element => {
           return (
             element.classList.contains("controls") ||
