@@ -84,6 +84,7 @@ const MintNFTProcess = ({
   const realtimeRPNFTContract = process.env.GATSBY_TEZOS_REALTIME_CONTRACT
   const FIRST_CREATOR = process.env.GATSBY_RPNNFT_CREATOR
   const PreMintedRPNCollection= process.env.GATSBY_RUIDOPERLANFT_CONTRACT
+  const NETWORK_TYPE = process.env.GATSBY_NETWORK_TYPE || "ghostnet"; // Default to ghostnet
 
   // console.log("🔍 Contract Addresses:", {
   //   realtimeRPNFTContract,
@@ -372,7 +373,7 @@ const MintNFTProcess = ({
       await mintOp.confirmation(1)
 
       // Add operation hash link
-      const opHashUrl = `https://better-call.dev/ghostnet/opg/${mintOp.opHash}/contents`
+      const opHashUrl = `https://better-call.dev/${NETWORK_TYPE}/opg/${mintOp.opHash}/contents`
       console.log(`✅ NFT Minted! View transaction: ${opHashUrl}`)
 
       setMintSuccess({
@@ -551,7 +552,7 @@ const MintNFTProcess = ({
               <p style={{ color: "black" }}>
                 Contract:{" "}
                 <a
-                  href={`https://better-call.dev/ghostnet/KT1RJ6PbjHpwc3M5rw5s2Nbmefwbuwbdxton/operations`}
+                  href={`https://better-call.dev/ghostnet/${realtimeRPNFTContract}/operations`}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
