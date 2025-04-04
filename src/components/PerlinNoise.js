@@ -388,9 +388,9 @@ const PerlinNoise = ({
 
   const handleClose = () => setShowModal(false)
 
-  const toggleControls = () => {
-    setControlsVisible(!controlsVisible)
-  }
+  // const toggleControls = () => {
+  //   setControlsVisible(!controlsVisible)
+  // }
 
   useEffect(() => {
     const lines = text.split("\n").filter(line => line.trim())

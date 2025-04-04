@@ -56,22 +56,22 @@ const StyledCarousel = styled(Carousel)`
   }
 `
 
-const OverlappingContainer = styled.div`
-  position: relative;
-  width: 100%;
-  margin-top: 2rem;
-`
+// const OverlappingContainer = styled.div`
+//   position: relative;
+//   width: 100%;
+//   margin-top: 2rem;
+// `
 
-const TextOverlay = styled.div`
-  position: absolute;
-  top: -12rem;
-  left: 0;
-  background: transparent;
+// const TextOverlay = styled.div`
+//   position: absolute;
+//   top: -12rem;
+//   left: 0;
+//   background: transparent;
 
-  padding: 2rem;
-  z-index: 2;
-  max-width: 500px;
-`
+//   padding: 2rem;
+//   z-index: 2;
+//   max-width: 500px;
+// `
 
 const CarouselWrapper = styled.div`
   position: relative;
@@ -82,10 +82,10 @@ const InstallationSection = () => {
   const [showModal, setShowModal] = useState(false)
   const { trackEvent } = useTracking()
 
-  const handleCollectNowClick = url => {
-    // console.log("Clicked on Collection: ", url)
-    trackEvent(`clicked on Collection in section Whitepaper`)
-  }
+  // const handleCollectNowClick = url => {
+  //   // console.log("Clicked on Collection: ", url)
+  //   trackEvent(`clicked on Collection in section Whitepaper`)
+  // }
 
   const data = useStaticQuery(graphql`
     query {
@@ -118,7 +118,7 @@ const InstallationSection = () => {
 
   // console.log("Image data:", data)
 
-  const COLLECTION_CONTRACT = process.env.GATSBY_RUIDOPERLANFT_CONTRACT
+  // const COLLECTION_CONTRACT = process.env.GATSBY_RUIDOPERLANFT_CONTRACT
   // const OBJKT_TOKEN_URL = process.env.GATSBY_OBJKT_TOKEN_URL
 
   return (

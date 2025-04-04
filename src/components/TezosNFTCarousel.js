@@ -61,7 +61,7 @@ const SlideCounter = styled.div`
 `
 
 const TezosNFTCarousel = () => {
-  const { walletAddress, isConnected } = useWallet() // Get wallet state from context
+  // const { walletAddress, isConnected } = useWallet() // Get wallet state from context
   const [nfts, setNfts] = useState([])
   const [showModal, setShowModal] = useState(false)
   const [modalImage, setModalImage] = useState("")

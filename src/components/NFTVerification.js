@@ -6,7 +6,7 @@ import { BigNumber } from 'bignumber.js';
 import pLimit from 'p-limit';
 
 // Check if we're in a browser environment
-const isBrowser = typeof window !== "undefined";
+// const isBrowser = typeof window !== "undefined";
 
 const objktapi = process.env.GATSBY_OBJKT_GRAPHQL_URL;
 const RuidoPerlaNFTContract = process.env.GATSBY_RUIDOPERLANFT_CONTRACT; 
@@ -15,14 +15,14 @@ const CACHE_EXPIRY = 5 * 60 * 1000; // Cache for 5 minutes
 
 
 
-const isGreaterThanZero = (value) => {
-  if (!value) return false;
-  try {
-    return BigNumber(value).gt(0);
-  } catch {
-    return false;
-  }
-};
+// const isGreaterThanZero = (value) => {
+//   if (!value) return false;
+//   try {
+//     return BigNumber(value).gt(0);
+//   } catch {
+//     return false;
+//   }
+// };
 
 const NFTVerification = ({ setAccessGranted }) => {
   const { walletAddress, isConnected, tezos } = useWallet();
@@ -124,7 +124,7 @@ const NFTVerification = ({ setAccessGranted }) => {
       // Fallback to contract ledger check
       const contract = await tezos.wallet.at(RuidoPerlaNFTContract);
       const storage = await contract.storage();
-      const totalSupplyMap = storage.assets.token_total_supply;
+      // const totalSupplyMap = storage.assets.token_total_supply;
       const ledgerMap = storage.assets.ledger;
       const tokenIds = Array.from({ length: 100 }, (_, i) => i);
 
