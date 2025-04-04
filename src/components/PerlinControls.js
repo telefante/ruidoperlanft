@@ -1,6 +1,6 @@
 import React from "react"
 import Draggable from "react-draggable"
-
+import { Button } from "react-bootstrap"
 
 const PerlinControls = ({
   usePerlin,
@@ -176,21 +176,25 @@ const PerlinControls = ({
             </span>
           </label>
           {showCaptureButton && (
-            <button
+            <Button
+              variant="danger"
               onClick={captureScene}
               style={{
-                backgroundColor: "#61dafb",
-                color: "black",
+                // backgroundColor: "#61dafb",
+                // color: "black",
                 border: "none",
                 padding: "8px 16px",
                 borderRadius: "5px",
                 cursor: "pointer",
                 fontSize: "1rem",
                 marginTop: "10px",
+                fontFamily: "var(--primary-font)",
+                fontWeight: "bold",
+                fontStyle: "italic",
               }}
             >
               Capture now!
-            </button>
+            </Button>
           )}
         </div>
       </div>

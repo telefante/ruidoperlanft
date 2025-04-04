@@ -252,7 +252,7 @@ const NFTVerification = ({ setAccessGranted }) => {
       {success && (
         <Container id="communication">
           <Row>
-            <h3>as holder of RuidoPerla NFT you can mint an image from the simulation</h3>
+            <h3>as holder of RuidoPerla NFT you can mint by capturing an image</h3>
           </Row>
         </Container>
       )}

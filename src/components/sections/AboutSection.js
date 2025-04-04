@@ -19,10 +19,12 @@ const TextOverlay = styled.div`
   position: absolute;
   top: -12rem;
   left: 0;
-  background: transparent;
-  padding: 2rem;
+  background: rgba(0, 0, 0, 0.7);
+  padding: 1.0rem;
   z-index: 2;
   max-width: 500px;
+  border-radius: 15px;
+
 `
 
 const ImageWrapper = styled.div`
@@ -49,6 +51,7 @@ const Overlay = styled.div`
   justify-content: center;
   align-items: center;
   z-index: 1000;
+  
 `
 
 const AboutSection = () => {

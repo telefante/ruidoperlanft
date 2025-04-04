@@ -10,12 +10,12 @@ import { useTracking } from "../../contexts/TrackingContext"
 // Add styled components
 
 const DescriptionText = styled.p`
-  max-width: 50vw;
-  text-align: justify;
-  font-size: 1.0rem;
-  @media (max-width: 768px) {
-    max-width: 90vw;
-  }
+max-width: 30vw;
+text-align: justify;
+font-size: 1.2rem;
+@media (max-width: 768px) {
+  max-width: 100vw;
+}
 `
 
 const StyledCarousel = styled(Carousel)`
