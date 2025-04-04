@@ -67,6 +67,7 @@ const TezosNFTCarousel = () => {
   const [modalImage, setModalImage] = useState("")
   const [selectedNft, setSelectedNft] = useState(null) // new state
   const [currentSlide, setCurrentSlide] = useState(1)
+  const [thumbnailCache, setThumbnailCache] = useState({}) // Cache for thumbnails
 
   // const RPC_URL = process.env.GATSBY_TEZOS_RPC_URL;
   const TzKT_API = process.env.GATSBY_TZKT_API_URL
@@ -84,17 +85,10 @@ const TezosNFTCarousel = () => {
 
   const fetchNFTsfromCollection = async () => {
     const apiUrl = `${TzKT_API}v1/tokens?contract=${COLLECTION_CONTRACT}&limit=200`
-    // GET https://api.tzkt.io/v1/tokens?contract=KT1[CollectionAddress]&limit=100
-
     console.log("Fetching NFTs from:", apiUrl)
     try {
-      // console.log("Fetching NFTs for:", walletAddress)
-
       const response = await fetch(apiUrl)
-      // https://api.tzkt.io/v1/tokens/balances?account=${walletAddress}&token.standard=fa2`
       const data = await response.json()
-
-      // console.log("Raw NFT Data:", data)
 
       if (!Array.isArray(data)) {
         console.error("Unexpected response format", data)
@@ -102,7 +96,16 @@ const TezosNFTCarousel = () => {
       }
 
       const nftsWithImages = data.filter(nft => nft?.metadata?.artifactUri)
-      // console.log("NFTs with Images:", nftsWithImages)
+
+      // Cache thumbnail URLs
+      const newThumbnailCache = {}
+      nftsWithImages.forEach(nft => {
+        const thumbnailUrl =
+          nft.metadata.thumbnailUri?.replace("ipfs://", "https://dweb.link/ipfs/") ||
+          placeholderImage
+        newThumbnailCache[nft.tokenId] = thumbnailUrl
+      })
+      setThumbnailCache(newThumbnailCache)
 
       setNfts(nftsWithImages)
     } catch (error) {
@@ -174,11 +177,7 @@ const TezosNFTCarousel = () => {
               <NavigationButton className="swiper-button-prev" />
               <NavigationButton className="swiper-button-next" />
               {nfts.map((nft, index) => {
-                const thumbnailUrl =
-                  nft.metadata.thumbnailUri?.replace(
-                    "ipfs://",
-                    "https://dweb.link/ipfs/"
-                  ) || placeholderImage
+                const thumbnailUrl = thumbnailCache[nft.tokenId] || placeholderImage // Use cached thumbnail
 
                 // Create a function to handle the click event
                 const handleImageClick = () => {

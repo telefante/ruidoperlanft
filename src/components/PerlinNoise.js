@@ -14,7 +14,7 @@ import * as styles from "./PerlinNoise.module.css"
 import Draggable from "react-draggable"
 
 const PerlinNoise = ({
-  showControls = true,
+  // showControls = true,
   enableOrbit = true,
   initialParams = {
     amplitude: 12.5,
@@ -24,11 +24,12 @@ const PerlinNoise = ({
     usePerlin: true,
   },
   cameraParams = null,
-  showCaptureButton,
+  // showCaptureButton,
   queryFile,
   fontSize,
   controlsVisible,
   setControlsVisible,
+  verificationEnabled, // Accept verificationEnabled as a prop
 }) => {
   const data = useStaticQuery(graphql`
     query {
@@ -77,6 +78,8 @@ const PerlinNoise = ({
     frequency: initialParams.frequency,
     octaves: initialParams.octaves,
   })
+
+  // const [verificationEnabled, setVerificationEnabled] = useState(null)
 
   const [textOpacity, setTextOpacity] = useState(1)
   const [capturedImage, setCapturedImage] = useState(null)
@@ -412,7 +415,9 @@ const PerlinNoise = ({
         backgroundColor: "transparent",
       }}
     >
-      <NFTVerification setAccessGranted={setAccessGranted} />
+      {verificationEnabled && (
+        <NFTVerification setAccessGranted={setAccessGranted} />
+      )}
       <div ref={mountRef} style={{ width: "100%", height: "100%" }} />
       {accessGranted && controlsVisible && (
         <PerlinControls
@@ -435,26 +440,7 @@ const PerlinNoise = ({
       )}
 
       <Container>
-        <Row>
-          <div
-            style={{
-              position: "absolute",
-              top: "10%",
-              left: "50%",
-              transform: "translateX(-50%)",
-              color: "white",
-              fontSize: "1rem",
-              fontFamily: "var(--primary-font)",
-              textAlign: "center",
-              pointerEvents: "none",
-              zIndex: 1000,
-              textShadow: "2px 2px 4px rgba(0,0,0,0.5)",
-            }}
-            id="click-and-drag-instruction"
-          >
-            Click and drag to move the geometry!
-          </div>
-        </Row>
+      
 
         <div
           style={{
@@ -478,34 +464,57 @@ const PerlinNoise = ({
         >
           {currentTextRef.current}
         </div>
+
+        <Row>
+          <div
+            style={{
+              position: "absolute",
+              bottom: "10%",
+              left: "50%",
+              transform: "translateX(-50%)",
+              color: "white",
+              fontSize: "1rem",
+              fontFamily: "var(--primary-font)",
+              textAlign: "center",
+              pointerEvents: "none",
+              zIndex: 1000,
+              textShadow: "2px 2px 4px rgba(0,0,0,0.5)",
+            }}
+            id="click-and-drag-instruction"
+          >
+            Click and drag to move the geometry!
+          </div>
+        </Row>
       </Container>
 
       <div className={styles.modal}>
-      <Draggable handle=".modal-header">
-        <Modal
-          show={showModal}
-          onHide={handleClose}
-          size="lg"
-          style={{ cursor: "move",
-          
-           }}
-        >
-          <Modal.Header closeButton>
-            <Modal.Title
-              style={{ fontFamily: "var(--primary-font)", fontWeight: "bold" }}
-            >
-              Mint this beatiful Pearl for contract: {process.env.GATSBY_TEZOS_REALTIME_CONTRACT}
-            </Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            <MintNFTProcess
-              containerRef={containerRef}
-              capturedImage={capturedImage}
-              perlinSettings={perlinSettings}
-              textFragment={currentTextFragment}
-            />
-          </Modal.Body>
-        </Modal>
+        <Draggable handle=".modal-header">
+          <Modal
+            show={showModal}
+            onHide={handleClose}
+            size="lg"
+            style={{ cursor: "move" }}
+          >
+            <Modal.Header closeButton>
+              <Modal.Title
+                style={{
+                  fontFamily: "var(--primary-font)",
+                  fontWeight: "bold",
+                }}
+              >
+                Mint this beatiful Pearl for contract:{" "}
+                {process.env.GATSBY_TEZOS_REALTIME_CONTRACT}
+              </Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+              <MintNFTProcess
+                containerRef={containerRef}
+                capturedImage={capturedImage}
+                perlinSettings={perlinSettings}
+                textFragment={currentTextFragment}
+              />
+            </Modal.Body>
+          </Modal>
         </Draggable>
       </div>
     </div>

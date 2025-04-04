@@ -4,7 +4,7 @@ import PerlinNoise from "../PerlinNoise";
 
 const IntroductionSection = () => {
   const [controlsVisible, setControlsVisible] = useState(false); // Define the state
-
+ 
   // Define surface parameters for introduction
   const surfaceParams = {
     amplitude: 15,
@@ -49,6 +49,7 @@ const IntroductionSection = () => {
           queryFile={queryFile}
           controlsVisible={controlsVisible} // Pass the state
           setControlsVisible={setControlsVisible} // Pass the setter function
+          verificationEnabled={false} // Pass verificationEnabled
         />
       </div>
     </SectionContainer>
