@@ -13,16 +13,16 @@ const Seo = ({ title, description, image, keywords, canonicalUrl }) => {
     }
   `);
 
-  const defaultTitle = "CNE: ¿Dónde está mi acta?";
+  const defaultTitle = "Ruido Perla NFT Collection";
   const defaultDescription =
-    "“¿Dónde está mi acta?” es una plataforma que denuncia la falta de transparencia en las elecciones de Venezuela 2024.";
+    "Explore the Ruido Perla NFT Collection - a unique digital art series blending noise and pearl aesthetics. Discover exclusive digital collectibles created by Luis Negrón van Grieekn.";
   const defaultImage = `${site.siteMetadata.siteUrl}/og-image.jpg`; // Ensure this image exists
   const defaultKeywords =
-    "¿Dónde está mi acta?, cne, venezuela, transparencia electoral, elecciones 2024";
+    "NFT collection, digital art, Ruido Perla, Luis Negrón van Grieken, blockchain art, crypto art, pearl aesthetics, noise art, digital collectibles, unique NFTs, ethereum NFT, web3 art, contemporary digital art, generative art";
   const siteUrl = site.siteMetadata.siteUrl;
 
   return (
-    <Helmet>
+    <Helmet priority>
       {/* ✅ Force Open Graph Tags to Be at the Top */}
       <meta charSet="utf-8" />
       <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
