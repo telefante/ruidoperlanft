@@ -84,12 +84,16 @@ const TezosNFTCarousel = () => {
   // }, [isConnected, walletAddress])
 
   const fetchNFTsfromCollection = async () => {
-    if (nfts.length > 0) {
-      console.log("NFTs are already cached, skipping fetch.");
+    const cachedData = localStorage.getItem("nftsCache");
+    if (cachedData) {
+      console.log("Using cached NFTs data.");
+      const parsedData = JSON.parse(cachedData);
+      setNfts(parsedData.nfts);
+      setThumbnailCache(parsedData.thumbnailCache);
       return;
     }
 
-    const apiUrl = `${TzKT_API}v1/tokens?contract=${COLLECTION_CONTRACT}&limit=23`;
+    const apiUrl = `${TzKT_API}v1/tokens?contract=${COLLECTION_CONTRACT}&limit=104`;
     console.log("Fetching NFTs from:", apiUrl);
     try {
       const response = await fetch(apiUrl);
@@ -102,17 +106,40 @@ const TezosNFTCarousel = () => {
 
       const nftsWithImages = data.filter(nft => nft?.metadata?.artifactUri);
 
-      // Cache thumbnail URLs
+      // Cache thumbnail URLs and binaries
       const newThumbnailCache = {};
-      nftsWithImages.forEach(nft => {
+      for (const nft of nftsWithImages) {
         const thumbnailUrl =
           nft.metadata.thumbnailUri?.replace("ipfs://", "https://dweb.link/ipfs/") ||
           placeholderImage;
-        newThumbnailCache[nft.tokenId] = thumbnailUrl;
-      });
-      setThumbnailCache(newThumbnailCache);
 
+        try {
+          const imageResponse = await fetch(thumbnailUrl);
+          const blob = await imageResponse.blob();
+          const reader = new FileReader();
+
+          reader.onloadend = () => {
+            newThumbnailCache[nft.tokenId] = {
+              url: thumbnailUrl,
+              binary: reader.result, // Base64 representation of the image
+            };
+          };
+          reader.readAsDataURL(blob);
+        } catch (error) {
+          console.error(`Error fetching thumbnail for tokenId ${nft.tokenId}:`, error);
+          newThumbnailCache[nft.tokenId] = { url: thumbnailUrl, binary: null };
+        }
+      }
+
+      // Save data to state
+      setThumbnailCache(newThumbnailCache);
       setNfts(nftsWithImages);
+
+      // Cache data in localStorage
+      localStorage.setItem(
+        "nftsCache",
+        JSON.stringify({ nfts: nftsWithImages, thumbnailCache: newThumbnailCache })
+      );
     } catch (error) {
       console.error("Error fetching NFTs:", error);
     }
