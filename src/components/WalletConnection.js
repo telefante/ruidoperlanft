@@ -8,31 +8,57 @@ const WalletConnection = () => {
   const { setWalletAddress, setIsConnected, isConnected, beaconWallet, setTezos } = useWallet();
 
   useEffect(() => {
-    const tezos = new TezosToolkit(process.env.GATSBY_TEZOS_RPC_URL || "https://ghostnet.api.tez.ie");
-    const networkType = process.env.NODE_ENV === "development" ? "ghostnet" : process.env.GATSBY_NETWORK_TYPE;
-    const rpcUrl = process.env.NODE_ENV === "development" ? "https://ghostnet.api.tez.ie" : process.env.GATSBY_TEZOS_RPC_URL;
+    const primaryRpc = process.env.GATSBY_TEZOS_RPC_URL;
+    const backupRpc = process.env.GATSBY_TEZOS_RPC_URL_BACKUP;
+    const networkType = process.env.GATSBY_NETWORK_TYPE;
 
-    const wallet = new BeaconWallet({
-      name: "Ruido Perla Taquito",
-      preferredNetwork: networkType,
-      rpcUrl: rpcUrl,
-    });
+    const initializeWallet = async () => {
+      try {
+        console.log("🔄 Initializing wallet with primary RPC:", primaryRpc);
+        const tezos = new TezosToolkit(primaryRpc);
+        const wallet = new BeaconWallet({
+          name: "Ruido Perla Taquito",
+          preferredNetwork: networkType,
+          rpcUrl: primaryRpc,
+        });
 
-    // Set the wallet provider for Tezos
-    tezos.setWalletProvider(wallet);
-    // setTezos(tezos); // Store the Tezos instance in context
+        tezos.setWalletProvider(wallet);
+        setTezos(tezos);
 
-    // Check for an active account on component mount
-    const checkActiveAccount = async () => {
-      const activeAccount = await wallet.client.getActiveAccount();
-      if (activeAccount) {
-        console.log("Active account found:", activeAccount);
-        setWalletAddress(activeAccount.address);
-        setIsConnected(true);
+        const activeAccount = await wallet.client.getActiveAccount();
+        if (activeAccount) {
+          console.log("✅ Active account found:", activeAccount);
+          setWalletAddress(activeAccount.address);
+          setIsConnected(true);
+        }
+      } catch (error) {
+        console.error("❌ Error initializing wallet with primary RPC:", error.message);
+
+        try {
+          console.log("🔄 Retrying with backup RPC:", backupRpc);
+          const tezos = new TezosToolkit(backupRpc);
+          const wallet = new BeaconWallet({
+            name: "Ruido Perla Taquito",
+            preferredNetwork: networkType,
+            rpcUrl: backupRpc,
+          });
+
+          tezos.setWalletProvider(wallet);
+          setTezos(tezos);
+
+          const activeAccount = await wallet.client.getActiveAccount();
+          if (activeAccount) {
+            console.log("✅ Active account found (Backup):", activeAccount);
+            setWalletAddress(activeAccount.address);
+            setIsConnected(true);
+          }
+        } catch (backupError) {
+          console.error("❌ Error initializing wallet with backup RPC:", backupError.message);
+        }
       }
     };
 
-    checkActiveAccount();
+    initializeWallet();
   }, [setWalletAddress, setIsConnected, setTezos]);
 
   const connectWallet = async () => {
@@ -43,8 +69,8 @@ const WalletConnection = () => {
     }
 
     try {
-      const networkType = process.env.NODE_ENV === "development" ? "ghostnet" : process.env.GATSBY_NETWORK_TYPE;
-      const rpcUrl = process.env.NODE_ENV === "development" ? "https://ghostnet.api.tez.ie" : process.env.GATSBY_TEZOS_RPC_URL;
+      const networkType = process.env.GATSBY_NETWORK_TYPE;
+      const rpcUrl = process.env.GATSBY_TEZOS_RPC_URL;
 
       await beaconWallet.requestPermissions({
         network: { type: networkType, rpcUrl: rpcUrl },
@@ -53,8 +79,8 @@ const WalletConnection = () => {
       console.log("✅ Wallet Connected:", address);
       setWalletAddress(address);
       setIsConnected(true);
-       // Force a page refresh after wallet connection
-       window.location.reload();
+      // Force a page refresh after wallet connection
+      window.location.reload();
     } catch (error) {
       console.error("❌ Wallet connection failed:", error);
     }
