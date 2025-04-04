@@ -11,4 +11,4 @@ of an audiovisual installation in physical space.
 These generative NFTs 
 are not just static images 
 but keys unlocking access 
-to a poetic joutney into chance
+to a poetic journey into chance
