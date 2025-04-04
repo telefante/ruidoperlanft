@@ -34,13 +34,8 @@ const MintNFTProcess = ({
   const [imageMinted, setImageMinted] = useState(false) // New state to track if image has been minted
 
   // Get wallet context
-  const {
-    isConnected,
-    walletAddress,
-    beaconWallet,
-    tezos,
-    connectWallet,
-  } = useWallet()
+  const { isConnected, walletAddress, beaconWallet, tezos, connectWallet } =
+    useWallet()
 
   // Add loading state for wallet
   const [walletLoading, setWalletLoading] = useState(false)
@@ -83,8 +78,8 @@ const MintNFTProcess = ({
   const LIGHTHOUSE_API_KEY = process.env.GATSBY_LIGHTHOUSE_API_KEY
   const realtimeRPNFTContract = process.env.GATSBY_TEZOS_REALTIME_CONTRACT
   const FIRST_CREATOR = process.env.GATSBY_RPNNFT_CREATOR
-  const PreMintedRPNCollection= process.env.GATSBY_RUIDOPERLANFT_CONTRACT
-  const NETWORK_TYPE = process.env.GATSBY_NETWORK_TYPE || "ghostnet"; // Default to ghostnet
+  const PreMintedRPNCollection = process.env.GATSBY_RUIDOPERLANFT_CONTRACT
+  const NETWORK_TYPE = process.env.GATSBY_NETWORK_TYPE || "ghostnet" // Default to ghostnet
 
   // console.log("🔍 Contract Addresses:", {
   //   realtimeRPNFTContract,
@@ -95,7 +90,7 @@ const MintNFTProcess = ({
   const TIER1_LIMIT = 10 // First 8 tokens
   const TIER2_LIMIT = 15 // Next 2 tokens (tokens 9-10)
   const TIER3_LIMIT = 16 // Last 2 tokens (tokens 11-12)
-  
+
   const TIER1_PRICE = 2 // 2 TEZ
   const TIER2_PRICE = 4 // 4 TEZ
   const TIER3_PRICE = 10 // 10 TEZ
@@ -133,56 +128,53 @@ const MintNFTProcess = ({
   const uploadWithRetry = async (file, retries = 3) => {
     for (let attempt = 1; attempt <= retries; attempt++) {
       try {
-        const fileResponse = await lighthouse.upload([file], LIGHTHOUSE_API_KEY);
+        const fileResponse = await lighthouse.upload([file], LIGHTHOUSE_API_KEY)
         if (fileResponse.data && fileResponse.data.Hash) {
-          return fileResponse;
+          return fileResponse
         }
       } catch (error) {
-        console.error(`Attempt ${attempt} failed:`, error);
-        if (attempt === retries) throw error;
+        console.error(`Attempt ${attempt} failed:`, error)
+        if (attempt === retries) throw error
       }
     }
-  };
+  }
 
   const uploadImageToIPFS = async () => {
-    console.log("📤 Uploading Image to IPFS...");
-    setUploading(true);
+    console.log("📤 Uploading Image to IPFS...")
+    setUploading(true)
 
     try {
       if (!capturedImage) {
-        throw new Error("No captured image provided");
+        throw new Error("No captured image provided")
       }
 
-      const response = await fetch(capturedImage);
-      const imageBlob = await response.blob();
+      const response = await fetch(capturedImage)
+      const imageBlob = await response.blob()
       const file = new File([imageBlob], `RuidoPerla-${Date.now()}.png`, {
         type: "image/png",
-      });
+      })
 
-      console.log("Image size:", file.size, "Image type:", file.type);
+      console.log("Image size:", file.size, "Image type:", file.type)
 
-      const fileResponse = await uploadWithRetry(file);
-      const imageCid = fileResponse.data.Hash;
-      const ipfsImageUrl = `ipfs://${imageCid}`;
-      setIpfsUrl(ipfsImageUrl);
+      const fileResponse = await uploadWithRetry(file)
+      const imageCid = fileResponse.data.Hash
+      const ipfsImageUrl = `ipfs://${imageCid}`
+      setIpfsUrl(ipfsImageUrl)
       console.log(
         `✅ Image Uploaded: https://gateway.lighthouse.storage/ipfs/${
           ipfsImageUrl.split("ipfs://")[1]
         }`
-      );
+      )
 
-      return ipfsImageUrl;
+      return ipfsImageUrl
     } catch (error) {
-      console.error("❌ Error uploading image:", error);
-      setMinting(false);
-      return null;
+      console.error("❌ Error uploading image:", error)
+      setMinting(false)
+      return null
     } finally {
-      setUploading(false);
+      setUploading(false)
     }
   }
-  
-
-  
 
   const uploadMetadataToIPFS = async imageIpfsUrl => {
     console.log("📤 Uploading Metadata to IPFS...")
@@ -291,9 +283,9 @@ const MintNFTProcess = ({
       console.log("📊 Checking supply for contract:", realtimeRPNFTContract)
       const contract = await tezos.wallet.at(realtimeRPNFTContract)
       const storage = await contract.storage()
-      
+
       console.log("📦 Contract Storage:", storage)
-      
+
       const current = await storage.current_supply
       const max = await storage.max_supply
 
@@ -302,7 +294,7 @@ const MintNFTProcess = ({
         max: max.toNumber(),
         contract: realtimeRPNFTContract,
         rawCurrent: current,
-        rawMax: max
+        rawMax: max,
       })
 
       setMaxSupply(max.toNumber())
@@ -312,10 +304,12 @@ const MintNFTProcess = ({
       console.error("Contract address:", realtimeRPNFTContract)
       console.error("Error details:", {
         message: error.message,
-        stack: error.stack
+        stack: error.stack,
       })
     }
   }
+
+  const ADMIN_ADDRESS = process.env.GATSBY_RPNNFT_CREATOR
 
   const mintNFT = async (tokenId, metadataIpfsUrl, imageIpfsUrl) => {
     if (!isBrowser || !tezosModules) return
@@ -350,25 +344,41 @@ const MintNFTProcess = ({
       const metadataMap = new tezosModules.MichelsonMap()
       metadataMap.set("", Buffer.from(`${metadataIpfsUrl}`).toString("hex"))
 
-      // Get mint price based on current supply
-      const mintAmount = getMintPrice()
+      let mintOp
 
-      console.log("📤 Sending mint transaction with amount:", {
-        tez: mintAmount,
-        mutez: mintAmount * 1000000,
-        currentSupply,
-        tier: currentSupply >= TIER2_LIMIT ? "Tier 3" : 
-              currentSupply >= TIER1_LIMIT ? "Tier 2" : "Tier 1"
-      })
+      if (walletAddress === ADMIN_ADDRESS) {
+        console.log("✨ Admin Minting...")
+        mintOp = await contract.methods
+          .admin_mint([{ metadata: metadataMap, to_: walletAddress }])
+          .send({
+            storageLimit: 1000,
+            gasLimit: 10000,
+          })
+      } else {
+        // Get mint price based on current supply
+        const mintAmount = getMintPrice()
 
-      const mintOp = await contract.methods
-        .mint([{ metadata: metadataMap, to_: walletAddress }])
-        .send({
-          amount: mintAmount,
-          mutez: false,
-          storageLimit: 1000,
-          gasLimit: 10000,
+        console.log("📤 Sending mint transaction with amount:", {
+          tez: mintAmount,
+          mutez: mintAmount * 1000000,
+          currentSupply,
+          tier:
+            currentSupply >= TIER2_LIMIT
+              ? "Tier 3"
+              : currentSupply >= TIER1_LIMIT
+              ? "Tier 2"
+              : "Tier 1",
         })
+
+        mintOp = await contract.methods
+          .mint([{ metadata: metadataMap, to_: walletAddress }])
+          .send({
+            amount: mintAmount,
+            mutez: false,
+            storageLimit: 1000,
+            gasLimit: 10000,
+          })
+      }
 
       await mintOp.confirmation(1)
 
@@ -388,7 +398,9 @@ const MintNFTProcess = ({
     } catch (error) {
       console.error("❌ Error minting NFT:", error)
       if (error.message.includes("Deprecated")) {
-        alert("The contract is currently being updated. Please try again in a few minutes.")
+        alert(
+          "The contract is currently being updated. Please try again in a few minutes."
+        )
       } else if (error.message.includes("Incorrect payment amount")) {
         alert("The minting price has changed. Please try again.")
       } else {
@@ -497,7 +509,9 @@ const MintNFTProcess = ({
               <Col md={6}>
                 <p>
                   Minting Price:{" "}
-                  {currentSupply >= TIER2_LIMIT ? (
+                  {walletAddress === ADMIN_ADDRESS ? (
+                    <span style={{ color: "purple" }}>FREE (Admin Mint)</span>
+                  ) : currentSupply >= TIER2_LIMIT ? (
                     <span style={{ color: "red" }}>
                       {TIER3_PRICE} TEZ (Tier 3)
                     </span>
@@ -519,7 +533,13 @@ const MintNFTProcess = ({
             <Button
               variant="primary"
               onClick={startMintingProcess}
-              disabled={minting || currentSupply >= maxSupply || walletLoading || imageMinted || !tezosModules}
+              disabled={
+                minting ||
+                currentSupply >= maxSupply ||
+                walletLoading ||
+                imageMinted ||
+                !tezosModules
+              }
               style={{
                 fontFamily: "var(--primary-font)",
                 fontStyle: "italic",
