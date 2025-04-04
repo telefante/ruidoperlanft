@@ -2,10 +2,19 @@ import React, { useRef, useState, useEffect } from "react"
 import * as lighthouse from "@lighthouse-web3/sdk"
 // import html2canvas from "html2canvas"
 import { Button, Container, Row, Col } from "react-bootstrap"
-import { MichelsonMap } from "@taquito/taquito"
 import { useWallet } from "./WalletContext"
-import { color } from "framer-motion"
+// import { color } from "framer-motion"
 // import ipfsOnlyHash from "ipfs-only-hash"
+
+// Check if we're in a browser environment
+const isBrowser = typeof window !== "undefined"
+
+// Dynamically import Tezos-related modules only in browser
+const getTezosModules = async () => {
+  if (!isBrowser) return null
+  const { MichelsonMap } = await import("@taquito/taquito")
+  return { MichelsonMap }
+}
 
 const MintNFTProcess = ({
   containerRef,
@@ -22,8 +31,6 @@ const MintNFTProcess = ({
   const [mintSuccess, setMintSuccess] = useState(false)
   const [currentSupply, setCurrentSupply] = useState(0)
   const [maxSupply, setMaxSupply] = useState(7)
-  const [holderStatus, setHolderStatus] = useState(null) // null: not checked, true: is holder, false: not holder
-  const [highestRarity, setHighestRarity] = useState(null) // 'Legendary', 'Rare', 'Common', or null
   const [imageMinted, setImageMinted] = useState(false) // New state to track if image has been minted
 
   // Get wallet context
@@ -37,15 +44,27 @@ const MintNFTProcess = ({
 
   // Add loading state for wallet
   const [walletLoading, setWalletLoading] = useState(false)
+  const [tezosModules, setTezosModules] = useState(null)
+
+  // Load Tezos modules when component mounts
+  useEffect(() => {
+    const loadTezosModules = async () => {
+      if (isBrowser) {
+        const modules = await getTezosModules()
+        setTezosModules(modules)
+      }
+    }
+    loadTezosModules()
+  }, [])
 
   // Check wallet connection and supply when component mounts or wallet state changes
   useEffect(() => {
     const initializeWalletState = async () => {
-      if (tezos && isConnected && walletAddress) {
+      if (isBrowser && tezos && isConnected && walletAddress) {
         try {
           setWalletLoading(true)
           await checkSupply()
-          await checkHolderStatus()
+          // await checkHolderStatus()
         } catch (error) {
           console.error("Error initializing wallet state:", error)
         } finally {
@@ -110,44 +129,60 @@ const MintNFTProcess = ({
     }
   }
 
+  const uploadWithRetry = async (file, retries = 3) => {
+    for (let attempt = 1; attempt <= retries; attempt++) {
+      try {
+        const fileResponse = await lighthouse.upload([file], LIGHTHOUSE_API_KEY);
+        if (fileResponse.data && fileResponse.data.Hash) {
+          return fileResponse;
+        }
+      } catch (error) {
+        console.error(`Attempt ${attempt} failed:`, error);
+        if (attempt === retries) throw error;
+      }
+    }
+  };
+
   const uploadImageToIPFS = async () => {
-    console.log("📤 Uploading Image to IPFS...")
-    setUploading(true)
+    console.log("📤 Uploading Image to IPFS...");
+    setUploading(true);
 
     try {
       if (!capturedImage) {
-        throw new Error("No captured image provided")
+        throw new Error("No captured image provided");
       }
 
-      const response = await fetch(capturedImage)
-      const imageBlob = await response.blob()
+      const response = await fetch(capturedImage);
+      const imageBlob = await response.blob();
       const file = new File([imageBlob], `RuidoPerla-${Date.now()}.png`, {
         type: "image/png",
-      })
+      });
 
-      const fileResponse = await lighthouse.upload([file], LIGHTHOUSE_API_KEY)
-      if (fileResponse.data && fileResponse.data.Hash) {
-        const imageCid = fileResponse.data.Hash
-        const ipfsImageUrl = `ipfs://${imageCid}`
-        setIpfsUrl(ipfsImageUrl)
-        console.log(
-          `✅ Image Uploaded: https://gateway.lighthouse.storage/ipfs/${
-            ipfsImageUrl.split("ipfs://")[1]
-          }`
-        )
+      console.log("Image size:", file.size, "Image type:", file.type);
 
-        return ipfsImageUrl // ✅ Return image URL for metadata upload
-      } else {
-        throw new Error("Image upload failed.")
-      }
+      const fileResponse = await uploadWithRetry(file);
+      const imageCid = fileResponse.data.Hash;
+      const ipfsImageUrl = `ipfs://${imageCid}`;
+      setIpfsUrl(ipfsImageUrl);
+      console.log(
+        `✅ Image Uploaded: https://gateway.lighthouse.storage/ipfs/${
+          ipfsImageUrl.split("ipfs://")[1]
+        }`
+      );
+
+      return ipfsImageUrl;
     } catch (error) {
-      console.error("❌ Error uploading image:", error)
-      setMinting(false)
-      return null
+      console.error("❌ Error uploading image:", error);
+      setMinting(false);
+      return null;
     } finally {
-      setUploading(false)
+      setUploading(false);
     }
   }
+  
+
+  
+
   const uploadMetadataToIPFS = async imageIpfsUrl => {
     console.log("📤 Uploading Metadata to IPFS...")
     setUploading(true)
@@ -249,12 +284,13 @@ const MintNFTProcess = ({
   }
 
   const checkSupply = async () => {
+    if (!isBrowser) return
+
     try {
       console.log("📊 Checking supply for contract:", realtimeRPNFTContract)
       const contract = await tezos.wallet.at(realtimeRPNFTContract)
       const storage = await contract.storage()
       
-      // Log the entire storage object to see what we're getting
       console.log("📦 Contract Storage:", storage)
       
       const current = await storage.current_supply
@@ -268,7 +304,6 @@ const MintNFTProcess = ({
         rawMax: max
       })
 
-      // Use the actual max supply from the contract
       setMaxSupply(max.toNumber())
       setCurrentSupply(current.toNumber())
     } catch (error) {
@@ -281,82 +316,13 @@ const MintNFTProcess = ({
     }
   }
 
-  const checkHolderStatus = async () => {
-    try {
-      const contract = await tezos.wallet.at(PreMintedRPNCollection)
-      const storage = await contract.storage()
-      const ledger = await storage.assets.ledger
-      const tokenMetadata = await storage.assets.token_metadata
-
-      // Get all token IDs from metadata (usually 0 to total supply - 1)
-      const tokenIds = Array.from({ length: 10 }, (_, i) => i); // Check first 10 tokens
-
-      // Get all token IDs owned by the user
-      const userTokens = []
-      for (const tokenId of tokenIds) {
-        try {
-          // Create the key for the ledger big map
-          const key = { 0: walletAddress, 1: tokenId }
-          
-          // Check if this address owns this token
-          const balance = await ledger.get(key)
-          if (balance && balance.gt(0)) {
-            userTokens.push(tokenId)
-          }
-        } catch (err) {
-          console.log(`Error checking token ${tokenId}:`, err)
-          continue // Continue checking other tokens
-        }
-      }
-
-      // Check if user has any tokens
-      const isHolder = userTokens.length > 0
-      setHolderStatus(isHolder)
-
-      if (isHolder) {
-        // Check rarity of user's tokens
-        let highestRarityFound = 'Common'
-        for (const tokenId of userTokens) {
-          const metadata = await tokenMetadata.get(tokenId)
-          if (metadata) {
-            const attributes = metadata.extra
-            if (attributes) {
-              const rarity = attributes.find(attr => attr.name === "Rarity")
-              if (rarity) {
-                if (rarity.value === "Legendary") {
-                  highestRarityFound = "Legendary"
-                  break
-                } else if (rarity.value === "Rare" && highestRarityFound === "Common") {
-                  highestRarityFound = "Rare"
-                }
-              }
-            }
-          }
-        }
-        setHighestRarity(highestRarityFound)
-        console.log("Holder status:", isHolder, "Highest rarity:", highestRarityFound)
-      } else {
-        setHighestRarity(null)
-        console.log("Not a holder")
-      }
-    } catch (error) {
-      console.error("Error checking holder status:", error)
-      setHolderStatus(false)
-      setHighestRarity(null)
-    }
-  }
-
   const mintNFT = async (tokenId, metadataIpfsUrl, imageIpfsUrl) => {
+    if (!isBrowser || !tezosModules) return
+
     console.log("🚀 Minting NFT...")
 
     if (!isConnected || !walletAddress || !beaconWallet) {
       alert("Please connect your wallet first!")
-      setMinting(false)
-      return
-    }
-
-    if (!holderStatus) {
-      alert("You need to own at least one NFT from the collection to mint!")
       setMinting(false)
       return
     }
@@ -379,8 +345,8 @@ const MintNFTProcess = ({
       const contract = await tezos.wallet.at(realtimeRPNFTContract)
       console.log("✅ Contract successfully fetched:", realtimeRPNFTContract)
 
-      // Create metadata map
-      const metadataMap = new MichelsonMap()
+      // Create metadata map using dynamically imported MichelsonMap
+      const metadataMap = new tezosModules.MichelsonMap()
       metadataMap.set("", Buffer.from(`${metadataIpfsUrl}`).toString("hex"))
 
       // Get mint price based on current supply
@@ -529,28 +495,18 @@ const MintNFTProcess = ({
               </Col>
               <Col md={6}>
                 <p>
-                  {holderStatus === null ? (
-                    "Checking holder status..."
-                  ) : holderStatus ? (
-                    <>
-                      Minting Price:{" "}
-                      {currentSupply >= TIER2_LIMIT ? (
-                        <span style={{ color: "red" }}>
-                          {TIER3_PRICE} TEZ (Tier 3)
-                        </span>
-                      ) : currentSupply >= TIER1_LIMIT ? (
-                        <span style={{ color: "orange" }}>
-                          {TIER2_PRICE} TEZ (Tier 2)
-                        </span>
-                      ) : (
-                        <span style={{ color: "green" }}>
-                          {TIER1_PRICE} TEZ (Tier 1)
-                        </span>
-                      )}
-                    </>
-                  ) : (
+                  Minting Price:{" "}
+                  {currentSupply >= TIER2_LIMIT ? (
                     <span style={{ color: "red" }}>
-                      You need to own an NFT to mint
+                      {TIER3_PRICE} TEZ (Tier 3)
+                    </span>
+                  ) : currentSupply >= TIER1_LIMIT ? (
+                    <span style={{ color: "orange" }}>
+                      {TIER2_PRICE} TEZ (Tier 2)
+                    </span>
+                  ) : (
+                    <span style={{ color: "green" }}>
+                      {TIER1_PRICE} TEZ (Tier 1)
                     </span>
                   )}
                 </p>
@@ -562,7 +518,7 @@ const MintNFTProcess = ({
             <Button
               variant="primary"
               onClick={startMintingProcess}
-              disabled={minting || currentSupply >= maxSupply || walletLoading || !holderStatus || imageMinted}
+              disabled={minting || currentSupply >= maxSupply || walletLoading || imageMinted || !tezosModules}
               style={{
                 fontFamily: "var(--primary-font)",
                 fontStyle: "italic",
@@ -577,10 +533,10 @@ const MintNFTProcess = ({
                 ? "Minting..."
                 : currentSupply >= maxSupply
                 ? "Max Supply Reached"
-                : !holderStatus
-                ? "Need NFT to Mint"
                 : imageMinted
                 ? "Already Minted"
+                : !tezosModules
+                ? "Loading Tezos..."
                 : "Mint this!"}
             </Button>
           </>

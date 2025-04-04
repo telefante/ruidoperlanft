@@ -3,9 +3,11 @@ title: "Intro Text"
 ---
 
 Ruido Perla 
-is more than a collection—
-it is an evolving digital extension 
-of an immersive installation. 
+Pearl in Noise
+Welcome to the NFT collection
+of Ruido Perla 
+as an evolving digital extension 
+of a installation in physical space. 
 These generative NFTs 
 are not just static images 
 but keys unlocking access 

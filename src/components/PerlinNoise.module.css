@@ -11,6 +11,16 @@
 }
 
 .button {
-    font-family: var(--primary-font);
+  font-family: var(--primary-font);
+}
 
+/* Add this new style for the transparent modal */
+.transparentModal .modal-content {
+  background-color: rgba(255, 255, 255, 0.5); /* Adjust the alpha value (0.5) for desired transparency */
+  border: none; /* Remove the border for a cleaner look */
+}
+
+/* Ensure the header has a move cursor */
+.modal-header {
+  cursor: move;
 }

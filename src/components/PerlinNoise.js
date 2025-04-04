@@ -5,15 +5,16 @@ import { Perlin } from "three-noise"
 import { createNoise3D } from "simplex-noise"
 import html2canvas from "html2canvas"
 import { useStaticQuery, graphql } from "gatsby"
-import { Modal, Button, Row, Container } from "react-bootstrap"
+import { Modal, Row, Container } from "react-bootstrap"
 import PerlinControls from "./PerlinControls"
 import { useWallet } from "./WalletContext"
 import NFTVerification from "./NFTVerification"
 import MintNFTProcess from "./MintNFTProcess"
 import * as styles from "./PerlinNoise.module.css"
+import Draggable from "react-draggable"
 
 const PerlinNoise = ({
-  showControls = true,
+  // showControls = true,
   enableOrbit = true,
   initialParams = {
     amplitude: 12.5,
@@ -23,11 +24,12 @@ const PerlinNoise = ({
     usePerlin: true,
   },
   cameraParams = null,
-  showCaptureButton,
+  // showCaptureButton,
   queryFile,
   fontSize,
   controlsVisible,
   setControlsVisible,
+  verificationEnabled, // Accept verificationEnabled as a prop
 }) => {
   const data = useStaticQuery(graphql`
     query {
@@ -35,12 +37,6 @@ const PerlinNoise = ({
         nodes {
           fileAbsolutePath
           rawMarkdownBody
-        }
-      }
-      site {
-        siteMetadata {
-          contractNumber
-          rpcUrl
         }
       }
     }
@@ -62,11 +58,11 @@ const PerlinNoise = ({
   const currentTextRef = useRef("")
   const geometryRef = useRef(null)
   const animationFrameRef = useRef(null)
-  const clockRef = useRef(new THREE.Clock())
-  const noiseVectorRef = useRef(new THREE.Vector3())
-  const perlinRef = useRef(new Perlin())
-  const simplexRef = useRef(createNoise3D())
-  const animateRef = useRef(null)
+  // const clockRef = useRef(new THREE.Clock())
+  // const noiseVectorRef = useRef(new THREE.Vector3())
+  // const perlinRef = useRef(new Perlin())
+  // const simplexRef = useRef(createNoise3D())
+  // const animateRef = useRef(null)
   const currentIndexRef = useRef(0)
 
   const [perlinSettings, setPerlinSettings] = useState({
@@ -76,6 +72,8 @@ const PerlinNoise = ({
     frequency: initialParams.frequency,
     octaves: initialParams.octaves,
   })
+
+  // const [verificationEnabled, setVerificationEnabled] = useState(null)
 
   const [textOpacity, setTextOpacity] = useState(1)
   const [capturedImage, setCapturedImage] = useState(null)
@@ -190,7 +188,8 @@ const PerlinNoise = ({
             noiseVector.set(x * scale * freq, y * scale * freq, elapsed)
             totalNoise += perlin.get3(noiseVector) * amp
           } else {
-            totalNoise += simplex(x * scale * freq, y * scale * freq, elapsed) * amp
+            totalNoise +=
+              simplex(x * scale * freq, y * scale * freq, elapsed) * amp
           }
           amp *= 0.5
           freq *= 2
@@ -233,7 +232,7 @@ const PerlinNoise = ({
       controlsTargetRef.current = controls.target.clone()
     }
 
-    controls.addEventListener('change', handleControlsChange)
+    controls.addEventListener("change", handleControlsChange)
 
     const raycaster = new THREE.Raycaster()
     const mouse = new THREE.Vector2()
@@ -270,12 +269,12 @@ const PerlinNoise = ({
       cameraRotationRef.current = camera.rotation.clone()
       controlsTargetRef.current = controls.target.clone()
 
-      console.log("position", camera.position)
-      const direction = new THREE.Vector3()
-      camera.getWorldDirection(direction)
-      const lookAtPoint = new THREE.Vector3()
-      lookAtPoint.addVectors(camera.position, direction.multiplyScalar(100))
-      console.log("lookAt", lookAtPoint)
+      // console.log("position", camera.position)
+      // const direction = new THREE.Vector3()
+      // camera.getWorldDirection(direction)
+      // const lookAtPoint = new THREE.Vector3()
+      // lookAtPoint.addVectors(camera.position, direction.multiplyScalar(100))
+      // console.log("lookAt", lookAtPoint)
     }
 
     renderer.domElement.addEventListener("pointermove", onPointerMove)
@@ -287,7 +286,7 @@ const PerlinNoise = ({
     const lookAtPoint = new THREE.Vector3()
     lookAtPoint.addVectors(camera.position, direction.multiplyScalar(100))
 
-    console.log("position", camera.position)
+    // console.log("position", camera.position)
 
     cameraSetupRef.current = {
       position: {
@@ -309,7 +308,7 @@ const PerlinNoise = ({
       if (mountRef.current && rendererRef.current) {
         mountRef.current.removeChild(rendererRef.current.domElement)
       }
-      controls.removeEventListener('change', handleControlsChange)
+      controls.removeEventListener("change", handleControlsChange)
       controls.dispose()
       if (rendererRef.current) {
         rendererRef.current.dispose()
@@ -352,6 +351,8 @@ const PerlinNoise = ({
         backgroundColor: "#000000",
         scale: 1,
         logging: true,
+        width: 800, // Constrain the width of the capture
+        height: 600, // Constrain the height of the capture
         ignoreElements: element => {
           return (
             element.classList.contains("controls") ||
@@ -377,7 +378,7 @@ const PerlinNoise = ({
 
   useEffect(() => {
     const lines = text.split("\n").filter(line => line.trim())
-    
+
     const updateText = () => {
       setTextOpacity(0)
       setTimeout(() => {
@@ -408,7 +409,9 @@ const PerlinNoise = ({
         backgroundColor: "transparent",
       }}
     >
-      <NFTVerification setAccessGranted={setAccessGranted} />
+      {verificationEnabled && (
+        <NFTVerification setAccessGranted={setAccessGranted} />
+      )}
       <div ref={mountRef} style={{ width: "100%", height: "100%" }} />
       {accessGranted && controlsVisible && (
         <PerlinControls
@@ -431,26 +434,7 @@ const PerlinNoise = ({
       )}
 
       <Container>
-        <Row>
-          <div
-            style={{
-              position: "absolute",
-              top: "10%",
-              left: "50%",
-              transform: "translateX(-50%)",
-              color: "white",
-              fontSize: "1rem",
-              fontFamily: "var(--primary-font)",
-              textAlign: "center",
-              pointerEvents: "none",
-              zIndex: 1000,
-              textShadow: "2px 2px 4px rgba(0,0,0,0.5)",
-            }}
-            id="click-and-drag-instruction"
-          >
-            Click and drag to move the geometry!
-          </div>
-        </Row>
+      
 
         <div
           style={{
@@ -474,26 +458,58 @@ const PerlinNoise = ({
         >
           {currentTextRef.current}
         </div>
+
+        <Row>
+          <div
+            style={{
+              position: "absolute",
+              bottom: "10%",
+              left: "50%",
+              transform: "translateX(-50%)",
+              color: "white",
+              fontSize: "1rem",
+              fontFamily: "var(--primary-font)",
+              textAlign: "center",
+              pointerEvents: "none",
+              zIndex: 1000,
+              textShadow: "2px 2px 4px rgba(0,0,0,0.5)",
+            }}
+            id="click-and-drag-instruction"
+          >
+            Click and drag to move the geometry!
+          </div>
+        </Row>
       </Container>
 
       <div className={styles.modal}>
-        <Modal show={showModal} onHide={handleClose} size="lg">
-          <Modal.Header closeButton>
-            <Modal.Title
-              style={{ fontFamily: "var(--primary-font)", fontWeight: "bold" }}
-            >
-              Mint this Pearl for your collection?
-            </Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            <MintNFTProcess
-              containerRef={containerRef}
-              capturedImage={capturedImage}
-              perlinSettings={perlinSettings}
-              textFragment={currentTextFragment}
-            />
-          </Modal.Body>
-        </Modal>
+        <Draggable handle=".modal-header">
+          <Modal
+            show={showModal}
+            onHide={handleClose}
+            size="lg"
+            style={{ cursor: "move" }}
+          >
+            <Modal.Header closeButton>
+              <Modal.Title
+                style={{
+                  fontFamily: "var(--primary-font)",
+                  fontWeight: "bold",
+                }}
+              >
+                Mint this beatiful Pearl for contract:{" "}
+                {process.env.GATSBY_TEZOS_REALTIME_CONTRACT}
+              </Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+              <MintNFTProcess
+                containerRef={containerRef}
+                capturedImage={capturedImage}
+                perlinSettings={perlinSettings}
+                textFragment={currentTextFragment}
+              />
+            </Modal.Body>
+          </Modal>
+        </Draggable>
       </div>
     </div>
   )
