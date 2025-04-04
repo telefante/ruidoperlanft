@@ -13,13 +13,7 @@ const RuidoPerlaNFTContract = process.env.GATSBY_RUIDOPERLANFT_CONTRACT;
 const CACHE_KEY = "nftOwnershipCache";
 const CACHE_EXPIRY = 5 * 60 * 1000; // Cache for 5 minutes
 
-// Remove direct TezosToolkit initialization
-// const tezos = new TezosToolkit(process.env.GATSBY_TEZOS_RPC_URL);
 
-// Example environment variables
-// const BASE_URL = process.env.GATSBY_TZKT_API_URL; // e.g., "https://api.tzkt.io"
-// const API_VERSION = process.env.GATSBY_API_VERSION; // e.g., "v1"
-// const NETWORK = process.env.GATSBY_NETWORK; // e.g., "ghostnet"
 
 const isGreaterThanZero = (value) => {
   if (!value) return false;
@@ -59,6 +53,8 @@ const NFTVerification = ({ setAccessGranted }) => {
         
         console.log("🔍 Starting new verification for address:", walletAddress);
         setLastVerifiedAddress(walletAddress);
+
+       
 
         // Check cache first
         const cachedResult = getCachedOwnership(walletAddress);
@@ -264,7 +260,9 @@ const NFTVerification = ({ setAccessGranted }) => {
         <Container>
           <Row>
             <h2>Becoming a <a  href="#collection">collector</a> of Ruido Perla you will be able to mint in real time</h2>
-   
+          </Row>
+          <Row>
+            <h3>or just connect your wallet</h3>
           </Row>
         </Container>
       )}
