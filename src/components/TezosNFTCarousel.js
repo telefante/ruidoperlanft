@@ -68,6 +68,7 @@ const TezosNFTCarousel = () => {
   const [selectedNft, setSelectedNft] = useState(null) // new state
   const [currentSlide, setCurrentSlide] = useState(1)
   const [thumbnailCache, setThumbnailCache] = useState({}) // Cache for thumbnails
+  const [resolvedThumbnails, setResolvedThumbnails] = useState({}); // Store resolved thumbnail URLs
 
   // const RPC_URL = process.env.GATSBY_TEZOS_RPC_URL;
   const TzKT_API = process.env.GATSBY_TZKT_API_URL
@@ -156,6 +157,31 @@ const TezosNFTCarousel = () => {
     fetchNFTsfromCollection()
   }, [])
 
+  useEffect(() => {
+    const resolveThumbnails = async () => {
+      const resolved = {};
+      for (const nft of nfts) {
+        const thumbnailData = thumbnailCache[nft.tokenId];
+        if (thumbnailData?.cacheKey) {
+          const cachedResponse = await caches.match(thumbnailData.cacheKey);
+          if (cachedResponse) {
+            const blob = await cachedResponse.blob();
+            resolved[nft.tokenId] = URL.createObjectURL(blob);
+          } else {
+            resolved[nft.tokenId] = thumbnailData?.url || placeholderImage;
+          }
+        } else {
+          resolved[nft.tokenId] = thumbnailData?.url || placeholderImage;
+        }
+      }
+      setResolvedThumbnails(resolved);
+    };
+
+    if (nfts.length > 0) {
+      resolveThumbnails();
+    }
+  }, [nfts, thumbnailCache]);
+
   const openModal = nft => {
     setModalImage(
       nft.metadata.displayUri?.replace("ipfs://", "https://dweb.link/ipfs/") ||
@@ -216,19 +242,8 @@ const TezosNFTCarousel = () => {
               <NavigationButton className="swiper-button-prev" />
               <NavigationButton className="swiper-button-next" />
               {nfts.map((nft, index) => {
-                const thumbnailData = thumbnailCache[nft.tokenId];
-
-                // Use an async function to handle the cache retrieval
-                const getThumbnailUrl = async () => {
-                  if (thumbnailData?.cacheKey) {
-                    const cachedResponse = await caches.match(thumbnailData.cacheKey);
-                    if (cachedResponse) {
-                      const blob = await cachedResponse.blob();
-                      return URL.createObjectURL(blob);
-                    }
-                  }
-                  return thumbnailData?.url || placeholderImage;
-                };
+                const thumbnailUrl =
+                  resolvedThumbnails[nft.tokenId] || placeholderImage;
 
                 // Create a function to handle the click event
                 const handleImageClick = () => {
@@ -241,7 +256,7 @@ const TezosNFTCarousel = () => {
                       <Col>
                         <h2>{nft.metadata?.name || "Unnamed NFT"}</h2>
                         <img
-                          src={thumbnailData?.cacheKey ? getThumbnailUrl() : thumbnailData?.url || placeholderImage}
+                          src={thumbnailUrl}
                           alt={nft.metadata?.name || "Unnamed NFT"}
                           style={{
                             maxWidth: "80%",
