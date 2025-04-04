@@ -6,16 +6,15 @@ import styled from "styled-components"
 import SectionContainer from "./SectionContainer"
 import { useTracking } from "../../contexts/TrackingContext"
 
-
 // Add styled components
 
 const DescriptionText = styled.p`
-max-width: 30vw;
-text-align: justify;
-font-size: 1.2rem;
-@media (max-width: 768px) {
-  max-width: 100vw;
-}
+  max-width: 30vw;
+  text-align: justify;
+  font-size: 1.2rem;
+  @media (max-width: 768px) {
+    max-width: 100vw;
+  }
 `
 
 const StyledCarousel = styled(Carousel)`
@@ -81,14 +80,12 @@ const CarouselWrapper = styled.div`
 
 const InstallationSection = () => {
   const [showModal, setShowModal] = useState(false)
-   const { trackEvent } = useTracking()
+  const { trackEvent } = useTracking()
 
-   const handleCollectNowClick = (url) => {
+  const handleCollectNowClick = url => {
     // console.log("Clicked on Collection: ", url)
-    trackEvent(`clicked on Collection in section Whitepaper`);
+    trackEvent(`clicked on Collection in section Whitepaper`)
   }
-
-
 
   const data = useStaticQuery(graphql`
     query {
@@ -124,8 +121,6 @@ const InstallationSection = () => {
   const COLLECTION_CONTRACT = process.env.GATSBY_RUIDOPERLANFT_CONTRACT
   // const OBJKT_TOKEN_URL = process.env.GATSBY_OBJKT_TOKEN_URL
 
- 
-
   return (
     <SectionContainer
       id="installation"
@@ -133,13 +128,13 @@ const InstallationSection = () => {
       isGridLayout={true}
     >
       {/* <OverlappingContainer> */}
-        {/* <TextOverlay> */}
-          <Row className="align-items-center mb-4">
-            <Col xs={12} md={6}>
-              <h2 className="simulation-title">concept</h2>
-            </Col>
-          </Row>
-          {/* <section
+      {/* <TextOverlay> */}
+      <Row className="align-items-center mb-4">
+        <Col xs={12} md={6}>
+          <h2 className="simulation-title">whitepaper</h2>
+        </Col>
+      </Row>
+      {/* <section
             style={{
               textAlign: "justify",
               lineHeight: "1.1",
@@ -148,99 +143,86 @@ const InstallationSection = () => {
             }}
           >
             <p>Ruido Perla explores the poetics of the unpredictable ....</p> */}
-          
-          {/* </section> */}
 
-          <Row className="align-items-center mb-4">
-            <DescriptionText>
-              <p>
-                👉 These NFTs are more than digital artifacts; they are
-                fragments of an ever-changing landscape. Each one is a unique
-                translation of the installation’s essence, existing only once in
-                its current form before the next permutation takes shape.
-                Collectors don’t just own an artwork—they gain access to a
-                continuous, evolving digital simulation, available only to
-                holders.
-              </p>
-            </DescriptionText>
-            <Button
-              variant="danger"
-              style={{ fontFamily: "var(--primary-font)",maxWidth: "200px" }}
-              className="mt-3"
-              // onClick={() => setShowModal(true)}
-              href="/Whitepaper.pdf" target="_blank"
-              onClick={trackEvent(`clicked on Whitepaper in section Whitepaper`)}
-            >
-              read whitepaper
-            </Button>
-          </Row>
-          <Row>
-            <Button
-               href={`${process.env.GATSBY_OBJKT_COLLECTION_URL}/${COLLECTION_CONTRACT}`}
-              target="_blank"
-              variant="danger"
-              style={{
-                fontFamily: "var(--primary-font)",
-                fontStyle: "italic",
-                fontWeight: "bold",
-                fontSize: "1.5rem",
-                maxWidth: "200px",
-                margin: "10 auto",
-              }}
-              onClick={handleCollectNowClick()}
-            >
-              Collect now on Objkt
-            </Button>
-          </Row>
+      {/* </section> */}
 
-          <Modal
-            show={showModal}
-            onHide={() => setShowModal(false)}
-            size="lg"
-            centered
+      <Row className="align-items-center mb-4">
+        <DescriptionText>
+          <p>
+            👉 These NFTs are more than digital artifacts; they are fragments of
+            an ever-changing landscape. Each one is a unique translation of the
+            installation’s essence, existing only once in its current form
+            before the next permutation takes shape. Collectors don’t just own
+            an artwork—they gain access to a continuous, evolving digital
+            simulation, available only to holders.
+          </p>
+        </DescriptionText>
+      </Row>
+      <Row>
+        <Row className="align-items-center mb-2">
+          <Button
+            variant="danger"
+            style={{ fontFamily: "var(--primary-font)", maxWidth: "200px" }}
+            className="mt-3"
+            // onClick={() => setShowModal(true)}
+            href="/Whitepaper.pdf"
+            target="_blank"
+            onClick={trackEvent(`clicked on Whitepaper in section Whitepaper`)}
           >
-            <Modal.Header closeButton>
-              <Modal.Title style={{ fontFamily: "var(--primary-font)" }}>
-                whitepaper coming soon ..
-              </Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-              <p style={{ color: "black" }}>
-                Its name comes from the Perlin noise algorithm, a system that
-                generates chaotic landscapes inspired by nature, and from the
-                pearl, a rare and accidental discovery. From the tangible to the
-                generative, from the physical to the ephemeral—Ruido Perla blurs
-                the boundaries between installation art and digital evolution.
-              </p>
-            </Modal.Body>
-          </Modal>
-        {/* </TextOverlay> */}
+            read whitepaper
+          </Button>
+        </Row>
+       
+      </Row>
 
-        <CarouselWrapper>
-          <StyledCarousel
-            interval={1500}
-            controls={true}
-            indicators={false}
-            ride="carousel"
-            pause="hover"
-            className="installation-carousel"
-          >
-            {data.allFile.edges.map(({ node }, index) => (
-              <Carousel.Item key={node.name}>
-                <div className="carousel-image-container">
-                  <GatsbyImage
-                    image={getImage(node)}
-                    alt={`Installation photo ${node.name}`}
-                    className="carousel-image"
-                  />
-                </div>
-                <Carousel.Caption>
-                  <h3>Installation {index + 1}</h3>
-                </Carousel.Caption>
-              </Carousel.Item>
-            ))}
-          </StyledCarousel>
-        </CarouselWrapper>
+      <Modal
+        show={showModal}
+        onHide={() => setShowModal(false)}
+        size="lg"
+        centered
+      >
+        <Modal.Header closeButton>
+          <Modal.Title style={{ fontFamily: "var(--primary-font)" }}>
+            whitepaper coming soon ..
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p style={{ color: "black" }}>
+            Its name comes from the Perlin noise algorithm, a system that
+            generates chaotic landscapes inspired by nature, and from the pearl,
+            a rare and accidental discovery. From the tangible to the
+            generative, from the physical to the ephemeral—Ruido Perla blurs the
+            boundaries between installation art and digital evolution.
+          </p>
+        </Modal.Body>
+      </Modal>
+      {/* </TextOverlay> */}
+
+      <CarouselWrapper>
+        <StyledCarousel
+          interval={1500}
+          controls={true}
+          indicators={false}
+          ride="carousel"
+          pause="hover"
+          className="installation-carousel"
+        >
+          {data.allFile.edges.map(({ node }, index) => (
+            <Carousel.Item key={node.name}>
+              <div className="carousel-image-container">
+                <GatsbyImage
+                  image={getImage(node)}
+                  alt={`Installation photo ${node.name}`}
+                  className="carousel-image"
+                />
+              </div>
+              <Carousel.Caption>
+                <h3>Installation {index + 1}</h3>
+              </Carousel.Caption>
+            </Carousel.Item>
+          ))}
+        </StyledCarousel>
+      </CarouselWrapper>
       {/* </OverlappingContainer> */}
     </SectionContainer>
   )
