@@ -77,7 +77,7 @@ const TezosNFTCarousel = () => {
     };
 
     mobileCheck(); // Check on initial load
-
+console.log("isMobile:", isMobile)
     window.addEventListener("resize", mobileCheck); // Check on window resize
 
     return () => {
@@ -108,7 +108,7 @@ const TezosNFTCarousel = () => {
     }
 
     // const apiUrl = `${TzKT_API}v1/tokens?contract=${COLLECTION_CONTRACT}&limit=104`;
-    const apiUrl = `${TzKT_API}v1/tokens?contract=${COLLECTION_CONTRACT}&limit=${isMobile ? 25 : 104}`;
+    const apiUrl = `${TzKT_API}v1/tokens?contract=${COLLECTION_CONTRACT}&limit=${isMobile ? 10 : 104}`;
     console.log("Fetching NFTs from:", apiUrl);
     try {
       const response = await fetch(apiUrl);
