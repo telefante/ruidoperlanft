@@ -1,5 +1,6 @@
-import React, { useCallback } from "react"
+import React from "react"
 import Draggable from "react-draggable"
+
 
 const PerlinControls = ({
   usePerlin,
@@ -188,7 +189,7 @@ const PerlinControls = ({
                 marginTop: "10px",
               }}
             >
-              Capture Scene
+              Capture now!
             </button>
           )}
         </div>
