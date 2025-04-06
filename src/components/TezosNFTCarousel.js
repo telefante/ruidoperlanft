@@ -94,6 +94,28 @@ console.log("isMobile:", isMobile)
 
 
   const fetchNFTsfromCollection = async () => {
+    if (!('caches' in window)) {
+      console.warn("Cache API not supported in this browser.");
+      // Fallback: Fetch data without caching
+      const apiUrl = `${TzKT_API}v1/tokens?contract=${COLLECTION_CONTRACT}&limit=${isMobile ? 25 : 104}`;
+      try {
+        const response = await fetch(apiUrl);
+        const data = await response.json();
+
+        if (!Array.isArray(data)) {
+          console.error("Unexpected response format", data);
+          return;
+        }
+
+        const nftsWithImages = data.filter(nft => nft?.metadata?.artifactUri);
+        setNfts(nftsWithImages);
+        return;
+      } catch (error) {
+        console.error("Error fetching NFTs:", error);
+        return;
+      }
+    }
+
     const cacheName = "nftsCache";
     const cache = await caches.open(cacheName);
 
@@ -108,7 +130,7 @@ console.log("isMobile:", isMobile)
     }
 
     // const apiUrl = `${TzKT_API}v1/tokens?contract=${COLLECTION_CONTRACT}&limit=104`;
-    const apiUrl = `${TzKT_API}v1/tokens?contract=${COLLECTION_CONTRACT}&limit=${isMobile ? 10 : 104}`;
+    const apiUrl = `${TzKT_API}v1/tokens?contract=${COLLECTION_CONTRACT}&limit=${isMobile ? 10 : 20}`;
     console.log("Fetching NFTs from:", apiUrl);
     try {
       const response = await fetch(apiUrl);

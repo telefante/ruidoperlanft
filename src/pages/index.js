@@ -9,15 +9,13 @@ import AboutSection from "../components/sections/AboutSection"
 import CollectionSection from "../components/sections/CollectionSection"
 import { ContractProvider } from "../components/ContractContext" // Adjust the path as necessary
 import { WalletProvider } from "../components/WalletContext"
-import { Seo } from "../components/seo";
+import { Seo } from "../components/seo"
 
 // Debug: Log Components
 // console.log("InstallationSection:", InstallationSection);
 // console.log("SimulationSection:", SimulationSection);
 // console.log("AssetsSection:", AssetsSection);
 // console.log("AboutSection:", AboutSection);
-
-
 
 export const Head = () => (
   <Seo
@@ -28,8 +26,7 @@ export const Head = () => (
     canonicalUrl="https://ruidoperlanft.netlify.app" // Ensure this URL is correct
   />
   // <Seo
-); 
-
+)
 
 const IndexPage = () => {
   return (
@@ -37,7 +34,7 @@ const IndexPage = () => {
       <WalletProvider>
         <ContractProvider>
           <IntroductionSection />
-         <CollectionSection />
+          <CollectionSection />
           <SimulationSection />
           <InstallationSection />
           <AboutSection />
