@@ -32,10 +32,11 @@ const StyledNavbarCollapse = styled(Navbar.Collapse)`
 
 const sections = [
   { name: "hello", path: "introduction" },
+  { name: "installation", path: "about" },
   { name: "collection", path: "collection" },
   { name: "mint poetry", path: "simulation" },
   { name: "whitepaper", path: "installation" },
-  { name: "installation", path: "about" },
+ 
 ];
 
 const CustomNavbar = () => {

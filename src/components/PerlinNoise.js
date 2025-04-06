@@ -425,9 +425,7 @@ const PerlinNoise = ({
         backgroundColor: "transparent",
       }}
     >
-      {verificationEnabled && (
-        <NFTVerification setAccessGranted={setAccessGranted} />
-      )}
+     
       <div ref={mountRef} style={{ width: "100%", height: "100%" }} />
       {accessGranted && controlsVisible && (
         <PerlinControls
@@ -447,6 +445,10 @@ const PerlinNoise = ({
           isMobile={isMobile}
           fontSize={fontSize}
         />
+
+      )}
+       {verificationEnabled && (
+        <NFTVerification setAccessGranted={setAccessGranted} />
       )}
 
       <Container>

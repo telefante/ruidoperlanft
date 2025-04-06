@@ -1,10 +1,12 @@
-import React, { useState } from "react";
-import SectionContainer from "./SectionContainer";
-import PerlinNoise from "../PerlinNoise";
+import React, { useState } from "react"
+import SectionContainer from "./SectionContainer"
+import PerlinNoise from "../PerlinNoise"
+import { Button } from "react-bootstrap"
+import { Link } from "gatsby"
 
 const IntroductionSection = () => {
-  const [controlsVisible, setControlsVisible] = useState(false); // Define the state
- 
+  const [controlsVisible, setControlsVisible] = useState(false) // Define the state
+
   // Define surface parameters for introduction
   const surfaceParams = {
     amplitude: 15,
@@ -16,32 +18,43 @@ const IntroductionSection = () => {
     colors: {
       solid: {
         color: 0x00ffff,
-        opacity: 0.3
+        opacity: 0.3,
       },
       wireframe: {
         color: 0x0000ff,
-        opacity: 1.0
-      }
-    }
-  };
+        opacity: 1.0,
+      },
+    },
+  }
 
   const cameraParams = {
-    position: { x: -0.1332018946871437, y: 91.24420810533678, z: -1.653409036452902 },
-    lookAt: { x: 0.01380516776622312, y: -8.739033492597855, z: 0.170908086977136 }
-  };
+    position: {
+      x: -0.1332018946871437,
+      y: 91.24420810533678,
+      z: -1.653409036452902,
+    },
+    lookAt: {
+      x: 0.01380516776622312,
+      y: -8.739033492597855,
+      z: 0.170908086977136,
+    },
+  }
 
-  const queryFile = "intro.md";
+  const queryFile = "intro.md"
 
   return (
     <SectionContainer id="introduction" isGridLayout={false}>
-      <div style={{ 
-        width: '100vw', 
-        height: '66vh',
-        marginLeft: 'calc(-50vw + 50%)', 
-        marginRight: 'calc(-50vw + 50%)',
-        marginBottom: '0px'
-      }}>
-        <PerlinNoise 
+      <div
+        style={{
+          width: "100vw",
+          height: "66vh",
+          marginLeft: "calc(-50vw + 50%)",
+          marginRight: "calc(-50vw + 50%)",
+          marginBottom: "0px",
+        }}
+      >
+      
+        <PerlinNoise
           enableOrbit={true}
           initialParams={surfaceParams}
           cameraParams={cameraParams}
@@ -51,9 +64,25 @@ const IntroductionSection = () => {
           setControlsVisible={setControlsVisible} // Pass the setter function
           verificationEnabled={false} // Pass verificationEnabled
         />
+
+<Link to="#simulation" style={{ textDecoration: 'none' }}>
+          <Button
+            variant="primary"
+            style={{
+              fontFamily: "var(--primary-font)",
+              fontStyle: "italic",
+              fontWeight: "bold",
+              fontSize: "1.2rem",
+              maxWidth: "200px",
+            }}
+          >
+            Catch a Memory in the Noise
+          </Button>
+        </Link>
+
       </div>
     </SectionContainer>
-  );
-};
+  )
+}
 
-export default IntroductionSection;
+export default IntroductionSection
