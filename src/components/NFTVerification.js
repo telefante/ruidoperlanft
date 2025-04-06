@@ -252,17 +252,17 @@ const NFTVerification = ({ setAccessGranted }) => {
       {success && (
         <Container id="communication">
           <Row>
-            <h3>as holder of RuidoPerla NFT you can mint by capturing an image</h3>
+            <h2>as holder of RuidoPerla NFT you can mint by capturing an image</h2>
           </Row>
         </Container>
       )}
       {!success && (
         <Container>
           <Row>
-            <h2>Becoming a <a  href="#collection">collector</a> of Ruido Perla you will be able to mint in real time</h2>
+            <h3>Becoming a <a  href="#collection">collector</a> of Ruido Perla you will be able to mint in real time</h3>
           </Row>
           <Row>
-            <h3>or just connect your wallet</h3>
+            <h3>please connect your wallet</h3>
           </Row>
         </Container>
       )}

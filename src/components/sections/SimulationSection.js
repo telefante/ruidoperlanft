@@ -58,7 +58,7 @@ const SimulationSection = ({ account, connectWallet, disconnectWallet }) => {
   const queryFile = "perlin-text.md" // Specify the file name
 
   const DescriptionText = styled.p`
-    max-width: 30vw;
+    max-width: 10vw;
     text-align: justify;
     font-size: 1.2rem;
     @media (max-width: 768px) {
