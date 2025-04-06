@@ -34,10 +34,11 @@ const IndexPage = () => {
       <WalletProvider>
         <ContractProvider>
           <IntroductionSection />
+          <AboutSection />
           <CollectionSection />
           <SimulationSection />
           <InstallationSection />
-          <AboutSection />
+        
         </ContractProvider>
       </WalletProvider>
     </Layout>
