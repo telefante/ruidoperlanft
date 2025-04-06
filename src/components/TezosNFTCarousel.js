@@ -193,17 +193,25 @@ console.log("isMobile:", isMobile)
     const resolveThumbnails = async () => {
       const resolved = {};
       for (const nft of nfts) {
-        const thumbnailData = thumbnailCache[nft.tokenId];
-        if (thumbnailData?.cacheKey) {
-          const cachedResponse = await caches.match(thumbnailData.cacheKey);
-          if (cachedResponse) {
-            const blob = await cachedResponse.blob();
-            resolved[nft.tokenId] = URL.createObjectURL(blob);
+        const thumbnailUrl = nft.metadata.thumbnailUri?.replace("ipfs://", "https://dweb.link/ipfs/") || placeholderImage;
+
+        if ('caches' in window) {
+          // If caches API is available, try to fetch from cache
+          const thumbnailData = thumbnailCache[nft.tokenId];
+          if (thumbnailData?.cacheKey) {
+            const cachedResponse = await caches.match(thumbnailData.cacheKey);
+            if (cachedResponse) {
+              const blob = await cachedResponse.blob();
+              resolved[nft.tokenId] = URL.createObjectURL(blob);
+            } else {
+              resolved[nft.tokenId] = thumbnailData?.url || placeholderImage;
+            }
           } else {
             resolved[nft.tokenId] = thumbnailData?.url || placeholderImage;
           }
         } else {
-          resolved[nft.tokenId] = thumbnailData?.url || placeholderImage;
+          // If caches API is not available, directly use the thumbnail URL
+          resolved[nft.tokenId] = thumbnailUrl;
         }
       }
       setResolvedThumbnails(resolved);
