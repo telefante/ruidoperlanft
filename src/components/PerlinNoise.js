@@ -515,7 +515,13 @@ const PerlinNoise = ({
                 }}
               >
                 Mint this beatiful Pearl for contract:{" "}
-                {process.env.GATSBY_TEZOS_REALTIME_CONTRACT}
+                <a
+                  href={`https://better-call.dev/${process.env.GATSBY_NETWORK_TYPE}/${process.env.GATSBY_TEZOS_REALTIME_CONTRACT}/tokens`}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  {process.env.GATSBY_TEZOS_REALTIME_CONTRACT}
+                </a>
               </Modal.Title>
             </Modal.Header>
             <Modal.Body>
