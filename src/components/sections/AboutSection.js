@@ -6,7 +6,8 @@ import { useStaticQuery, graphql } from "gatsby"
 import styled from "styled-components"
 import SectionContainer from "./SectionContainer"
 import { Carousel } from "react-bootstrap"
-import Video from './Video'
+import Video from "./Video"
+import  ExplanationModal from "../modals/ExplanationModal"
 
 const OverlappingContainer = styled.div`
   position: relative;
@@ -20,11 +21,10 @@ const TextOverlay = styled.div`
   top: -12rem;
   left: 0;
   background: rgba(0, 0, 0, 0.7);
-  padding: 1.0rem;
+  padding: 1rem;
   z-index: 2;
   max-width: 500px;
   border-radius: 15px;
-
 `
 
 const ImageWrapper = styled.div`
@@ -51,28 +51,30 @@ const Overlay = styled.div`
   justify-content: center;
   align-items: center;
   z-index: 1000;
-  
 `
 
 const AboutSection = () => {
-  const [showCarousel, setShowCarousel] = useState(true);
-  const [showVideo, setShowVideo] = useState(false);
-
-  // const toggleCarousel = () => {
-  //   setShowCarousel(prev => !prev);
-  // };
+  const [showCarousel, setShowCarousel] = useState(true)
+  const [showVideo, setShowVideo] = useState(false)
+  const [showAbout, setShowAbout] = useState(false)
 
   const data = useStaticQuery(graphql`
     query {
       videoFiles: allFile(
-        filter: { sourceInstanceName: { eq: "video" }, relativePath: { eq: "video.mp4" } }
+        filter: {
+          sourceInstanceName: { eq: "video" }
+          relativePath: { eq: "video.mp4" }
+        }
       ) {
         nodes {
           publicURL
         }
       }
       imageFiles: allFile(
-        filter: { sourceInstanceName: { eq: "images" }, relativeDirectory: { eq: "about" } }
+        filter: {
+          sourceInstanceName: { eq: "images" }
+          relativeDirectory: { eq: "about" }
+        }
       ) {
         nodes {
           childImageSharp {
@@ -87,25 +89,27 @@ const AboutSection = () => {
         }
       }
     }
-  `);
+  `)
 
-  const videoUrl = data.videoFiles.nodes.length > 0 ? data.videoFiles.nodes[0].publicURL : null;
-  const images = data.imageFiles.nodes.map(node => getImage(node.childImageSharp));
+  const videoUrl =
+    data.videoFiles.nodes.length > 0 ? data.videoFiles.nodes[0].publicURL : null
+  const images = data.imageFiles.nodes.map(node =>
+    getImage(node.childImageSharp)
+  )
 
   const handlePlayVideo = () => {
-    setShowVideo(true);
-  };
+    setShowVideo(true)
+  }
 
   const handleCloseVideo = () => {
-    setShowVideo(false);
-  };
+    setShowVideo(false)
+  }
 
   return (
     <SectionContainer id="about">
       <OverlappingContainer>
         {videoUrl && (
           <>
-           
             {showVideo && (
               <Overlay onClick={handleCloseVideo}>
                 <Video url={videoUrl} />
@@ -124,7 +128,23 @@ const AboutSection = () => {
               landscapes intertwine to explore the relationship between noise
               and the pearl.
             </p>
-            <Button variant="secondary" style={{ fontFamily: 'var(--primary-font)',  fontStyle: 'italic', fontSize: '1.2rem', padding: '10px 20px', borderRadius: '5px' }} onClick={handlePlayVideo}>See Video .. </Button>
+            <Button
+              variant="outline-light"
+              style={{
+                fontFamily: "var(--primary-font)",
+                fontStyle: "italic",
+                fontSize: "1.2rem",
+                padding: "10px 20px",
+                borderRadius: "5px",
+              }}
+              onClick={handlePlayVideo}
+            >
+              See Video ..{" "}
+            </Button>
+
+            <Button variant="danger" onClick={() => setShowAbout(true)}>
+              What is Ruido Perla?
+            </Button>
           </section>
         </TextOverlay>
 
@@ -145,9 +165,12 @@ const AboutSection = () => {
             </div>
           </ImageWrapper>
         )}
+
+        <ExplanationModal show={showAbout} onHide={() => setShowAbout(false)} />
+
       </OverlappingContainer>
     </SectionContainer>
-  );
-};
+  )
+}
 
-export default AboutSection;
+export default AboutSection
