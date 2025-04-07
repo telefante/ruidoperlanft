@@ -1,12 +1,19 @@
 import React from "react"
 import { Modal, Button, Tab, Nav } from "react-bootstrap"
+const modalHeaderStyle = {
+  fontFamily: "var(--primary-font)",
+  fontStyle: "italic",
+  fontSize: "1.2rem"
+};
 
 const ExplanationModal = ({ show, onHide }) => {
   return (
-    <Modal show={show} onHide={onHide} size="lg" centered>
+    <Modal show={show} onHide={onHide} size="lg" centered style={modalHeaderStyle}>
       <Modal.Header closeButton>
         <Modal.Title>What is Ruido Perla?</Modal.Title>
       </Modal.Header>
+
+
 
       <Modal.Body>
         <Tab.Container defaultActiveKey="installation">

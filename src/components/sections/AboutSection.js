@@ -7,7 +7,7 @@ import styled from "styled-components"
 import SectionContainer from "./SectionContainer"
 import { Carousel } from "react-bootstrap"
 import Video from "./Video"
-import  ExplanationModal from "../modals/ExplanationModal"
+import ExplanationModal from "../modals/ExplanationModal"
 
 const OverlappingContainer = styled.div`
   position: relative;
@@ -128,7 +128,7 @@ const AboutSection = () => {
               landscapes intertwine to explore the relationship between noise
               and the pearl.
             </p>
-            <Button
+            {/* <Button
               variant="outline-light"
               style={{
                 fontFamily: "var(--primary-font)",
@@ -140,9 +140,19 @@ const AboutSection = () => {
               onClick={handlePlayVideo}
             >
               See Video ..{" "}
-            </Button>
+            </Button> */}
 
-            <Button variant="danger" onClick={() => setShowAbout(true)}>
+            <Button
+              variant="danger"
+              style={{
+                fontFamily: "var(--primary-font)",
+                fontStyle: "italic",
+                fontSize: "1.2rem",
+                padding: "10px 20px",
+                borderRadius: "5px",
+              }}
+              onClick={() => setShowAbout(true)}
+            >
               What is Ruido Perla?
             </Button>
           </section>
@@ -167,7 +177,6 @@ const AboutSection = () => {
         )}
 
         <ExplanationModal show={showAbout} onHide={() => setShowAbout(false)} />
-
       </OverlappingContainer>
     </SectionContainer>
   )
