@@ -191,7 +191,7 @@ const MintNFTProcess = ({
         tags: [
           "Generative Art",
           "Algorithmic",
-          "Poetry",
+          "Poetry", 
           "Ruido Perla",
           "Poetics",
           "Real-Time",
@@ -217,6 +217,7 @@ const MintNFTProcess = ({
           { name: "Frequency", value: perlinSettings.frequency.toString() },
           { name: "Octaves", value: perlinSettings.octaves.toString() },
           { name: "Text Fragment", value: textFragment },
+          { name: "Tier Price", value: getMintPrice().toString() }, 
         ],
         displayUri: imageIpfsUrl.replace(".png", ".jpg"),
         artifactUri: imageIpfsUrl,
