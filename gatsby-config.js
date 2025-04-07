@@ -38,13 +38,7 @@ module.exports = {
         path: `${__dirname}/static/images/`,
       },
     },
-    {
-      resolve: `gatsby-source-filesystem`,
-      options: {
-        name: `video`,
-        path: `${__dirname}/src/assets/video/`,
-      },
-    },
+    
     `gatsby-transformer-sharp`,
     `gatsby-plugin-sharp`,
     {
