@@ -36,7 +36,7 @@ const ExplanationModal = ({ show, onHide }) => {
             <Tab.Pane eventKey="installation">
               <h5>The Physical Installation</h5>
               <video
-                src="//installation-loop.mp4"
+                src="/video/video.mp4"
                 controls
                 className="w-100 rounded mb-3"
               />
@@ -50,7 +50,7 @@ const ExplanationModal = ({ show, onHide }) => {
             <Tab.Pane eventKey="digital">
               <h5>From Physical to Digital</h5>
               <img
-                src="/images/flow-diagram.png"
+                src="/images/about/Ruido_Perla_Selection-22.jpg"
                 alt="Installation to NFT flow"
                 className="w-100 rounded mb-3"
               />
@@ -72,9 +72,10 @@ const ExplanationModal = ({ show, onHide }) => {
             <Tab.Pane eventKey="tezos">
               <h5>Why Tezos?</h5>
               <p className="text-muted">
-                We chose Tezos for its eco-conscious protocol, low transaction costs,
+                I chose   <a href="https://tezos.com/art/" target="_blank" rel="noreferrer">Tezos </a> for its eco-conscious protocol, low transaction costs,
+            
                 and strong artistic community. It allows us to mint works sustainably,
-                keeping the creative process aligned with environmental values.
+                keeping the creative process aligned with environmental values. 
               </p>
             </Tab.Pane>
           </Tab.Content>

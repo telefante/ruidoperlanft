@@ -98,39 +98,18 @@ const AboutSection = () => {
   return (
     <SectionContainer id="about">
       <OverlappingContainer>
-        {/* {videoUrl && (
-          <>
-            {showVideo && (
-              <Overlay onClick={handleCloseVideo}>
-                <Video url={videoUrl} />
-              </Overlay>
-            )}
-          </>
-        )} */}
+    
         <TextOverlay>
           <h2 className="simulation-title">Installation</h2>
           <section>
             <p>
-              Gain behind-the-scenes insight into the creative process of „Ruido
-              Perla NFT.“ Discover the inspiration, challenges, and integration
-              of simulation, art, and net-based interaction that bring this
-              unique NFT collection to life. Learn how poetry and generative
-              landscapes intertwine to explore the relationship between noise
-              and the pearl.
+            
+              Ruido Perla
+     
+            began as an installation in <a href="https://galerie-im-koernerpark.de/de/ausstellungen/enter-nature" target="_blank" rel="noreferrer">Berlin. </a>
+            Now, its echoes live on through generative NFTs, poetic simulations, and interactive memory.
             </p>
-            {/* <Button
-              variant="outline-light"
-              style={{
-                fontFamily: "var(--primary-font)",
-                fontStyle: "italic",
-                fontSize: "1.2rem",
-                padding: "10px 20px",
-                borderRadius: "5px",
-              }}
-              onClick={handlePlayVideo}
-            >
-              See Video ..{" "}
-            </Button> */}
+        
 
             <Button
               variant="danger"
