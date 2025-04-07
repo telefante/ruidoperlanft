@@ -60,16 +60,7 @@ const AboutSection = () => {
 
   const data = useStaticQuery(graphql`
     query {
-      videoFiles: allFile(
-        filter: {
-          sourceInstanceName: { eq: "video" }
-          relativePath: { eq: "video.mp4" }
-        }
-      ) {
-        nodes {
-          publicURL
-        }
-      }
+      
       imageFiles: allFile(
         filter: {
           sourceInstanceName: { eq: "images" }

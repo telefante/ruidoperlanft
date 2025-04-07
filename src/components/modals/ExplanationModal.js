@@ -36,7 +36,7 @@ const ExplanationModal = ({ show, onHide }) => {
             <Tab.Pane eventKey="installation">
               <h5>The Physical Installation</h5>
               <video
-                src="/videos/installation-loop.mp4"
+                src="//installation-loop.mp4"
                 controls
                 className="w-100 rounded mb-3"
               />
