@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect } from "react"
 import * as lighthouse from "@lighthouse-web3/sdk"
 // import html2canvas from "html2canvas"
-import { Button, Container, Row, Col } from "react-bootstrap"
+import { Button, Container, Row, Col, Modal } from "react-bootstrap"
 import { useWallet } from "./WalletContext"
 // import { color } from "framer-motion"
 // import ipfsOnlyHash from "ipfs-only-hash"
@@ -32,6 +32,10 @@ const MintNFTProcess = ({
   const [currentSupply, setCurrentSupply] = useState(0)
   const [maxSupply, setMaxSupply] = useState(7)
   const [imageMinted, setImageMinted] = useState(false) // New state to track if image has been minted
+
+  // New state for metadata preview modal
+  const [showMetadataModal, setShowMetadataModal] = useState(false)
+  const [metadataToPreview, setMetadataToPreview] = useState(null)
 
   // Get wallet context
   const { isConnected, walletAddress, beaconWallet, tezos, connectWallet } =
@@ -118,7 +122,11 @@ const MintNFTProcess = ({
         return
       }
 
-      await uploadMetadataToIPFS(imageIpfsUrl) // ✅ Proceed to metadata upload
+      // await uploadMetadataToIPFS(imageIpfsUrl) // ✅ Proceed to metadata upload
+      // Generate metadata and show modal for preview
+      const metadata = await generateMetadata(imageIpfsUrl)
+      setMetadataToPreview(metadata)
+      setShowMetadataModal(true)
     } catch (error) {
       console.error("❌ Error in minting process:", error)
       setMinting(false)
@@ -176,8 +184,8 @@ const MintNFTProcess = ({
     }
   }
 
-  const uploadMetadataToIPFS = async imageIpfsUrl => {
-    console.log("📤 Uploading Metadata to IPFS...")
+  const generateMetadata = async imageIpfsUrl => {
+    console.log("📤 Generating Metadata...")
     setUploading(true)
 
     try {
@@ -191,7 +199,7 @@ const MintNFTProcess = ({
         tags: [
           "Generative Art",
           "Algorithmic",
-          "Poetry", 
+          "Poetry",
           "Ruido Perla",
           "Poetics",
           "Real-Time",
@@ -217,7 +225,7 @@ const MintNFTProcess = ({
           { name: "Frequency", value: perlinSettings.frequency.toString() },
           { name: "Octaves", value: perlinSettings.octaves.toString() },
           { name: "Text Fragment", value: textFragment },
-          { name: "Tier Price", value: getMintPrice().toString() }, 
+          { name: "Tier Price", value: getMintPrice().toString() },
         ],
         displayUri: imageIpfsUrl.replace(".png", ".jpg"),
         artifactUri: imageIpfsUrl,
@@ -226,6 +234,24 @@ const MintNFTProcess = ({
         mintingTool: "https://ruidoperlanft.netlify.app",
         thumbnailUri: imageIpfsUrl.replace(".png", ".jpg"),
       }
+      return metadataJson
+    } catch (error) {
+      console.error("❌ Error generating metadata:", error)
+      setMinting(false)
+      return null
+    } finally {
+      setUploading(false)
+    }
+  }
+
+  const uploadMetadataToIPFS = async (imageIpfsUrl, metadataJson) => {
+    console.log("📤 Uploading Metadata to IPFS...")
+    setUploading(true)
+
+    try {
+      const tokenId = Math.floor(Math.random() * 100000)
+      const formattedTokenId = String(tokenId).padStart(3, "0")
+      const currentDate = new Date().toISOString()
 
       const metadataBlob = new Blob([JSON.stringify(metadataJson)], {
         type: "application/json",
@@ -436,6 +462,33 @@ const MintNFTProcess = ({
           style={{ width: "100%" }}
         />
       )}
+
+      {/* Metadata Preview Modal */}
+      <Modal show={showMetadataModal} onHide={() => setShowMetadataModal(false)} size="lg">
+        <Modal.Header closeButton>
+          <Modal.Title>Metadata Preview</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <pre style={{ fontSize: "0.4rem" }}>{JSON.stringify(metadataToPreview, null, 2)}</pre>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowMetadataModal(false)}>
+            Cancel
+          </Button>
+          <Button
+            variant="primary"
+            onClick={async () => {
+              setShowMetadataModal(false)
+              await uploadMetadataToIPFS(
+                metadataToPreview.artifactUri,
+                metadataToPreview
+              )
+            }}
+          >
+            Upload to IPFS
+          </Button>
+        </Modal.Footer>
+      </Modal>
 
       {/* <pre style={{ backgroundColor: "#f8f9fa", padding: "10px" }}>
         {JSON.stringify(metadataJson, null, 2)}
