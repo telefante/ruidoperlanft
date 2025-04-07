@@ -87,12 +87,12 @@ const MintNFTProcess = ({
   //   FIRST_CREATOR
   // })
 
-  const TIER1_LIMIT = 10 // First 8 tokens
-  const TIER2_LIMIT = 15 // Next 2 tokens (tokens 9-10)
+  const TIER1_LIMIT = 1000 // First 8 tokens
+  const TIER2_LIMIT = 1500 // Next 2 tokens (tokens 9-10)
   // const TIER3_LIMIT = 16 // Last 2 tokens (tokens 11-12)
 
-  const TIER1_PRICE = 2 // 2 TEZ
-  const TIER2_PRICE = 4 // 4 TEZ
+  const TIER1_PRICE = 1 // 2 TEZ
+  const TIER2_PRICE = 3 // 4 TEZ
   const TIER3_PRICE = 10 // 10 TEZ
 
   const getMintPrice = () => {
