@@ -6,7 +6,7 @@ import { useStaticQuery, graphql } from "gatsby"
 import styled from "styled-components"
 import SectionContainer from "./SectionContainer"
 import { Carousel } from "react-bootstrap"
-import Video from "./Video"
+// import Video from "./Video"
 import ExplanationModal from "../modals/ExplanationModal"
 
 const OverlappingContainer = styled.div`
@@ -87,13 +87,13 @@ const AboutSection = () => {
     getImage(node.childImageSharp)
   )
 
-  const handlePlayVideo = () => {
-    setShowVideo(true)
-  }
+  // const handlePlayVideo = () => {
+  //   setShowVideo(true)
+  // }
 
-  const handleCloseVideo = () => {
-    setShowVideo(false)
-  }
+  // const handleCloseVideo = () => {
+  //   setShowVideo(false)
+  // }
 
   return (
     <SectionContainer id="about">
