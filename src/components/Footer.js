@@ -46,9 +46,9 @@ const Footer = () => {
                 Disclaimer
               </Link>
               |
-              <Link to="/privacy-policy" className="text-decoration-none mx-2">
+              {/* <Link to="/privacy-policy" className="text-decoration-none mx-2">
                 Privacy Policy
-              </Link>
+              </Link> */}
             </p>
           </Col>
         </Row>
