@@ -60,7 +60,6 @@ const AboutSection = () => {
 
   const data = useStaticQuery(graphql`
     query {
-      
       imageFiles: allFile(
         filter: {
           sourceInstanceName: { eq: "images" }
@@ -82,8 +81,8 @@ const AboutSection = () => {
     }
   `)
 
-  const videoUrl =
-    data.videoFiles.nodes.length > 0 ? data.videoFiles.nodes[0].publicURL : null
+  // const videoUrl =
+  //   data.videoFiles.nodes.length > 0 ? data.videoFiles.nodes[0].publicURL : null
   const images = data.imageFiles.nodes.map(node =>
     getImage(node.childImageSharp)
   )
@@ -99,7 +98,7 @@ const AboutSection = () => {
   return (
     <SectionContainer id="about">
       <OverlappingContainer>
-        {videoUrl && (
+        {/* {videoUrl && (
           <>
             {showVideo && (
               <Overlay onClick={handleCloseVideo}>
@@ -107,7 +106,7 @@ const AboutSection = () => {
               </Overlay>
             )}
           </>
-        )}
+        )} */}
         <TextOverlay>
           <h2 className="simulation-title">Installation</h2>
           <section>
