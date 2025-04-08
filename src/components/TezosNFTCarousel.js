@@ -73,7 +73,9 @@ const TezosNFTCarousel = () => {
 
   useEffect(() => {
     const mobileCheck = () => {
-      setIsMobile(window.innerWidth <= 768); // Example: Adjust the breakpoint as needed
+      const widthCheck = window.innerWidth <= 768;
+      const agentCheck = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      setIsMobile(widthCheck || agentCheck);
     };
 
     mobileCheck(); // Check on initial load
@@ -439,8 +441,6 @@ console.log("isMobile:", isMobile)
                 Buy
               </Button>
             </>
-          )}
-          <Button variant="secondary" onClick={closeModal}>
             Close
           </Button>
         </Modal.Footer>
