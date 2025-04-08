@@ -72,6 +72,7 @@ const TezosNFTCarousel = () => {
   const [isMobile, setIsMobile] = useState(false)
   const [hasCheckedMobile, setHasCheckedMobile] = useState(false) // new state to track if mobile check has been performed
   const limitMobile = 25 // Limit for mobile devices
+  const [showBrowserModal, setShowBrowserModal] = useState(false)
 
   useEffect(() => {
     const mobileCheck = () => {
@@ -104,6 +105,25 @@ const TezosNFTCarousel = () => {
       fetchNFTsfromCollection()
     }
   }, [hasCheckedMobile, isMobile]) // refetch when isMobile changes
+
+  useEffect(() => {
+    // Function to detect Safari
+    const detectSafari = () => {
+      const isSafari =
+        /Safari/.test(navigator.userAgent) &&
+        /Apple Computer/.test(navigator.vendor)
+      return isSafari
+    }
+
+    // Check if it's Safari and show the modal
+    if (detectSafari()) {
+      setShowBrowserModal(true)
+    }
+  }, [])
+
+  const closeModalBrowser = () => {
+    setShowBrowserModal(false)
+  }
 
   // const RPC_URL = process.env.GATSBY_TEZOS_RPC_URL;
   const TzKT_API = process.env.GATSBY_TZKT_API_URL
@@ -279,203 +299,229 @@ const TezosNFTCarousel = () => {
   }
 
   return (
-    <Container className="flex flex-col items-center p-4">
-      {nfts.length > 0 ? (
-        <Container className="flex flex-col items-center p-0">
-          <SwiperContainer>
-            <SlideCounter>
-              {currentSlide} / {nfts.length}
-            </SlideCounter>
-            <Swiper
-              modules={[Pagination, Navigation]} // Add Navigation to modules
-              spaceBetween={10}
-              slidesPerView={1}
-              loop={true}
-              pagination={{
-                clickable: true,
-                renderBullet: () => {
-                  return `<span class="swiper-pagination-bullet"></span>`
-                },
-              }}
-              navigation={{
-                nextEl: ".swiper-button-next",
-                prevEl: ".swiper-button-prev",
-              }} // Enable navigation arrows and specify custom classes
-              style={{
-                width: "100%",
-                height: "100%",
-                backgroundColor: "transparent",
-              }}
-              simulateTouch={true} // Enable touch simulation
-              touchEventsTarget="container" // Ensure events are captured within the container
-              onSlideChange={handleSlideChange}
-            >
-              <NavigationButton className="swiper-button-prev" />
-              <NavigationButton className="swiper-button-next" />
-              {nfts.map((nft, index) => {
-                const thumbnailUrl =
-                  resolvedThumbnails[nft.tokenId] || placeholderImage
-
-                // Create a function to handle the click event
-                const handleImageClick = () => {
-                  openModal(nft)
-                }
-
-                return (
-                  <SwiperSlide key={index}>
-                    <Row>
-                      <Col>
-                        <h2>{nft.metadata?.name || "Unnamed NFT"}</h2>
-                        <img
-                          src={thumbnailUrl}
-                          alt={nft.metadata?.name || "Unnamed NFT"}
-                          style={{
-                            maxWidth: "80%",
-                            minWidth: "200px",
-                            marginRight: "20px",
-                            cursor: "pointer", // Add cursor pointer
-                          }}
-                          onClick={handleImageClick} // Call the new function
-                        />
-                      </Col>
-                      <Col className="d-none d-md-block">
-                        {nft.metadata?.attributes && (
-                          <Card
-                            noborder
-                            style={{
-                              width: "18rem",
-                              margin: "10px",
-                              backgroundColor: "transparent",
-                            }}
-                          >
-                            <div className="card-body custom-card-body">
-                              <h3 className="card-title custom-card-title">
-                                attributes
-                              </h3>
-                              <ul className="list-group list-group-flush custom-list-group">
-                                {nft.metadata.attributes.map((attr, i) => (
-                                  <li
-                                    key={i}
-                                    className="list-group-item custom-list-item"
-                                  >
-                                    <strong>{attr.name}:</strong> {attr.value}
-                                  </li>
-                                ))}
-                              </ul>
-                            </div>
-                          </Card>
-                        )}
-                      </Col>
-                    </Row>
-                    <Row mt-8 centered>
-                      <h3>
-                        Rarity:{" "}
-                        {nft.metadata.attributes.find(
-                          attr => attr.name === "Rarity"
-                        )?.value || "No rarity available"}
-                      </h3>
-                      <div
-                        style={{ display: "flex", justifyContent: "center" }}
-                      >
-                        <DescriptionText>
-                          {nft.metadata?.description ||
-                            "No description available"}
-                        </DescriptionText>
-                      </div>
-                    </Row>
-                    <div style={{ display: "flex", justifyContent: "center" }}>
-                      <Row>
-                        <Button
-                          href={`${OBJKT_TOKEN_URL}${COLLECTION_CONTRACT}/${nft.tokenId}`}
-                          target="_blank"
-                          variant="primary"
-                          style={{
-                            fontFamily: "var(--primary-font)",
-                            fontStyle: "italic",
-                            fontWeight: "bold",
-                            fontSize: "1.5rem",
-                            maxWidth: "200px",
-                          }}
-                        >
-                          Collect now on Objkt
-                        </Button>
-                      </Row>
-                    </div>
-                  </SwiperSlide>
-                )
-              })}
-            </Swiper>
-          </SwiperContainer>
-          <div style={{ display: "flex", justifyContent: "center" }}>
-            <DescriptionText>
-              <Row className="align-items-center mb-4">
-                👉 Ruido Perla is more than a collection—it is an evolving
-                digital extension of an installation. These generative NFTs are
-                not just static images but keys unlocking access to a ongoing
-                process.
-              </Row>
-              🟢
-              <strong>Legendary (1/1)</strong> → Singular moments of entropy -
-              it gives you some secret powers
-              <br /> 🔵
-              <strong>Rare (very Limited Editions)</strong> → Echoes of
-              complexity, held in scarce iterations.
-              <br /> ⚪<strong>Common (Small Batch)</strong> → A fleeting
-              glimpse into the infinite, yet still finite. Holding one grants
-              you private access to an exclusive generative simulation, where
-              landscapes reshape and dissolve in real time. Limited Supply. No
-              Second Chances. 👉
-              <Row>
-                <Button
-                  m-4
-                  href={`${process.env.GATSBY_OBJKT_COLLECTION_URL}/${COLLECTION_CONTRACT}`}
-                  target="_blank"
-                  variant="secondary"
-                  style={{
-                    marginTop: "1rem",
-                    fontFamily: "var(--primary-font)",
-                    maxWidth: "200px",
-                    marginLeft: "20px",
-                  }}
-                >
-                  View Full Collection on Objkt
-                </Button>
-              </Row>
-            </DescriptionText>
-          </div>
-        </Container>
-      ) : (
-        <p className="text-center text-gray-500">No NFTs found</p>
-      )}
-      <Modal show={showModal} onHide={closeModal} centered>
+    <>
+      {/* Browser Compatibility Modal */}
+      <Modal show={showBrowserModal} onHide={closeModalBrowser} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Browser Recommendation</Modal.Title>
+        </Modal.Header>
         <Modal.Body>
-          <img src={modalImage} alt="NFT" style={{ width: "100%" }} />
+          For the best experience, we recommend using Chrome, Firefox, or Opera
+          to view this site. Safari may have compatibility issues.
         </Modal.Body>
         <Modal.Footer>
-          {selectedNft && (
-            <>
-              {console.log("Buy Button - selectedNft:", selectedNft)}{" "}
-              {/* Log here */}
-              <Button
-                style={{
-                  fontFamily: "var(--primary-font)",
-                  fontSize: "1.5rem",
-                  fontVariant: "italic",
-                  fontWeight: "bold",
-                }}
-                variant="primary"
-                href={`${OBJKT_TOKEN_URL}${COLLECTION_CONTRACT}/${selectedNft.tokenId}`}
-              >
-                Buy
-              </Button>
-            </>
-          )}
-          <Button variant="secondary" onClick={closeModal}>
-            Close
+          <Button variant="secondary" onClick={closeModalBrowser}>
+            Continue Anyway
+          </Button>
+          <Button
+            variant="primary"
+            href="https://www.google.com/chrome/"
+            target="_blank"
+          >
+            Download Chrome
           </Button>
         </Modal.Footer>
       </Modal>
-    </Container>
+
+      {/* Your Carousel Content */}
+      <Container className="flex flex-col items-center p-4">
+        {nfts.length > 0 ? (
+          <Container className="flex flex-col items-center p-0">
+            <SwiperContainer>
+              <SlideCounter>
+                {currentSlide} / {nfts.length}
+              </SlideCounter>
+              <Swiper
+                modules={[Pagination, Navigation]} // Add Navigation to modules
+                spaceBetween={10}
+                slidesPerView={1}
+                loop={true}
+                pagination={{
+                  clickable: true,
+                  renderBullet: () => {
+                    return `<span class="swiper-pagination-bullet"></span>`
+                  },
+                }}
+                navigation={{
+                  nextEl: ".swiper-button-next",
+                  prevEl: ".swiper-button-prev",
+                }} // Enable navigation arrows and specify custom classes
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  backgroundColor: "transparent",
+                }}
+                simulateTouch={true} // Enable touch simulation
+                touchEventsTarget="container" // Ensure events are captured within the container
+                onSlideChange={handleSlideChange}
+              >
+                <NavigationButton className="swiper-button-prev" />
+                <NavigationButton className="swiper-button-next" />
+                {nfts.map((nft, index) => {
+                  const thumbnailUrl =
+                    resolvedThumbnails[nft.tokenId] || placeholderImage
+
+                  // Create a function to handle the click event
+                  const handleImageClick = () => {
+                    openModal(nft)
+                  }
+
+                  return (
+                    <SwiperSlide key={index}>
+                      <Row>
+                        <Col>
+                          <h2>{nft.metadata?.name || "Unnamed NFT"}</h2>
+                          <img
+                            src={thumbnailUrl}
+                            alt={nft.metadata?.name || "Unnamed NFT"}
+                            style={{
+                              maxWidth: "80%",
+                              minWidth: "200px",
+                              marginRight: "20px",
+                              cursor: "pointer", // Add cursor pointer
+                            }}
+                            onClick={handleImageClick} // Call the new function
+                          />
+                        </Col>
+                        <Col className="d-none d-md-block">
+                          {nft.metadata?.attributes && (
+                            <Card
+                              noborder
+                              style={{
+                                width: "18rem",
+                                margin: "10px",
+                                backgroundColor: "transparent",
+                              }}
+                            >
+                              <div className="card-body custom-card-body">
+                                <h3 className="card-title custom-card-title">
+                                  attributes
+                                </h3>
+                                <ul className="list-group list-group-flush custom-list-group">
+                                  {nft.metadata.attributes.map((attr, i) => (
+                                    <li
+                                      key={i}
+                                      className="list-group-item custom-list-item"
+                                    >
+                                      <strong>{attr.name}:</strong> {attr.value}
+                                    </li>
+                                  ))}
+                                </ul>
+                              </div>
+                            </Card>
+                          )}
+                        </Col>
+                      </Row>
+                      <Row mt-8 centered>
+                        <h3>
+                          Rarity:{" "}
+                          {nft.metadata.attributes.find(
+                            attr => attr.name === "Rarity"
+                          )?.value || "No rarity available"}
+                        </h3>
+                        <div
+                          style={{ display: "flex", justifyContent: "center" }}
+                        >
+                          <DescriptionText>
+                            {nft.metadata?.description ||
+                              "No description available"}
+                          </DescriptionText>
+                        </div>
+                      </Row>
+                      <div style={{ display: "flex", justifyContent: "center" }}>
+                        <Row>
+                          <Button
+                            href={`${OBJKT_TOKEN_URL}${COLLECTION_CONTRACT}/${nft.tokenId}`}
+                            target="_blank"
+                            variant="primary"
+                            style={{
+                              fontFamily: "var(--primary-font)",
+                              fontStyle: "italic",
+                              fontWeight: "bold",
+                              fontSize: "1.5rem",
+                              maxWidth: "200px",
+                            }}
+                          >
+                            Collect now on Objkt
+                          </Button>
+                        </Row>
+                      </div>
+                    </SwiperSlide>
+                  )
+                })}
+              </Swiper>
+            </SwiperContainer>
+            <div style={{ display: "flex", justifyContent: "center" }}>
+              <DescriptionText>
+                <Row className="align-items-center mb-4">
+                  👉 Ruido Perla is more than a collection—it is an evolving
+                  digital extension of an installation. These generative NFTs are
+                  not just static images but keys unlocking access to a ongoing
+                  process.
+                </Row>
+                🟢
+                <strong>Legendary (1/1)</strong> → Singular moments of entropy -
+                it gives you some secret powers
+                <br /> 🔵
+                <strong>Rare (very Limited Editions)</strong> → Echoes of
+                complexity, held in scarce iterations.
+                <br /> ⚪<strong>Common (Small Batch)</strong> → A fleeting
+                glimpse into the infinite, yet still finite. Holding one grants
+                you private access to an exclusive generative simulation, where
+                landscapes reshape and dissolve in real time. Limited Supply. No
+                Second Chances. 👉
+                <Row>
+                  <Button
+                    m-4
+                    href={`${process.env.GATSBY_OBJKT_COLLECTION_URL}/${COLLECTION_CONTRACT}`}
+                    target="_blank"
+                    variant="secondary"
+                    style={{
+                      marginTop: "1rem",
+                      fontFamily: "var(--primary-font)",
+                      maxWidth: "200px",
+                      marginLeft: "20px",
+                    }}
+                  >
+                    View Full Collection on Objkt
+                  </Button>
+                </Row>
+              </DescriptionText>
+            </div>
+          </Container>
+        ) : (
+          <p className="text-center text-gray-500">No NFTs found</p>
+        )}
+        <Modal show={showModal} onHide={closeModal} centered>
+          <Modal.Body>
+            <img src={modalImage} alt="NFT" style={{ width: "100%" }} />
+          </Modal.Body>
+          <Modal.Footer>
+            {selectedNft && (
+              <>
+                {console.log("Buy Button - selectedNft:", selectedNft)}{" "}
+                {/* Log here */}
+                <Button
+                  style={{
+                    fontFamily: "var(--primary-font)",
+                    fontSize: "1.5rem",
+                    fontVariant: "italic",
+                    fontWeight: "bold",
+                  }}
+                  variant="primary"
+                  href={`${OBJKT_TOKEN_URL}${COLLECTION_CONTRACT}/${selectedNft.tokenId}`}
+                >
+                  Buy
+                </Button>
+              </>
+            )}
+            <Button variant="secondary" onClick={closeModal}>
+              Close
+            </Button>
+          </Modal.Footer>
+        </Modal>
+      </Container>
+    </>
   )
 }
 
