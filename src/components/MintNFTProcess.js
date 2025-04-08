@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect } from "react"
 import * as lighthouse from "@lighthouse-web3/sdk"
 // import html2canvas from "html2canvas"
-import { Button, Container, Row, Col, Modal } from "react-bootstrap"
+import { Button, Container, Row, Col, Modal, Spinner } from "react-bootstrap"
 import { useWallet } from "./WalletContext"
 // import { color } from "framer-motion"
 // import ipfsOnlyHash from "ipfs-only-hash"
@@ -608,7 +608,7 @@ const MintNFTProcess = ({
               {walletLoading
                 ? "Loading..."
                 : minting
-                ? "Minting..."
+                ? <>Minting... <Spinner animation="border" size="sm" /></>
                 : currentSupply >= maxSupply
                 ? "Max Supply Reached"
                 : imageMinted
