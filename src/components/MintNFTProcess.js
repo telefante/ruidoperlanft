@@ -111,24 +111,15 @@ const MintNFTProcess = ({
 
   const startMintingProcess = async () => {
     console.log("🚀 Starting Minting Process...")
-    setMinting(true) // Start minting process
+    setMinting(true)
 
     try {
-      const imageIpfsUrl = await uploadImageToIPFS() // ✅ Wait for image upload
-
-      if (!imageIpfsUrl) {
-        console.error("❌ Image upload failed! Stopping mint process.")
-        setMinting(false)
-        return
-      }
-
-      // await uploadMetadataToIPFS(imageIpfsUrl) // ✅ Proceed to metadata upload
-      // Generate metadata and show modal for preview
-      const metadata = await generateMetadata(imageIpfsUrl)
-      setMetadataToPreview(metadata)
+      // Generate metadata with placeholder image URL
+      const tempMetadata = await generateMetadata("temp_image_url.png")
+      setMetadataToPreview(tempMetadata)
       setShowMetadataModal(true)
     } catch (error) {
-      console.error("❌ Error in minting process:", error)
+      console.error("❌ Error generating initial metadata:", error)
       setMinting(false)
     }
   }
@@ -482,9 +473,19 @@ const MintNFTProcess = ({
             variant="primary"
             onClick={async () => {
               setShowMetadataModal(false)
+              // Upload image first
+              const imageIpfsUrl = await uploadImageToIPFS();
+              if (!imageIpfsUrl) {
+                console.error("❌ Image upload failed! Stopping mint process.")
+                setMinting(false);
+                return;
+              }
+
+              // Generate final metadata with actual image URL
+              const finalMetadata = await generateMetadata(imageIpfsUrl);
               await uploadMetadataToIPFS(
-                metadataToPreview.artifactUri,
-                metadataToPreview
+                finalMetadata.artifactUri,
+                finalMetadata
               )
             }}
           >
