@@ -122,7 +122,7 @@ const TezosNFTCarousel = () => {
       try {
         const response = await fetch(apiUrl)
         const data = await response.json()
-
+        // console.log("Fetched NFTdata:", data) // Add this line to monitor the data
         if (!Array.isArray(data)) {
           console.error("Unexpected response format", data)
           return
@@ -363,6 +363,7 @@ const TezosNFTCarousel = () => {
                                       <strong>{attr.name}:</strong> {attr.value}
                                     </li>
                                   ))}
+                                  
                                 </ul>
                               </div>
                             </Card>
@@ -375,6 +376,9 @@ const TezosNFTCarousel = () => {
                           {nft.metadata.attributes.find(
                             attr => attr.name === "Rarity"
                           )?.value || "No rarity available"}
+                        </h3>
+                        <h3>
+                        {nft.totalMinted}{" / "} {nft.totalSupply}
                         </h3>
                         <div
                           style={{ display: "flex", justifyContent: "center" }}
