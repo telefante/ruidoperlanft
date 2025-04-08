@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect } from "react"
 import * as lighthouse from "@lighthouse-web3/sdk"
 // import html2canvas from "html2canvas"
-import { Button, Container, Row, Col, Modal } from "react-bootstrap"
+import { Button, Container, Row, Col, Modal, Spinner } from "react-bootstrap"
 import { useWallet } from "./WalletContext"
 // import { color } from "framer-motion"
 // import ipfsOnlyHash from "ipfs-only-hash"
@@ -111,24 +111,15 @@ const MintNFTProcess = ({
 
   const startMintingProcess = async () => {
     console.log("🚀 Starting Minting Process...")
-    setMinting(true) // Start minting process
+    setMinting(true)
 
     try {
-      const imageIpfsUrl = await uploadImageToIPFS() // ✅ Wait for image upload
-
-      if (!imageIpfsUrl) {
-        console.error("❌ Image upload failed! Stopping mint process.")
-        setMinting(false)
-        return
-      }
-
-      // await uploadMetadataToIPFS(imageIpfsUrl) // ✅ Proceed to metadata upload
-      // Generate metadata and show modal for preview
-      const metadata = await generateMetadata(imageIpfsUrl)
-      setMetadataToPreview(metadata)
+      // Generate metadata with placeholder image URL
+      const tempMetadata = await generateMetadata("temp_image_url.png")
+      setMetadataToPreview(tempMetadata)
       setShowMetadataModal(true)
     } catch (error) {
-      console.error("❌ Error in minting process:", error)
+      console.error("❌ Error generating initial metadata:", error)
       setMinting(false)
     }
   }
@@ -482,9 +473,19 @@ const MintNFTProcess = ({
             variant="primary"
             onClick={async () => {
               setShowMetadataModal(false)
+              // Upload image first
+              const imageIpfsUrl = await uploadImageToIPFS();
+              if (!imageIpfsUrl) {
+                console.error("❌ Image upload failed! Stopping mint process.")
+                setMinting(false);
+                return;
+              }
+
+              // Generate final metadata with actual image URL
+              const finalMetadata = await generateMetadata(imageIpfsUrl);
               await uploadMetadataToIPFS(
-                metadataToPreview.artifactUri,
-                metadataToPreview
+                finalMetadata.artifactUri,
+                finalMetadata
               )
             }}
           >
@@ -560,7 +561,7 @@ const MintNFTProcess = ({
             <Row>
               <Col md={6}>
                 <p>
-                  Current Supply: {currentSupply} / {maxSupply}
+                  Collection Supply: {currentSupply} / {maxSupply}
                 </p>
               </Col>
               <Col md={6}>
@@ -584,7 +585,7 @@ const MintNFTProcess = ({
                 </p>
               </Col>
 
-              <p>Connected Address: {walletAddress}</p>
+              <p>Wallet Address: {walletAddress}</p>
             </Row>
 
             <Button
@@ -608,7 +609,7 @@ const MintNFTProcess = ({
               {walletLoading
                 ? "Loading..."
                 : minting
-                ? "Minting..."
+                ? <>Minting... <Spinner animation="border" size="sm" /></>
                 : currentSupply >= maxSupply
                 ? "Max Supply Reached"
                 : imageMinted
@@ -634,6 +635,16 @@ const MintNFTProcess = ({
                   rel="noopener noreferrer"
                 >
                   View on Better Call Dev
+                </a>
+              </p>
+              <p style={{ color: "black" }}>
+                Collection:{" "}
+                <a
+                  href={`${process.env.GATSBY_OBJKT_COLLECTION_URL}/${realtimeRPNFTContract}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  View on Objkt
                 </a>
               </p>
             </Col>
