@@ -70,6 +70,8 @@ const TezosNFTCarousel = () => {
   const [thumbnailCache, setThumbnailCache] = useState({}) // Cache for thumbnails
   const [resolvedThumbnails, setResolvedThumbnails] = useState({}) // Store resolved thumbnail URLs
   const [isMobile, setIsMobile] = useState(false)
+  const [hasCheckedMobile, setHasCheckedMobile] = useState(false) // new state to track if mobile check has been performed
+  const limitMobile = 25 // Limit for mobile devices
 
   useEffect(() => {
     const mobileCheck = () => {
@@ -79,10 +81,11 @@ const TezosNFTCarousel = () => {
           navigator.userAgent
         )
       setIsMobile(widthCheck || agentCheck)
+      setHasCheckedMobile(true) // set to true after checking
     }
 
     mobileCheck() // Check on initial load
-   
+
     window.addEventListener("resize", mobileCheck) // Check on window resize
 
     return () => {
@@ -90,12 +93,17 @@ const TezosNFTCarousel = () => {
     }
   }, [])
 
-
   useEffect(() => {
     console.log("isMobile updated:", isMobile)
     console.log("window.innerWidth:", window.innerWidth)
     console.log("navigator.userAgent:", navigator.userAgent)
   }, [isMobile])
+
+  useEffect(() => {
+    if (hasCheckedMobile) {
+      fetchNFTsfromCollection()
+    }
+  }, [hasCheckedMobile, isMobile]) // refetch when isMobile changes
 
   // const RPC_URL = process.env.GATSBY_TEZOS_RPC_URL;
   const TzKT_API = process.env.GATSBY_TZKT_API_URL
@@ -109,7 +117,7 @@ const TezosNFTCarousel = () => {
       console.warn("Cache API not supported in this browser.")
       // Fallback: Fetch data without caching
       const apiUrl = `${TzKT_API}v1/tokens?contract=${COLLECTION_CONTRACT}&limit=${
-        isMobile ? 15 : 104
+        isMobile ? limitMobile : 104
       }`
       try {
         const response = await fetch(apiUrl)
@@ -144,7 +152,7 @@ const TezosNFTCarousel = () => {
 
     // const apiUrl = `${TzKT_API}v1/tokens?contract=${COLLECTION_CONTRACT}&limit=104`;
     const apiUrl = `${TzKT_API}v1/tokens?contract=${COLLECTION_CONTRACT}&limit=${
-      isMobile ? 15 : 104
+      isMobile ? limitMobile : 104
     }`
     console.log("Fetching NFTs from:", apiUrl)
     try {
@@ -207,10 +215,6 @@ const TezosNFTCarousel = () => {
       console.error("Error fetching NFTs:", error)
     }
   }
-
-  useEffect(() => {
-    fetchNFTsfromCollection()
-  }, [])
 
   useEffect(() => {
     const resolveThumbnails = async () => {
