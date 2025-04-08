@@ -71,8 +71,7 @@ const TezosNFTCarousel = () => {
   const [resolvedThumbnails, setResolvedThumbnails] = useState({}) // Store resolved thumbnail URLs
   const [isMobile, setIsMobile] = useState(false)
   const [hasCheckedMobile, setHasCheckedMobile] = useState(false) // new state to track if mobile check has been performed
-  const limitMobile = 25 // Limit for mobile devices
-  const [showBrowserModal, setShowBrowserModal] = useState(false)
+  const limitMobile = 25 // Limit number of nfts for mobile devices cause 100 is crashing it 
 
   useEffect(() => {
     const mobileCheck = () => {
@@ -105,25 +104,6 @@ const TezosNFTCarousel = () => {
       fetchNFTsfromCollection()
     }
   }, [hasCheckedMobile, isMobile]) // refetch when isMobile changes
-
-  useEffect(() => {
-    // Function to detect Safari
-    const detectSafari = () => {
-      const isSafari =
-        /Safari/.test(navigator.userAgent) &&
-        /Apple Computer/.test(navigator.vendor)
-      return isSafari
-    }
-
-    // Check if it's Safari and show the modal
-    if (detectSafari()) {
-      setShowBrowserModal(true)
-    }
-  }, [])
-
-  const closeModalBrowser = () => {
-    setShowBrowserModal(false)
-  }
 
   // const RPC_URL = process.env.GATSBY_TEZOS_RPC_URL;
   const TzKT_API = process.env.GATSBY_TZKT_API_URL
@@ -300,29 +280,6 @@ const TezosNFTCarousel = () => {
 
   return (
     <>
-      {/* Browser Compatibility Modal */}
-      <Modal show={showBrowserModal} onHide={closeModalBrowser} centered>
-        <Modal.Header closeButton>
-          <Modal.Title>Browser Recommendation</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          For the best experience, we recommend using Chrome, Firefox, or Opera
-          to view this site. Safari may have compatibility issues.
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={closeModalBrowser}>
-            Continue Anyway
-          </Button>
-          <Button
-            variant="primary"
-            href="https://www.google.com/chrome/"
-            target="_blank"
-          >
-            Download Chrome
-          </Button>
-        </Modal.Footer>
-      </Modal>
-
       {/* Your Carousel Content */}
       <Container className="flex flex-col items-center p-4">
         {nfts.length > 0 ? (
