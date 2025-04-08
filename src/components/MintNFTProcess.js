@@ -561,7 +561,7 @@ const MintNFTProcess = ({
             <Row>
               <Col md={6}>
                 <p>
-                  Current Supply: {currentSupply} / {maxSupply}
+                  Collection Supply: {currentSupply} / {maxSupply}
                 </p>
               </Col>
               <Col md={6}>
@@ -585,7 +585,7 @@ const MintNFTProcess = ({
                 </p>
               </Col>
 
-              <p>Connected Address: {walletAddress}</p>
+              <p>Wallet Address: {walletAddress}</p>
             </Row>
 
             <Button
@@ -635,6 +635,16 @@ const MintNFTProcess = ({
                   rel="noopener noreferrer"
                 >
                   View on Better Call Dev
+                </a>
+              </p>
+              <p style={{ color: "black" }}>
+                Collection:{" "}
+                <a
+                  href={`${process.env.GATSBY_OBJKT_COLLECTION_URL}/${realtimeRPNFTContract}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  View on Objkt
                 </a>
               </p>
             </Col>
