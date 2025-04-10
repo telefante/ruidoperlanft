@@ -3,7 +3,7 @@ import SectionContainer from "./SectionContainer"
 import PerlinNoise from "../PerlinNoise"
 import { Button } from "react-bootstrap"
 import { Link } from "gatsby"
-import  Video  from "./Video"
+import Video from "./Video"
 
 const IntroductionSection = () => {
   const [controlsVisible, setControlsVisible] = useState(false) // Define the state
@@ -54,9 +54,8 @@ const IntroductionSection = () => {
           marginBottom: "0px",
         }}
       >
+        <Video url="/video/export.mov" />
 
-        <Video url="" />
-      
         <PerlinNoise
           enableOrbit={true}
           initialParams={surfaceParams}
@@ -68,7 +67,7 @@ const IntroductionSection = () => {
           verificationEnabled={false} // Pass verificationEnabled
         />
 
-<Link to="#simulation" style={{ textDecoration: 'none' }}>
+        <Link to="#simulation" style={{ textDecoration: "none" }}>
           <Button
             variant="primary"
             style={{
@@ -82,7 +81,6 @@ const IntroductionSection = () => {
             Catch a Memory in the Noise
           </Button>
         </Link>
-
       </div>
     </SectionContainer>
   )
