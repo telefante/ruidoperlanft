@@ -123,7 +123,7 @@ const SimulationSection = ({ account, connectWallet, disconnectWallet }) => {
         <Button
           href={`${process.env.GATSBY_OBJKT_COLLECTION_URL}/${COLLECTION_CONTRACT}`}
           target="_blank"
-          variant="primary"
+          variant="secondary"
           style={{
             fontFamily: "var(--primary-font)",
             fontStyle: "italic",
