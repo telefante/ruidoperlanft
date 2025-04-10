@@ -3,6 +3,7 @@ import SectionContainer from "./SectionContainer"
 import PerlinNoise from "../PerlinNoise"
 import { Button } from "react-bootstrap"
 import { Link } from "gatsby"
+import  Video  from "./Video"
 
 const IntroductionSection = () => {
   const [controlsVisible, setControlsVisible] = useState(false) // Define the state
@@ -53,6 +54,8 @@ const IntroductionSection = () => {
           marginBottom: "0px",
         }}
       >
+
+        <Video url="" />
       
         <PerlinNoise
           enableOrbit={true}
