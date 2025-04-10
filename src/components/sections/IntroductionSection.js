@@ -52,10 +52,11 @@ const IntroductionSection = () => {
           marginLeft: "calc(-50vw + 50%)",
           marginRight: "calc(-50vw + 50%)",
           marginBottom: "0px",
+          position: "relative", // Ensure relative positioning for layering
+          overflow: "hidden", // Hide overflow from video if it exceeds container
         }}
       >
         <Video url="/video/export.mov" />
-
         <PerlinNoise
           enableOrbit={true}
           initialParams={surfaceParams}
@@ -65,6 +66,9 @@ const IntroductionSection = () => {
           controlsVisible={controlsVisible} // Pass the state
           setControlsVisible={setControlsVisible} // Pass the setter function
           verificationEnabled={false} // Pass verificationEnabled
+          style={{
+            zIndex: "10000", // Ensure PerlinNoise is above the video
+          }}
         />
 
         <Link to="#simulation" style={{ textDecoration: "none" }}>
