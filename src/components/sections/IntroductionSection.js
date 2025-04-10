@@ -58,7 +58,7 @@ const IntroductionSection = () => {
       >
         <Video url="/video/export.mov" />
         <PerlinNoise
-          enableOrbit={true}
+          enableOrbit={false}
           initialParams={surfaceParams}
           cameraParams={cameraParams}
           showCaptureButton={false}

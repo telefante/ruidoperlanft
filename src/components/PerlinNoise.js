@@ -478,6 +478,7 @@ const PerlinNoise = ({
         </div>
 
         <Row>
+        {enableOrbit && (
           <div
             style={{
               position: "absolute",
@@ -496,6 +497,7 @@ const PerlinNoise = ({
           >
             Click and drag to move the geometry!
           </div>
+           )}
         </Row>
       </Container>
 

@@ -38,7 +38,7 @@ const Video = ({ url }) => {
 
       if (isMobile) {
         // Attempt to play on mobile after a delay
-        setTimeout(attemptPlay, 500);
+        setTimeout(attemptPlay, 1000);
       } else {
         attemptPlay();
       }
@@ -51,7 +51,7 @@ const Video = ({ url }) => {
         <ReactPlayer
           ref={playerRef}
           url={url}
-          playing={false}
+          playing={true}
           loop
           muted={true}
           controls={false}
