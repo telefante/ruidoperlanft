@@ -44,7 +44,12 @@ const ExplanationModal = ({ show, onHide }) => {
                 <em>Ruido Perla</em> began as an immersive audiovisual installation.
                 Kinetic sound objects—rattles, dry pods—moved in sync with a generative simulation,
                 questioning the boundary between machine, memory, and identity.
+               
               </p>
+              <p className="text-muted">
+              The author of the installation is <a href="https://dossier.audiovisiones.info" target="_blank" rel="noreferrer">Luis Negron van Grieken</a> 
+              </p>
+
             </Tab.Pane>
 
             <Tab.Pane eventKey="digital">
@@ -63,7 +68,7 @@ const ExplanationModal = ({ show, onHide }) => {
             <Tab.Pane eventKey="nft">
               <h5>What is an NFT?</h5>
               <p className="text-muted">
-                An NFT is a unique digital object stored on the blockchain.
+                An <a href="https://en.wikipedia.org/wiki/Non-fungible_token" target="_blank" rel="noreferrer">NFT (non-fungible token)</a> is a unique digital object stored on the blockchain.
                 It acts as proof of authenticity and ownership. In <em>Ruido Perla</em>,
                 each NFT is a token of memory — both collectible and interactive.
               </p>

@@ -81,19 +81,11 @@ const AboutSection = () => {
     }
   `)
 
-  // const videoUrl =
-  //   data.videoFiles.nodes.length > 0 ? data.videoFiles.nodes[0].publicURL : null
+ 
   const images = data.imageFiles.nodes.map(node =>
     getImage(node.childImageSharp)
   )
 
-  // const handlePlayVideo = () => {
-  //   setShowVideo(true)
-  // }
-
-  // const handleCloseVideo = () => {
-  //   setShowVideo(false)
-  // }
 
   return (
     <SectionContainer id="about">
@@ -102,11 +94,9 @@ const AboutSection = () => {
         <TextOverlay>
           <h2 className="simulation-title">Installation</h2>
           <section>
+          <p>Ruido Perla explores the poetics of the unpredictable ....</p>
             <p>
-            
-              Ruido Perla
-     
-            began as an installation in <a href="https://galerie-im-koernerpark.de/de/ausstellungen/enter-nature" target="_blank" rel="noreferrer">Berlin. </a>
+            Ruido Perla was conceived from <a href="https://dossier.audiovisiones.info" target="_blank" rel="noreferrer">Luis Negron van Grieken's</a> installation in <a href="https://galerie-im-koernerpark.de/de/ausstellungen/enter-nature" target="_blank" rel="noreferrer">Berlin. </a>
             Now, its echoes live on through generative NFTs, poetic simulations, and interactive memory.
             </p>
         

@@ -56,23 +56,6 @@ const StyledCarousel = styled(Carousel)`
   }
 `
 
-// const OverlappingContainer = styled.div`
-//   position: relative;
-//   width: 100%;
-//   margin-top: 2rem;
-// `
-
-// const TextOverlay = styled.div`
-//   position: absolute;
-//   top: -12rem;
-//   left: 0;
-//   background: transparent;
-
-//   padding: 2rem;
-//   z-index: 2;
-//   max-width: 500px;
-// `
-
 const CarouselWrapper = styled.div`
   position: relative;
   z-index: 1;
@@ -116,10 +99,6 @@ const InstallationSection = () => {
     }
   `)
 
-  // console.log("Image data:", data)
-
-  // const COLLECTION_CONTRACT = process.env.GATSBY_RUIDOPERLANFT_CONTRACT
-  // const OBJKT_TOKEN_URL = process.env.GATSBY_OBJKT_TOKEN_URL
 
   return (
     <SectionContainer
@@ -134,20 +113,10 @@ const InstallationSection = () => {
           <h2 className="simulation-title">whitepaper</h2>
         </Col>
       </Row>
-      {/* <section
-            style={{
-              textAlign: "justify",
-              lineHeight: "1.1",
-              letterSpacing: "0.02em",
-              hyphens: "auto",
-            }}
-          >
-            <p>Ruido Perla explores the poetics of the unpredictable ....</p> */}
-
-      {/* </section> */}
-
+     
       <Row className="align-items-center mb-4">
         <DescriptionText>
+       
           <p>
             👉 These NFTs are more than digital artifacts; they are fragments of
             an ever-changing landscape. Each one is a unique translation of the
