@@ -54,6 +54,7 @@ const Video = ({ url }) => {
           controls={false}
           width="100%"
           height="100%"
+          playsinline // Prevent fullscreen on mobile
         />
       ) : (
         <p>Loading video...</p>
