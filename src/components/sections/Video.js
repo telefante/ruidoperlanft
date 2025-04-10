@@ -12,7 +12,7 @@ const VideoContainer = styled.div`
   opacity: 0.5; /* Adjust opacity for visibility */
 `;
 
-const Video = ({ url }) => {
+const Video = ({ url, muted }) => { // Accept muted prop
   const playerRef = useRef(null);
   const isMobile = typeof window !== "undefined" && /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
@@ -50,7 +50,7 @@ const Video = ({ url }) => {
           url={url}
           playing={true}
           loop
-          muted={true}
+          muted={muted} // Use the muted prop here
           controls={false}
           width="100%"
           height="100%"
