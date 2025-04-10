@@ -6,10 +6,10 @@ const VideoContainer = styled.div`
   position: absolute;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
+  width: 100vw;
+overflow: hidden;
   z-index: -1; /* Ensure video is behind other content */
+  opacity: 0.5; /* Adjust opacity for visibility */
 `;
 
 const Video = ({ url }) => {
@@ -56,7 +56,7 @@ const Video = ({ url }) => {
           muted={true}
           controls={false}
           width="100%"
-          height="100%"
+           height="100%"
         />
       ) : (
         <p>Loading video...</p>
