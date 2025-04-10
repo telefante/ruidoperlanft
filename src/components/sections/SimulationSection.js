@@ -58,11 +58,13 @@ const SimulationSection = ({ account, connectWallet, disconnectWallet }) => {
   const queryFile = "perlin-text.md" // Specify the file name
 
   const DescriptionText = styled.p`
-    max-width: 10vw;
+    max-width: 15vw; /* Adjust for better responsiveness */
     text-align: justify;
     font-size: 1.2rem;
     @media (max-width: 768px) {
       max-width: 100vw;
+      font-size: 1rem; /* Smaller font size for better readability on mobile */
+      display: none; /* Hide on smaller screens */
     }
   `
 
@@ -126,9 +128,11 @@ const SimulationSection = ({ account, connectWallet, disconnectWallet }) => {
             fontFamily: "var(--primary-font)",
             fontStyle: "italic",
             fontWeight: "bold",
-            fontSize: "1.2rem",
-            maxWidth: "200px",
+            fontSize: "0.9rem",
+            maxWidth: "100px",
             zIndex: "1000",
+            position: "fixed",
+            top: "18vh",
           }}
           onClick={handleCollectNowClick(`${process.env.GATSBY_OBJKT_COLLECTION_URL}/${COLLECTION_CONTRACT}`)}
         >
