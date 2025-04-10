@@ -7,6 +7,7 @@ import Video from "./Video"
 
 const IntroductionSection = () => {
   const [controlsVisible, setControlsVisible] = useState(false) // Define the state
+  const [isMuted, setIsMuted] = useState(true) // State to toggle sound
 
   // Define surface parameters for introduction
   const surfaceParams = {
@@ -56,7 +57,8 @@ const IntroductionSection = () => {
           overflow: "hidden", // Hide overflow from video if it exceeds container
         }}
       >
-        <Video url="/video/export.mov" />
+        <Video url="/video/export.mov" muted={isMuted} />
+
         <PerlinNoise
           enableOrbit={false}
           initialParams={surfaceParams}
@@ -70,6 +72,20 @@ const IntroductionSection = () => {
             zIndex: "10000", // Ensure PerlinNoise is above the video
           }}
         />
+
+        <Button
+          onClick={() => setIsMuted(!isMuted)}
+          style={{
+            position: "absolute",
+            top: "10px",
+            right: "10px",
+            zIndex: "10001",
+            fontFamily: "var(--primary-font)",
+            fontWeight: "bold",
+          }}
+        >
+          {isMuted ? "Unmute" : "Mute"}
+        </Button>
 
         <Link to="#simulation" style={{ textDecoration: "none" }}>
           <Button
