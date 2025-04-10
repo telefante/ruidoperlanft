@@ -259,7 +259,7 @@ const NFTVerification = ({ setAccessGranted }) => {
       {!success && (
         <Container>
           <Row>
-            <h3>Becoming a <a  href="#collection">collector</a> of Ruido Perla you will be able to mint in real time</h3>
+            <h3 style={{  position: "absolute", top: "0%", left: "30%", width: "50vw"}}>Becoming a <a  href="#collection">collector</a> of Ruido Perla you will be able to mint in real time</h3>
           </Row>
           <Row>
             <h3>please connect your wallet</h3>

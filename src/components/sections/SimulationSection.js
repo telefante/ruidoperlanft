@@ -132,7 +132,7 @@ const SimulationSection = ({ account, connectWallet, disconnectWallet }) => {
             maxWidth: "100px",
             zIndex: "1000",
             position: "fixed",
-            top: "18vh",
+            top: "16vh",
           }}
           onClick={handleCollectNowClick(`${process.env.GATSBY_OBJKT_COLLECTION_URL}/${COLLECTION_CONTRACT}`)}
         >
