@@ -169,7 +169,7 @@ const PerlinNoise = ({
     const animate = () => {
       animationFrameRef.current = requestAnimationFrame(animate)
       const elapsed = clock.getElapsedTime()
-
+   
       if (!geometryRef.current) return
 
       const positions = geometryRef.current.attributes.position.array
@@ -198,7 +198,10 @@ const PerlinNoise = ({
         positions[i + 2] = totalNoise * amplitude
       }
 
+     
+
       geometryRef.current.attributes.position.needsUpdate = true
+      autoAnimateCamera(camera, perlin, clock)
       rendererRef.current.render(sceneRef.current, cameraRef.current)
     }
 
@@ -387,6 +390,31 @@ const PerlinNoise = ({
   }
 
   const handleClose = () => setShowModal(false)
+
+  const autoAnimateCamera = (camera, perlin, clock, baseRadius = 100, speed = 0.6) => {
+    const time = clock.getElapsedTime() * speed;
+
+    // Get noise values based on time
+    const noiseX = perlin.get3(new THREE.Vector3(time, 0, 0)); // Use perlin.noise
+    const noiseY = perlin.get3(new THREE.Vector3(0, time, 0)); // Use perlin.noise
+    const noiseZ = perlin.get3(new THREE.Vector3(0, 0, time));
+
+    // Normalize noise to range [-1, 1]
+    const nx = noiseX * 2 - 1;
+    const ny = noiseY * 2 - 1;
+    const nz = noiseZ * 2 - 1;
+
+    // Calculate camera position on a circular path with noise offsets
+    const radius = baseRadius + nx * 20;
+    const angle = time;
+
+    const x = radius * Math.cos(angle) + nx * 10;
+    const y = radius * Math.sin(angle) + nz * 10;
+    const z = 50 + ny * 20;
+
+    camera.position.set(x, y, z);
+    camera.lookAt(0, 0, 0);
+  }
 
   // const toggleControls = () => {
   //   setControlsVisible(!controlsVisible)
