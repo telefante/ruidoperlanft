@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useEffect, useState } from "react"
 import Draggable from "react-draggable"
 import { Button } from "react-bootstrap"
 
@@ -17,7 +17,44 @@ const PerlinControls = ({
   captureScene,
   controlsVisible,
   isMobile,
+  setIsAutoAnimating, // Add this prop
 }) => {
+  const [isAnimating, setIsAnimating] = useState(false)
+
+  const toggleAnimation = () => {
+    setIsAnimating((prev) => !prev)
+    setIsAutoAnimating((prev) => !prev) // Update the parent state
+  }
+
+  useEffect(() => {
+    let animationFrame
+    if (isAnimating) {
+      const animate = () => {
+        setAmplitude((prev) => {
+          const newValue = prev >= 50 ? 1 : prev + 0.5
+          return newValue
+        })
+        setScale((prev) => {
+          const newValue = prev >= 0.015 ? 0.001 : prev + 0.001
+          return newValue
+        })
+        setFrequency((prev) => {
+          const newValue = prev >= 5 ? 1 : prev + 0.1
+          return newValue
+        })
+        setOctaves((prev) => {
+          const newValue = prev >= 5 ? 1 : prev + 1
+          return newValue
+        })
+        animationFrame = requestAnimationFrame(animate)
+      }
+      animate()
+    } else {
+      cancelAnimationFrame(animationFrame)
+    }
+    return () => cancelAnimationFrame(animationFrame)
+  }, [isAnimating, setAmplitude, setScale, setFrequency, setOctaves])
+
   const handleAmplitudeChange = (e) => {
     setAmplitude(parseFloat(e.target.value))
   }
@@ -45,7 +82,7 @@ const PerlinControls = ({
         style={{
           position: "absolute",
           top: "10px",
-          right: "10px",  
+          right: "10px",
           backgroundColor: "rgba(0, 0, 0, 0.5)",
           padding: "10px",
           borderRadius: "5px",
@@ -180,8 +217,6 @@ const PerlinControls = ({
               variant="danger"
               onClick={captureScene}
               style={{
-                // backgroundColor: "#61dafb",
-                // color: "black",
                 border: "none",
                 padding: "8px 16px",
                 borderRadius: "5px",
@@ -196,6 +231,17 @@ const PerlinControls = ({
               Capture now!
             </Button>
           )}
+          <Button
+            variant="primary"
+            onClick={toggleAnimation}
+            style={{
+              marginTop: "10px",
+              fontFamily: "var(--primary-font)",
+              fontWeight: "bold",
+            }}
+          >
+            {isAnimating ? "Stop Animation" : "Start Animation"}
+          </Button>
         </div>
       </div>
     </Draggable>
