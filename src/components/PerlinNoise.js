@@ -58,11 +58,6 @@ const PerlinNoise = ({
   const currentTextRef = useRef("")
   const geometryRef = useRef(null)
   const animationFrameRef = useRef(null)
-  // const clockRef = useRef(new THREE.Clock())
-  // const noiseVectorRef = useRef(new THREE.Vector3())
-  // const perlinRef = useRef(new Perlin())
-  // const simplexRef = useRef(createNoise3D())
-  // const animateRef = useRef(null)
   const currentIndexRef = useRef(0)
 
   const [perlinSettings, setPerlinSettings] = useState({
@@ -73,13 +68,13 @@ const PerlinNoise = ({
     octaves: initialParams.octaves,
   })
 
-  // const [verificationEnabled, setVerificationEnabled] = useState(null)
-
   const [textOpacity, setTextOpacity] = useState(1)
   const [capturedImage, setCapturedImage] = useState(null)
 
   const [showModal, setShowModal] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
+
+  const [isAutoAnimating, setIsAutoAnimating] = useState(false) // State for auto-animation
 
   const cameraSetupRef = useRef({
     position: { x: 0, y: 0, z: 0 },
