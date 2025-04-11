@@ -88,12 +88,12 @@ const PerlinNoise = ({
   const updatePerlinSettings = (key, value) => {
     if (typeof value === "function") {
       // Evaluate the function to get the numeric value
-      setPerlinSettings((prev) => ({
+      setPerlinSettings(prev => ({
         ...prev,
         [key]: value(prev[key]),
       }))
     } else {
-      setPerlinSettings((prev) => ({
+      setPerlinSettings(prev => ({
         ...prev,
         [key]: value,
       }))
@@ -378,19 +378,19 @@ const PerlinNoise = ({
 
     try {
       // Define the desired aspect ratio (4:3)
-      const aspectRatio = 4 / 3;
+      const aspectRatio = 4 / 3
 
       // Calculate the width and height based on the container's dimensions
-      let containerWidth = containerRef.current.offsetWidth;
-      let containerHeight = containerRef.current.offsetHeight;
+      let containerWidth = containerRef.current.offsetWidth
+      let containerHeight = containerRef.current.offsetHeight
 
       // Determine whether to fit the width or height to maintain the aspect ratio
       if (containerWidth / containerHeight > aspectRatio) {
         // Container is wider than the desired aspect ratio, so fit the height
-        containerHeight = containerWidth / aspectRatio;
+        containerHeight = containerWidth / aspectRatio
       } else {
         // Container is taller than the desired aspect ratio, so fit the width
-        containerWidth = containerHeight * aspectRatio;
+        containerWidth = containerHeight * aspectRatio
       }
 
       const capturedCanvas = await html2canvas(containerRef.current, {
@@ -404,7 +404,8 @@ const PerlinNoise = ({
           return (
             element.classList.contains("controls") ||
             element.id === "communication" ||
-            element.id === "click-and-drag-instruction"
+            element.id === "click-and-drag-instruction" ||
+            element.id === "auto-animation-button"
           )
         },
       })
@@ -419,29 +420,35 @@ const PerlinNoise = ({
 
   const handleClose = () => setShowModal(false)
 
-  const autoAnimateCamera = (camera, perlin, clock, baseRadius = 100, speed = 0.6) => {
-    const time = clock.getElapsedTime() * speed;
+  const autoAnimateCamera = (
+    camera,
+    perlin,
+    clock,
+    baseRadius = 100,
+    speed = 0.6
+  ) => {
+    const time = clock.getElapsedTime() * speed
 
     // Get noise values based on time
-    const noiseX = perlin.get3(new THREE.Vector3(time, 0, 0)); // Use perlin.noise
-    const noiseY = perlin.get3(new THREE.Vector3(0, time, 0)); // Use perlin.noise
-    const noiseZ = perlin.get3(new THREE.Vector3(0, 0, time));
+    const noiseX = perlin.get3(new THREE.Vector3(time, 0, 0)) // Use perlin.noise
+    const noiseY = perlin.get3(new THREE.Vector3(0, time, 0)) // Use perlin.noise
+    const noiseZ = perlin.get3(new THREE.Vector3(0, 0, time))
 
     // Normalize noise to range [-1, 1]
-    const nx = noiseX * 2 - 1;
-    const ny = noiseY * 2 - 1;
-    const nz = noiseZ * 2 - 1;
+    const nx = noiseX * 2 - 1
+    const ny = noiseY * 2 - 1
+    const nz = noiseZ * 2 - 1
 
     // Calculate camera position on a circular path with noise offsets
-    const radius = baseRadius + nx * 20;
-    const angle = time;
+    const radius = baseRadius + nx * 20
+    const angle = time
 
-    const x = radius * Math.cos(angle) + nx * 10;
-    const y = radius * Math.sin(angle) + nz * 10;
-    const z = 50 + ny * 20;
+    const x = radius * Math.cos(angle) + nx * 10
+    const y = radius * Math.sin(angle) + nz * 10
+    const z = 50 + ny * 20
 
-    camera.position.set(x, y, z);
-    camera.lookAt(0, 0, 0);
+    camera.position.set(x, y, z)
+    camera.lookAt(0, 0, 0)
   }
 
   // const toggleControls = () => {
@@ -481,7 +488,6 @@ const PerlinNoise = ({
         backgroundColor: "transparent",
       }}
     >
-     
       <div ref={mountRef} style={{ width: "100%", height: "100%" }} />
       {accessGranted && controlsVisible && (
         <PerlinControls
@@ -502,15 +508,12 @@ const PerlinNoise = ({
           fontSize={fontSize}
           setIsAutoAnimating={setIsAutoAnimating} // Pass this prop
         />
-
       )}
-       {verificationEnabled && (
+      {verificationEnabled && (
         <NFTVerification setAccessGranted={setAccessGranted} />
       )}
 
       <Container>
-      
-
         <div
           style={{
             position: "absolute",
@@ -535,31 +538,32 @@ const PerlinNoise = ({
         </div>
 
         <Row>
-        {enableOrbit && (
-          <div
-            style={{
-              position: "absolute",
-              bottom: "10%",
-              left: "50%",
-              transform: "translateX(-50%)",
-              color: "white",
-              fontSize: "1rem",
-              fontFamily: "var(--primary-font)",
-              textAlign: "center",
-              pointerEvents: "none",
-              zIndex: 1000,
-              textShadow: "2px 2px 4px rgba(0,0,0,0.5)",
-            }}
-            id="click-and-drag-instruction"
-          >
-            Click and drag to move the geometry!
-          </div>
-           )}
+          {enableOrbit && (
+            <div
+              style={{
+                position: "absolute",
+                bottom: "10%",
+                left: "50%",
+                transform: "translateX(-50%)",
+                color: "white",
+                fontSize: "1rem",
+                fontFamily: "var(--primary-font)",
+                textAlign: "center",
+                pointerEvents: "none",
+                zIndex: 1000,
+                textShadow: "2px 2px 4px rgba(0,0,0,0.5)",
+              }}
+              id="click-and-drag-instruction"
+            >
+              Click and drag to move the geometry!
+            </div>
+          )}
         </Row>
       </Container>
 
       <Button
         onClick={() => setIsAutoAnimating(!isAutoAnimating)} // Toggle auto-animation
+        id="auto-animation-button"
         style={{
           position: "absolute",
           bottom: "20px",
@@ -569,7 +573,6 @@ const PerlinNoise = ({
           fontWeight: "bold",
         }}
         variant="outline"
-
       >
         {isAutoAnimating ? "Stop Auto-Animation" : "Start Auto-Animation"}
       </Button>
