@@ -240,7 +240,7 @@ const PerlinControls = ({
               fontWeight: "bold",
             }}
           >
-            {isAnimating ? "Stop Animation" : "Start Animation"}
+            {isAnimating ? "Stop" : "random values"}
           </Button>
         </div>
       </div>
