@@ -5,7 +5,7 @@ import { Perlin } from "three-noise"
 import { createNoise3D } from "simplex-noise"
 import html2canvas from "html2canvas"
 import { useStaticQuery, graphql } from "gatsby"
-import { Modal, Row, Container } from "react-bootstrap"
+import { Modal, Row, Container, Button } from "react-bootstrap"
 import PerlinControls from "./PerlinControls"
 import { useWallet } from "./WalletContext"
 import NFTVerification from "./NFTVerification"
@@ -193,10 +193,12 @@ const PerlinNoise = ({
         positions[i + 2] = totalNoise * amplitude
       }
 
-     
-
       geometryRef.current.attributes.position.needsUpdate = true
-      autoAnimateCamera(camera, perlin, clock)
+
+      if (isAutoAnimating && cameraRef.current) {
+        autoAnimateCamera(cameraRef.current, perlin, clock)
+      }
+
       rendererRef.current.render(sceneRef.current, cameraRef.current)
     }
 
@@ -315,7 +317,7 @@ const PerlinNoise = ({
         cancelAnimationFrame(animationFrameRef.current)
       }
     }
-  }, [perlinSettings])
+  }, [perlinSettings, isAutoAnimating])
 
   useEffect(() => {
     const mediaQuery = window.matchMedia("(max-width: 768px)")
@@ -523,6 +525,22 @@ const PerlinNoise = ({
            )}
         </Row>
       </Container>
+
+      <Button
+        onClick={() => setIsAutoAnimating(!isAutoAnimating)} // Toggle auto-animation
+        style={{
+          position: "absolute",
+          bottom: "20px",
+          left: "20px",
+          zIndex: 1000,
+          fontFamily: "var(--primary-font)",
+          fontWeight: "bold",
+        }}
+        variant="outline"
+
+      >
+        {isAutoAnimating ? "Stop Auto-Animation" : "Start Auto-Animation"}
+      </Button>
 
       <div className={styles.modal}>
         <Draggable handle=".modal-header">
