@@ -86,7 +86,18 @@ const PerlinNoise = ({
   const controlsTargetRef = useRef(null)
 
   const updatePerlinSettings = (key, value) => {
-    setPerlinSettings(prev => ({ ...prev, [key]: value }))
+    if (typeof value === "function") {
+      // Evaluate the function to get the numeric value
+      setPerlinSettings((prev) => ({
+        ...prev,
+        [key]: value(prev[key]),
+      }))
+    } else {
+      setPerlinSettings((prev) => ({
+        ...prev,
+        [key]: value,
+      }))
+    }
   }
 
   useEffect(() => {
@@ -164,11 +175,31 @@ const PerlinNoise = ({
     const animate = () => {
       animationFrameRef.current = requestAnimationFrame(animate)
       const elapsed = clock.getElapsedTime()
-   
+
       if (!geometryRef.current) return
 
       const positions = geometryRef.current.attributes.position.array
       const { amplitude, scale, frequency, octaves, usePerlin } = perlinSettings
+
+      // Validate parameters to prevent NaN values
+      if (
+        isNaN(amplitude) ||
+        isNaN(scale) ||
+        isNaN(frequency) ||
+        isNaN(octaves) ||
+        amplitude <= 0 ||
+        scale <= 0 ||
+        frequency <= 0 ||
+        octaves <= 0
+      ) {
+        console.error("Invalid Perlin parameters:", {
+          amplitude,
+          scale,
+          frequency,
+          octaves,
+        })
+        return
+      }
 
       for (let i = 0; i < positions.length; i += 3) {
         const x = positions[i]
@@ -193,7 +224,7 @@ const PerlinNoise = ({
         positions[i + 2] = totalNoise * amplitude
       }
 
-      geometryRef.current.attributes.position.needsUpdate = true
+      geometryRef.current.attributes.position.needsUpdate = true // Ensure the geometry updates
 
       if (isAutoAnimating && cameraRef.current) {
         autoAnimateCamera(cameraRef.current, perlin, clock)
@@ -469,6 +500,7 @@ const PerlinNoise = ({
           controlsVisible={controlsVisible}
           isMobile={isMobile}
           fontSize={fontSize}
+          setIsAutoAnimating={setIsAutoAnimating} // Pass this prop
         />
 
       )}
