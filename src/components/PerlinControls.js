@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"
+import React, { useState } from "react"
 import Draggable from "react-draggable"
 import { Button } from "react-bootstrap"
 
@@ -19,41 +19,13 @@ const PerlinControls = ({
   isMobile,
   setIsAutoAnimating, // Add this prop
 }) => {
-  const [isAnimating, setIsAnimating] = useState(false)
-
-  const toggleAnimation = () => {
-    setIsAnimating((prev) => !prev)
-    setIsAutoAnimating((prev) => !prev) // Update the parent state
+  const handleRandomizeParameters = () => {
+    // Update parameters once with random or incremental values
+    setAmplitude((prev) => (prev >= 50 ? 1 : prev + 0.5))
+    setScale((prev) => (prev >= 0.015 ? 0.001 : prev + 0.001))
+    setFrequency((prev) => (prev >= 5 ? 1 : prev + 0.1))
+    setOctaves((prev) => (prev >= 5 ? 1 : prev + 1))
   }
-
-  useEffect(() => {
-    let animationFrame
-    if (isAnimating) {
-      const animate = () => {
-        setAmplitude((prev) => {
-          const newValue = prev >= 50 ? 1 : prev + 0.5
-          return newValue
-        })
-        setScale((prev) => {
-          const newValue = prev >= 0.015 ? 0.001 : prev + 0.001
-          return newValue
-        })
-        setFrequency((prev) => {
-          const newValue = prev >= 5 ? 1 : prev + 0.1
-          return newValue
-        })
-        setOctaves((prev) => {
-          const newValue = prev >= 5 ? 1 : prev + 1
-          return newValue
-        })
-        animationFrame = requestAnimationFrame(animate)
-      }
-      animate()
-    } else {
-      cancelAnimationFrame(animationFrame)
-    }
-    return () => cancelAnimationFrame(animationFrame)
-  }, [isAnimating, setAmplitude, setScale, setFrequency, setOctaves])
 
   const handleAmplitudeChange = (e) => {
     setAmplitude(parseFloat(e.target.value))
@@ -233,14 +205,14 @@ const PerlinControls = ({
           )}
           <Button
             variant="primary"
-            onClick={toggleAnimation}
+            onClick={handleRandomizeParameters} // Call the new function
             style={{
               marginTop: "10px",
               fontFamily: "var(--primary-font)",
               fontWeight: "bold",
             }}
           >
-            {isAnimating ? "Stop" : "random values"}
+            Randomize Values
           </Button>
         </div>
       </div>
