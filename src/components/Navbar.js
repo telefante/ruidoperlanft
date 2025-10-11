@@ -58,11 +58,20 @@ const CustomNavbar = () => {
   }, []);
 
   const { trackEvent } = useTracking()
-  const handleNavLinkClick = (sectionName) => {
+  const handleNavLinkClick = (sectionName, sectionPath, e) => {
+    e.preventDefault(); // Prevent default anchor behavior
     console.log("Clicked section: ", sectionName);
     trackEvent(`Section:  ${sectionName}`);
-    
+
     setExpanded(false); // Close navbar when clicking on a link
+
+    // Smooth scroll to section after a short delay to allow menu to close
+    setTimeout(() => {
+      const section = document.getElementById(sectionPath);
+      if (section) {
+        section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 100);
   };
 
 
@@ -96,7 +105,7 @@ const CustomNavbar = () => {
                 key={index}
                 href={`#${section.path}`}
                 className="nav-link-custom"
-                onClick={() => handleNavLinkClick(section.name)}
+                onClick={(e) => handleNavLinkClick(section.name, section.path, e)}
               >
                 {section.name}
               </Nav.Link>
