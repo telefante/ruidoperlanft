@@ -471,7 +471,7 @@ const PerlinNoise = ({
     }
 
     updateText()
-    const textInterval = setInterval(updateText, 5000)
+    const textInterval = setInterval(updateText, 10000)
 
     return () => {
       clearInterval(textInterval)
@@ -555,7 +555,7 @@ const PerlinNoise = ({
               }}
               id="click-and-drag-instruction"
             >
-              Click and drag to move the geometry!
+              Touch the landscape to explore
             </div>
           )}
         </Row>
@@ -574,7 +574,7 @@ const PerlinNoise = ({
         }}
         variant="outline"
       >
-        {isAutoAnimating ? "Stop Auto-Animation" : "Start Auto-Animation"}
+        {isAutoAnimating ? "Pause Drift" : "Autonomous Drift"}
       </Button>
 
       <div className={styles.modal}>
@@ -592,7 +592,7 @@ const PerlinNoise = ({
                   fontWeight: "bold",
                 }}
               >
-                Mint this beatiful Pearl for contract:{" "}
+                Crystallize this Pearl for contract:{" "}
                 <a
                   href={`https://better-call.dev/${process.env.GATSBY_NETWORK_TYPE}/${process.env.GATSBY_TEZOS_REALTIME_CONTRACT}/tokens`}
                   target="_blank"

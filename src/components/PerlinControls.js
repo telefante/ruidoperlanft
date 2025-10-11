@@ -48,23 +48,80 @@ const PerlinControls = ({
   }
 
   return (
-    <Draggable handle=".drag-handle" cancel="input, button, select, textarea">
-      <div
-        className="controls"
+    <>
+      <style>
+        {`
+          .controls input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            background: linear-gradient(to right, rgba(255, 10, 180, 0.3), rgba(255, 10, 180, 0.8));
+            border-radius: 10px;
+            height: 4px;
+            outline: none;
+          }
+
+          .controls input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            background: var(--primary-color, #ff0ab4);
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(255, 10, 180, 0.5);
+            transition: all 0.2s ease;
+          }
+
+          .controls input[type="range"]::-webkit-slider-thumb:hover {
+            box-shadow: 0 0 15px rgba(255, 10, 180, 0.8);
+            transform: scale(1.1);
+          }
+
+          .controls input[type="range"]::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            background: var(--primary-color, #ff0ab4);
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 0 10px rgba(255, 10, 180, 0.5);
+            transition: all 0.2s ease;
+          }
+
+          .controls input[type="range"]::-moz-range-thumb:hover {
+            box-shadow: 0 0 15px rgba(255, 10, 180, 0.8);
+            transform: scale(1.1);
+          }
+
+          .controls label {
+            color: rgba(255, 255, 255, 0.85);
+            font-size: 0.85rem;
+            font-weight: 500;
+            letter-spacing: 0.05em;
+          }
+        `}
+      </style>
+      <Draggable handle=".drag-handle" cancel="input, button, select, textarea">
+        <div
+          className="controls"
         style={{
           position: "absolute",
           top: "10px",
           right: "10px",
-          backgroundColor: "rgba(0, 0, 0, 0.5)",
-          padding: "10px",
-          borderRadius: "5px",
+          background: "linear-gradient(135deg, rgba(83, 55, 119, 0.15) 0%, rgba(0, 0, 0, 0.25) 100%)",
+          backdropFilter: "blur(20px)",
+          WebkitBackdropFilter: "blur(20px)",
+          padding: "20px",
+          borderRadius: "12px",
+          border: "1px solid rgba(255, 255, 255, 0.1)",
+          boxShadow: "0 8px 32px rgba(0, 0, 0, 0.3)",
           zIndex: 2000,
           width: isMobile ? "90%" : "20%",
           fontFamily: "var(--primary-font)",
         }}
       >
-        <div className="drag-handle" style={{ cursor: "grab", padding: "5px", textAlign: "center", color: "white" }}>
-          Drag Here
+        <div className="drag-handle" style={{ cursor: "grab", padding: "8px", textAlign: "center", color: "rgba(255, 255, 255, 0.4)", fontSize: "1.5rem", letterSpacing: "0.5em" }}>
+          ⋮⋮⋮
         </div>
         <h2
           style={{
@@ -74,7 +131,7 @@ const PerlinControls = ({
             textAlign: "center",
           }}
         >
-          Perlin Noise Controls
+          Shape the Noise
         </h2>
         <div
           style={{
@@ -105,7 +162,7 @@ const PerlinControls = ({
               marginBottom: "5px",
             }}
           >
-            Amplitude:
+            Wave Height:
             <input
               type="range"
               min="1"
@@ -127,7 +184,7 @@ const PerlinControls = ({
               marginBottom: "5px",
             }}
           >
-            Scale:
+            Grain:
             <input
               type="range"
               min="0.001"
@@ -147,7 +204,7 @@ const PerlinControls = ({
               marginBottom: "5px",
             }}
           >
-            Frequency:
+            Rhythm:
             <input
               type="range"
               min="1"
@@ -169,7 +226,7 @@ const PerlinControls = ({
               marginBottom: "5px",
             }}
           >
-            Octaves:
+            Layers:
             <input
               type="range"
               min="1"
@@ -200,7 +257,7 @@ const PerlinControls = ({
                 fontStyle: "italic",
               }}
             >
-              Capture now!
+              Preserve this Moment
             </Button>
           )}
           <Button
@@ -212,11 +269,12 @@ const PerlinControls = ({
               fontWeight: "bold",
             }}
           >
-            Randomize Values
+            Let Chance Decide
           </Button>
         </div>
       </div>
-    </Draggable>
+      </Draggable>
+    </>
   )
 }
 
