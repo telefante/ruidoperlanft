@@ -83,6 +83,24 @@ const PerlinNoise = ({
   const [hasInteractedWithOrbit, setHasInteractedWithOrbit] = useState(false)
   const [showControlsPrompt, setShowControlsPrompt] = useState(false)
 
+  // Accessibility states
+  const [textPaused, setTextPaused] = useState(false)
+  const [showKeyboardHelp, setShowKeyboardHelp] = useState(false)
+  const [prefersHighContrast, setPrefersHighContrast] = useState(false)
+  const textIntervalRef = useRef(null)
+
+  // Detect high contrast mode preference
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const highContrastQuery = window.matchMedia('(prefers-contrast: high)')
+      setPrefersHighContrast(highContrastQuery.matches)
+
+      const handleChange = (e) => setPrefersHighContrast(e.matches)
+      highContrastQuery.addEventListener('change', handleChange)
+      return () => highContrastQuery.removeEventListener('change', handleChange)
+    }
+  }, [])
+
   const cameraSetupRef = useRef({
     position: { x: 0, y: 0, z: 0 },
     lookAt: { x: 0, y: 0, z: 0 },
@@ -519,6 +537,7 @@ const PerlinNoise = ({
     const lines = text.split("\n").filter(line => line.trim())
 
     const updateText = () => {
+      if (textPaused) return
       setTextOpacity(0)
       setTimeout(() => {
         setTextOpacity(0)
@@ -531,16 +550,60 @@ const PerlinNoise = ({
     }
 
     updateText()
-    const textInterval = setInterval(updateText, 10000)
+    if (!textPaused) {
+      textIntervalRef.current = setInterval(updateText, 10000)
+    }
 
     return () => {
-      clearInterval(textInterval)
+      if (textIntervalRef.current) {
+        clearInterval(textIntervalRef.current)
+      }
     }
-  }, [text])
+  }, [text, textPaused])
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyPress = (e) => {
+      // Ignore if user is typing in an input
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return
+
+      switch (e.key.toLowerCase()) {
+        case ' ': // Space - pause/resume text
+          e.preventDefault()
+          setTextPaused(prev => !prev)
+          break
+        case 'c': // C - capture scene
+          if (accessGranted && controlsVisible) {
+            captureScene()
+          }
+          break
+        case 'r': // R - randomize parameters
+          if (accessGranted && controlsVisible) {
+            // Trigger randomize by updating parameters
+            updatePerlinSettings("amplitude", prev => (prev >= 50 ? 1 : prev + 5))
+            updatePerlinSettings("scale", prev => (prev >= 0.015 ? 0.001 : prev + 0.002))
+            updatePerlinSettings("frequency", prev => (prev >= 5 ? 1 : prev + 0.5))
+            updatePerlinSettings("octaves", prev => (prev >= 5 ? 1 : prev + 1))
+          }
+          break
+        case '?': // ? - toggle keyboard help
+          e.preventDefault()
+          setShowKeyboardHelp(prev => !prev)
+          break
+        default:
+          break
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyPress)
+    return () => window.removeEventListener('keydown', handleKeyPress)
+  }, [accessGranted, controlsVisible, textPaused])
 
   return (
     <div
       ref={containerRef}
+      role="application"
+      aria-label="Interactive Perlin noise landscape visualization"
       style={{
         position: "relative",
         width: "100%",
@@ -548,7 +611,31 @@ const PerlinNoise = ({
         backgroundColor: "transparent",
       }}
     >
-      <div ref={mountRef} style={{ width: "100%", height: "100%" }} />
+      <div
+        ref={mountRef}
+        style={{ width: "100%", height: "100%" }}
+        aria-live="polite"
+        aria-atomic="true"
+      />
+
+      {/* Screen reader only content */}
+      <div
+        className="sr-only"
+        style={{
+          position: "absolute",
+          left: "-10000px",
+          width: "1px",
+          height: "1px",
+          overflow: "hidden",
+        }}
+        aria-live="polite"
+      >
+        Current landscape: Wave Height {perlinSettings.amplitude.toFixed(1)},
+        Grain {perlinSettings.scale.toFixed(3)},
+        Rhythm {perlinSettings.frequency.toFixed(1)},
+        Layers {perlinSettings.octaves}.
+        {currentTextRef.current && ` Poetry fragment: ${currentTextRef.current}`}
+      </div>
       {accessGranted && controlsVisible && (
         <PerlinControls
           usePerlin={perlinSettings.usePerlin}
@@ -590,13 +677,27 @@ const PerlinNoise = ({
             textAlign: "center",
             pointerEvents: "none",
             zIndex: 1000,
-            textShadow: "2px 2px 4px rgba(47, 0, 255, 0.5)",
+            textShadow: "2px 2px 4px rgba(47, 0, 255, 0.5), 0 0 20px rgba(255, 10, 180, 0.3)",
             opacity: textOpacity,
             transition: "opacity 0.5s ease-in-out",
             letterSpacing: "0.05em",
           }}
+          aria-live="polite"
+          aria-atomic="true"
         >
           {currentTextRef.current}
+          {textPaused && (
+            <span
+              style={{
+                display: "block",
+                fontSize: "0.5rem",
+                marginTop: "0.5rem",
+                opacity: 0.7,
+              }}
+            >
+              (Paused - Press Space to resume)
+            </span>
+          )}
         </div>
 
         <Row>
@@ -692,6 +793,70 @@ const PerlinNoise = ({
               >
                 Maybe later
               </p>
+            </div>
+          )}
+
+          {/* Keyboard shortcuts help */}
+          {showKeyboardHelp && (
+            <div
+              style={{
+                position: "absolute",
+                top: "20px",
+                right: "20px",
+                backgroundColor: prefersHighContrast ? "rgba(0, 0, 0, 0.95)" : "rgba(83, 55, 119, 0.95)",
+                padding: "20px",
+                borderRadius: "12px",
+                border: `2px solid ${prefersHighContrast ? "#ffffff" : "rgba(255, 10, 180, 0.5)"}`,
+                boxShadow: "0 8px 32px rgba(0, 0, 0, 0.5)",
+                zIndex: 2002,
+                fontFamily: "var(--primary-font)",
+                maxWidth: "300px",
+              }}
+              role="dialog"
+              aria-label="Keyboard shortcuts"
+            >
+              <h3 style={{ color: prefersHighContrast ? "#ffffff" : "white", fontSize: "1rem", marginBottom: "15px" }}>
+                Keyboard Shortcuts
+              </h3>
+              <div style={{ color: prefersHighContrast ? "#ffffff" : "rgba(255, 255, 255, 0.9)", fontSize: "0.9rem", lineHeight: "1.8" }}>
+                <p><strong>Space</strong> - Pause/Resume text</p>
+                {accessGranted && controlsVisible && (
+                  <>
+                    <p><strong>C</strong> - Capture scene</p>
+                    <p><strong>R</strong> - Randomize parameters</p>
+                  </>
+                )}
+                <p><strong>?</strong> - Toggle this help</p>
+              </div>
+              <Button
+                onClick={() => setShowKeyboardHelp(false)}
+                variant="outline-light"
+                size="sm"
+                style={{
+                  marginTop: "15px",
+                  fontFamily: "var(--primary-font)",
+                }}
+              >
+                Close
+              </Button>
+            </div>
+          )}
+
+          {/* Keyboard help hint */}
+          {!showKeyboardHelp && !isMobile && (
+            <div
+              style={{
+                position: "absolute",
+                bottom: "20px",
+                right: "20px",
+                color: "rgba(255, 255, 255, 0.5)",
+                fontSize: "0.8rem",
+                fontFamily: "var(--primary-font)",
+                pointerEvents: "none",
+                zIndex: 999,
+              }}
+            >
+              Press ? for keyboard shortcuts
             </div>
           )}
         </Row>

@@ -92,13 +92,25 @@ const PerlinControls = ({
           .controls input[type="range"]::-webkit-slider-thumb {
             -webkit-appearance: none;
             appearance: none;
-            width: 16px;
-            height: 16px;
+            width: 20px;
+            height: 20px;
             background: var(--primary-color, #ff0ab4);
             border-radius: 50%;
             cursor: pointer;
             box-shadow: 0 0 10px rgba(255, 10, 180, 0.5);
             transition: all 0.2s ease;
+          }
+
+          @media (max-width: 768px) {
+            .controls input[type="range"]::-webkit-slider-thumb {
+              width: 24px;
+              height: 24px;
+            }
+
+            .controls input[type="range"]::-moz-range-thumb {
+              width: 24px;
+              height: 24px;
+            }
           }
 
           .controls input[type="range"]::-webkit-slider-thumb:hover {
@@ -107,8 +119,8 @@ const PerlinControls = ({
           }
 
           .controls input[type="range"]::-moz-range-thumb {
-            width: 16px;
-            height: 16px;
+            width: 20px;
+            height: 20px;
             background: var(--primary-color, #ff0ab4);
             border-radius: 50%;
             cursor: pointer;
