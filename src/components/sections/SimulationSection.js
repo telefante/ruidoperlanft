@@ -9,8 +9,19 @@ import { useTracking } from "../../contexts/TrackingContext"
 
 const SimulationSection = ({ account, connectWallet, disconnectWallet }) => {
   const [controlsVisible, setControlsVisible] = useState(true) // Define the state
+  const [isMobile, setIsMobile] = useState(false)
   const COLLECTION_CONTRACT = process.env.GATSBY_RUIDOPERLANFT_CONTRACT
   const { trackEvent } = useTracking()
+
+  // Detect mobile on mount
+  React.useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768)
+    }
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
 
   // Define surface parameters for simulation
   const surfaceParams = {
@@ -64,7 +75,8 @@ const SimulationSection = ({ account, connectWallet, disconnectWallet }) => {
     @media (max-width: 768px) {
       max-width: 100vw;
       font-size: 1rem; /* Smaller font size for better readability on mobile */
-      display: none; /* Hide on smaller screens */
+      text-align: center;
+      padding: 0 1rem;
     }
   `
 
@@ -106,7 +118,7 @@ const SimulationSection = ({ account, connectWallet, disconnectWallet }) => {
           disconnectWallet={disconnectWallet}
           showCaptureButton={false}
           queryFile={queryFile}
-          fontSize="8vw"
+          fontSize="clamp(2rem, 5vw, 4rem)"
           controlsVisible={controlsVisible} // Pass the state
           setControlsVisible={setControlsVisible} // Pass the setter function
           verificationEnabled={true} // Pass verificationEnabled
@@ -114,31 +126,18 @@ const SimulationSection = ({ account, connectWallet, disconnectWallet }) => {
       </div>
 
       <DescriptionText>
-        Ruido Perla is a unique NFT collection of poetry and digital
-        simulation 
-        <br />
-        Collectors don’t just own an artwork— they gain access to mint images from simulation.
+        {isMobile
+          ? "Own a pearl, access the simulation"
+          : (
+            <>
+              Ruido Perla is a unique NFT collection of poetry and digital
+              simulation
+              <br />
+              Collectors don't just own an artwork— they gain access to mint images from simulation.
+            </>
+          )
+        }
     </DescriptionText>
-      <Row>
-        <Button
-          href={`${process.env.GATSBY_OBJKT_COLLECTION_URL}/${COLLECTION_CONTRACT}`}
-          target="_blank"
-          variant="secondary"
-          style={{
-            fontFamily: "var(--primary-font)",
-            fontStyle: "italic",
-            fontWeight: "bold",
-            fontSize: "0.9rem",
-            maxWidth: "100px",
-            zIndex: "1000",
-            position: "fixed",
-            top: "16vh",
-          }}
-          onClick={handleCollectNowClick(`${process.env.GATSBY_OBJKT_COLLECTION_URL}/${COLLECTION_CONTRACT}`)}
-        >
-          Collect now
-        </Button>
-      </Row>
     </SectionContainer>
   )
 }

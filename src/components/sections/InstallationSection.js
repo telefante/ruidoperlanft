@@ -59,6 +59,10 @@ const StyledCarousel = styled(Carousel)`
 const CarouselWrapper = styled.div`
   position: relative;
   z-index: 1;
+
+  @media (max-width: 768px) {
+    display: none;
+  }
 `
 
 const InstallationSection = () => {

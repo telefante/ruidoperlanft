@@ -26,6 +26,8 @@
   
   .simulation-title {
     text-align: left;
+    font-size: clamp(2rem, 4vw, 3.5rem);
+    line-height: 1.2;
   }
   
   @media (max-width: 768px) {

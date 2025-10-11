@@ -458,7 +458,9 @@ const MintNFTProcess = ({
       {/* Metadata Preview Modal */}
       <Modal show={showMetadataModal} onHide={() => setShowMetadataModal(false)} size="lg">
         <Modal.Header closeButton>
-          <Modal.Title>Metadata Preview</Modal.Title>
+          <Modal.Title style={{ fontFamily: "var(--primary-font)", fontWeight: "bold" }}>
+            You've Captured a Pearl
+          </Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <pre style={{ fontSize: "0.4rem" }}>{JSON.stringify(metadataToPreview, null, 2)}</pre>
@@ -487,7 +489,7 @@ const MintNFTProcess = ({
               )
             }}
           >
-            Upload to IPFS
+            Preserve this Pearl
           </Button>
         </Modal.Footer>
       </Modal>
@@ -552,7 +554,7 @@ const MintNFTProcess = ({
               maxWidth: "200px",
             }}
           >
-            Connect Wallet
+            Establish Presence
           </Button>
         ) : (
           <>
@@ -614,15 +616,20 @@ const MintNFTProcess = ({
                 ? "Already Minted"
                 : !tezosModules
                 ? "Loading Tezos..."
-                : "Mint this!"}
+                : "Crystallize as Memory"}
             </Button>
           </>
         )}
       </div>
 
       {mintSuccess && (
-        <div>
-          <p style={{ color: "green" }}>✅ NFT Minted Successfully!</p>
+        <div style={{ textAlign: "center", padding: "20px" }}>
+          <p style={{ color: "var(--primary-color, #ff0ab4)", fontSize: "1.5rem", fontWeight: "bold", fontFamily: "var(--primary-font)", marginBottom: "10px" }}>
+            ✨ Your Pearl is Now Eternal ✨
+          </p>
+          <p style={{ color: "black", fontSize: "1rem", fontStyle: "italic", marginBottom: "20px" }}>
+            This moment has been preserved on the blockchain, unchanging and infinite
+          </p>
           <Row>
             <Col md={6}>
               <p style={{ color: "black" }}>
@@ -632,7 +639,7 @@ const MintNFTProcess = ({
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  View on Better Call Dev
+                  View Contract Details
                 </a>
               </p>
               <p style={{ color: "black" }}>
@@ -642,7 +649,7 @@ const MintNFTProcess = ({
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  View on Objkt
+                  Visit Your Pearl
                 </a>
               </p>
             </Col>
@@ -655,7 +662,7 @@ const MintNFTProcess = ({
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    View on Better Call Dev
+                    View Contract Details
                   </a>
                 </p>
               )}
