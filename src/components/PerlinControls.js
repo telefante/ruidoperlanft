@@ -17,14 +17,43 @@ const PerlinControls = ({
   captureScene,
   controlsVisible,
   isMobile,
-  setIsAutoAnimating, // Add this prop
+  isAutoAnimating,
+  setIsAutoAnimating,
+  isCapturing,
 }) => {
   const handleRandomizeParameters = () => {
-    // Update parameters once with random or incremental values
-    setAmplitude((prev) => (prev >= 50 ? 1 : prev + 0.5))
-    setScale((prev) => (prev >= 0.015 ? 0.001 : prev + 0.001))
-    setFrequency((prev) => (prev >= 5 ? 1 : prev + 0.1))
-    setOctaves((prev) => (prev >= 5 ? 1 : prev + 1))
+    // Calculate target values
+    const targetAmplitude = amplitude >= 50 ? 1 : amplitude + 5
+    const targetScale = scale >= 0.015 ? 0.001 : scale + 0.002
+    const targetFrequency = frequency >= 5 ? 1 : frequency + 0.5
+    const targetOctaves = octaves >= 5 ? 1 : octaves + 1
+
+    // Animate transitions over 800ms
+    const duration = 800
+    const steps = 40
+    const interval = duration / steps
+
+    let currentStep = 0
+    const startAmplitude = amplitude
+    const startScale = scale
+    const startFrequency = frequency
+
+    const animate = setInterval(() => {
+      currentStep++
+      const progress = currentStep / steps
+
+      // Easing function (ease-out)
+      const easeProgress = 1 - Math.pow(1 - progress, 3)
+
+      setAmplitude(startAmplitude + (targetAmplitude - startAmplitude) * easeProgress)
+      setScale(startScale + (targetScale - startScale) * easeProgress)
+      setFrequency(startFrequency + (targetFrequency - startFrequency) * easeProgress)
+
+      if (currentStep >= steps) {
+        clearInterval(animate)
+        setOctaves(targetOctaves)
+      }
+    }, interval)
   }
 
   const handleAmplitudeChange = (e) => {
@@ -162,6 +191,21 @@ const PerlinControls = ({
               marginBottom: "5px",
             }}
           >
+            Autonomous Drift:
+            <input
+              type="checkbox"
+              checked={isAutoAnimating}
+              onChange={(e) => setIsAutoAnimating(e.target.checked)}
+              style={{ marginLeft: "5px" }}
+            />
+          </label>
+          <label
+            style={{
+              color: "white",
+              fontSize: "0.9rem",
+              marginBottom: "5px",
+            }}
+          >
             Wave Height:
             <input
               type="range"
@@ -245,19 +289,21 @@ const PerlinControls = ({
             <Button
               variant="danger"
               onClick={captureScene}
+              disabled={isCapturing}
               style={{
                 border: "none",
                 padding: "8px 16px",
                 borderRadius: "5px",
-                cursor: "pointer",
+                cursor: isCapturing ? "wait" : "pointer",
                 fontSize: "1rem",
                 marginTop: "10px",
                 fontFamily: "var(--primary-font)",
                 fontWeight: "bold",
                 fontStyle: "italic",
+                opacity: isCapturing ? 0.7 : 1,
               }}
             >
-              Preserve this Moment
+              {isCapturing ? "Rendering memory..." : "Preserve this Moment"}
             </Button>
           )}
           <Button

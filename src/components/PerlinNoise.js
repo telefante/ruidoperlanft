@@ -75,6 +75,13 @@ const PerlinNoise = ({
   const [isMobile, setIsMobile] = useState(false)
 
   const [isAutoAnimating, setIsAutoAnimating] = useState(false) // State for auto-animation
+  const [isCapturing, setIsCapturing] = useState(false) // State for capture loading
+
+  // Progressive disclosure states
+  const [isFirstVisit, setIsFirstVisit] = useState(true)
+  const [showExploreHint, setShowExploreHint] = useState(false)
+  const [hasInteractedWithOrbit, setHasInteractedWithOrbit] = useState(false)
+  const [showControlsPrompt, setShowControlsPrompt] = useState(false)
 
   const cameraSetupRef = useRef({
     position: { x: 0, y: 0, z: 0 },
@@ -294,6 +301,12 @@ const PerlinNoise = ({
     const onPointerUp = () => {
       if (controls.enabled) {
         renderer.domElement.style.cursor = "grab"
+
+        // Track orbit interaction for progressive disclosure
+        if (!hasInteractedWithOrbit) {
+          setHasInteractedWithOrbit(true)
+          setShowExploreHint(false) // Hide the explore hint once user interacts
+        }
       }
 
       cameraPositionRef.current = camera.position.clone()
@@ -350,6 +363,39 @@ const PerlinNoise = ({
     }
   }, [perlinSettings, isAutoAnimating])
 
+  // Progressive disclosure: Check if returning visitor
+  useEffect(() => {
+    const hasVisited = localStorage.getItem('ruidoPerla_visited')
+    if (hasVisited) {
+      setIsFirstVisit(false)
+      setControlsVisible(true)
+      setHasInteractedWithOrbit(true)
+    } else {
+      // First-time visitor - start progressive disclosure
+      setControlsVisible(false)
+
+      // Show "Touch to explore" hint after 20 seconds
+      const hintTimer = setTimeout(() => {
+        setShowExploreHint(true)
+      }, 20000)
+
+      return () => clearTimeout(hintTimer)
+    }
+  }, [])
+
+  // Mark as visited when user interacts
+  useEffect(() => {
+    if (hasInteractedWithOrbit && isFirstVisit) {
+      localStorage.setItem('ruidoPerla_visited', 'true')
+      setIsFirstVisit(false)
+
+      // Show controls prompt after orbit interaction
+      setTimeout(() => {
+        setShowControlsPrompt(true)
+      }, 1000)
+    }
+  }, [hasInteractedWithOrbit, isFirstVisit])
+
   useEffect(() => {
     const mediaQuery = window.matchMedia("(max-width: 768px)")
     const handleMediaQueryChange = e => {
@@ -377,6 +423,11 @@ const PerlinNoise = ({
     if (!containerRef.current) return
 
     try {
+      setIsCapturing(true)
+
+      // Simulate "Capturing..." state
+      await new Promise(resolve => setTimeout(resolve, 300))
+
       // Define the desired aspect ratio (4:3)
       const aspectRatio = 4 / 3
 
@@ -409,12 +460,21 @@ const PerlinNoise = ({
           )
         },
       })
+
+      // "Rendering memory..." state happens during html2canvas processing
+
       const imageData = capturedCanvas.toDataURL("image/png")
       setCurrentTextFragment(currentTextRef.current)
       setCapturedImage(imageData)
+
+      // Brief "Ready" state
+      await new Promise(resolve => setTimeout(resolve, 200))
+
+      setIsCapturing(false)
       setShowModal(true)
     } catch (error) {
       console.error("Error capturing scene:", error)
+      setIsCapturing(false)
     }
   }
 
@@ -506,7 +566,9 @@ const PerlinNoise = ({
           controlsVisible={controlsVisible}
           isMobile={isMobile}
           fontSize={fontSize}
-          setIsAutoAnimating={setIsAutoAnimating} // Pass this prop
+          isAutoAnimating={isAutoAnimating}
+          setIsAutoAnimating={setIsAutoAnimating}
+          isCapturing={isCapturing}
         />
       )}
       {verificationEnabled && (
@@ -538,7 +600,7 @@ const PerlinNoise = ({
         </div>
 
         <Row>
-          {enableOrbit && (
+          {enableOrbit && !isFirstVisit && (
             <div
               style={{
                 position: "absolute",
@@ -558,24 +620,97 @@ const PerlinNoise = ({
               Touch the landscape to explore
             </div>
           )}
+
+          {/* Progressive disclosure: Explore hint */}
+          {showExploreHint && (
+            <div
+              style={{
+                position: "absolute",
+                bottom: "15%",
+                left: "50%",
+                transform: "translateX(-50%)",
+                color: "rgba(255, 10, 180, 0.9)",
+                fontSize: "1.2rem",
+                fontFamily: "var(--primary-font)",
+                fontStyle: "italic",
+                textAlign: "center",
+                pointerEvents: "none",
+                zIndex: 1000,
+                textShadow: "2px 2px 8px rgba(0,0,0,0.7), 0 0 20px rgba(255, 10, 180, 0.5)",
+                animation: "fadeIn 1s ease-in",
+              }}
+            >
+              Touch to explore...
+            </div>
+          )}
+
+          {/* Progressive disclosure: Controls prompt */}
+          {showControlsPrompt && !controlsVisible && (
+            <div
+              style={{
+                position: "absolute",
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
+                backgroundColor: "rgba(83, 55, 119, 0.9)",
+                padding: "30px",
+                borderRadius: "12px",
+                border: "1px solid rgba(255, 10, 180, 0.5)",
+                boxShadow: "0 8px 32px rgba(0, 0, 0, 0.5)",
+                zIndex: 2001,
+                textAlign: "center",
+                fontFamily: "var(--primary-font)",
+                animation: "fadeIn 0.5s ease-in",
+              }}
+            >
+              <p style={{ color: "white", fontSize: "1.2rem", marginBottom: "20px", fontStyle: "italic" }}>
+                Want to shape this landscape?
+              </p>
+              <Button
+                onClick={() => {
+                  setControlsVisible(true)
+                  setShowControlsPrompt(false)
+                }}
+                variant="primary"
+                style={{
+                  fontFamily: "var(--primary-font)",
+                  fontWeight: "bold",
+                  fontSize: "1rem",
+                }}
+              >
+                Reveal Controls
+              </Button>
+              <p
+                onClick={() => setShowControlsPrompt(false)}
+                style={{
+                  color: "rgba(255, 255, 255, 0.6)",
+                  fontSize: "0.9rem",
+                  marginTop: "15px",
+                  cursor: "pointer",
+                  textDecoration: "underline",
+                }}
+              >
+                Maybe later
+              </p>
+            </div>
+          )}
         </Row>
       </Container>
 
-      <Button
-        onClick={() => setIsAutoAnimating(!isAutoAnimating)} // Toggle auto-animation
-        id="auto-animation-button"
-        style={{
-          position: "absolute",
-          bottom: "20px",
-          left: "20px",
-          zIndex: 1000,
-          fontFamily: "var(--primary-font)",
-          fontWeight: "bold",
-        }}
-        variant="outline"
-      >
-        {isAutoAnimating ? "Pause Drift" : "Autonomous Drift"}
-      </Button>
+      <style>
+        {`
+          @keyframes fadeIn {
+            from {
+              opacity: 0;
+              transform: translateY(10px);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0);
+            }
+          }
+        `}
+      </style>
 
       <div className={styles.modal}>
         <Draggable handle=".modal-header">
