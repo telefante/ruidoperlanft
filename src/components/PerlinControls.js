@@ -181,36 +181,40 @@ const PerlinControls = ({
             alignItems: "center",
           }}
         >
-          <label
-            style={{
-              color: "white",
-              fontSize: "0.9rem",
-              marginBottom: "5px",
-            }}
-          >
-            Use Perlin Noise:
-            <input
-              type="checkbox"
-              checked={usePerlin}
-              onChange={handlePerlinToggle}
-              style={{ marginLeft: "5px" }}
-            />
-          </label>
-          <label
-            style={{
-              color: "white",
-              fontSize: "0.9rem",
-              marginBottom: "5px",
-            }}
-          >
-            Autonomous Drift:
-            <input
-              type="checkbox"
-              checked={isAutoAnimating}
-              onChange={(e) => setIsAutoAnimating(e.target.checked)}
-              style={{ marginLeft: "5px" }}
-            />
-          </label>
+          {!isMobile && (
+            <>
+              <label
+                style={{
+                  color: "white",
+                  fontSize: "0.9rem",
+                  marginBottom: "5px",
+                }}
+              >
+                Use Perlin Noise:
+                <input
+                  type="checkbox"
+                  checked={usePerlin}
+                  onChange={handlePerlinToggle}
+                  style={{ marginLeft: "5px" }}
+                />
+              </label>
+              <label
+                style={{
+                  color: "white",
+                  fontSize: "0.9rem",
+                  marginBottom: "5px",
+                }}
+              >
+                Autonomous Drift:
+                <input
+                  type="checkbox"
+                  checked={isAutoAnimating}
+                  onChange={(e) => setIsAutoAnimating(e.target.checked)}
+                  style={{ marginLeft: "5px" }}
+                />
+              </label>
+            </>
+          )}
           <label
             style={{
               color: "white",
@@ -233,70 +237,74 @@ const PerlinControls = ({
               {amplitude}
             </span>
           </label>
-          <label
-            style={{
-              color: "white",
-              fontSize: "0.9rem",
-              marginBottom: "5px",
-            }}
-          >
-            Grain:
-            <input
-              type="range"
-              min="0.001"
-              max="0.015"
-              step="0.001"
-              value={scale}
-              onChange={handleScaleChange}
-              onInput={handleScaleChange}
-              style={{ width: "100%" }}
-            />
-            <span style={{ fontSize: "0.8rem", color: "white" }}>{scale}</span>
-          </label>
-          <label
-            style={{
-              color: "white",
-              fontSize: "0.9rem",
-              marginBottom: "5px",
-            }}
-          >
-            Rhythm:
-            <input
-              type="range"
-              min="1"
-              max="5"
-              step="0.5"
-              value={frequency}
-              onChange={handleFrequencyChange}
-              onInput={handleFrequencyChange}
-              style={{ width: "100%" }}
-            />
-            <span style={{ fontSize: "0.8rem", color: "white" }}>
-              {frequency}
-            </span>
-          </label>
-          <label
-            style={{
-              color: "white",
-              fontSize: "0.9rem",
-              marginBottom: "5px",
-            }}
-          >
-            Layers:
-            <input
-              type="range"
-              min="1"
-              max="5"
-              step="1"
-              value={octaves}
-              onChange={handleOctavesChange}
-              onInput={handleOctavesChange}
-              style={{ width: "100%" }}
-            />
-            <span style={{ fontSize: "0.8rem", color: "white" }}>
-              {octaves}
-            </span>
-          </label>
+          {!isMobile && (
+            <>
+              <label
+                style={{
+                  color: "white",
+                  fontSize: "0.9rem",
+                  marginBottom: "5px",
+                }}
+              >
+                Grain:
+                <input
+                  type="range"
+                  min="0.001"
+                  max="0.015"
+                  step="0.001"
+                  value={scale}
+                  onChange={handleScaleChange}
+                  onInput={handleScaleChange}
+                  style={{ width: "100%" }}
+                />
+                <span style={{ fontSize: "0.8rem", color: "white" }}>{scale}</span>
+              </label>
+              <label
+                style={{
+                  color: "white",
+                  fontSize: "0.9rem",
+                  marginBottom: "5px",
+                }}
+              >
+                Rhythm:
+                <input
+                  type="range"
+                  min="1"
+                  max="5"
+                  step="0.5"
+                  value={frequency}
+                  onChange={handleFrequencyChange}
+                  onInput={handleFrequencyChange}
+                  style={{ width: "100%" }}
+                />
+                <span style={{ fontSize: "0.8rem", color: "white" }}>
+                  {frequency}
+                </span>
+              </label>
+              <label
+                style={{
+                  color: "white",
+                  fontSize: "0.9rem",
+                  marginBottom: "5px",
+                }}
+              >
+                Layers:
+                <input
+                  type="range"
+                  min="1"
+                  max="5"
+                  step="1"
+                  value={octaves}
+                  onChange={handleOctavesChange}
+                  onInput={handleOctavesChange}
+                  style={{ width: "100%" }}
+                />
+                <span style={{ fontSize: "0.8rem", color: "white" }}>
+                  {octaves}
+                </span>
+              </label>
+            </>
+          )}
           {showCaptureButton && (
             <Button
               variant="danger"
