@@ -37,7 +37,33 @@ npm run format
 Formats all JS, JSX, TS, TSX, JSON, MD, and CSS files using Prettier.
 
 ### Deployment
-The project auto-deploys to Netlify on commits to `master` branch. Manual deployment: upload `public/` directory contents after running `gatsby build`.
+The project deploys to **Cloudflare Pages** on commits to `master`.
+
+**Cloudflare Pages project settings**
+- Build command: `gatsby build`
+- Build output directory: `public`
+- Node version: `20` (from `.nvmrc`)
+- Root directory: repo root
+
+**Local Pages Functions preview**
+```bash
+npx wrangler pages dev public --compatibility-flag=nodejs_compat
+# In another shell: gatsby build (to populate ./public)
+```
+
+**Environment variables — set in Cloudflare dashboard**
+
+Public (same across Production and Preview, inlined into the Gatsby bundle):
+- `GATSBY_TEZOS_RPC_URL`, `GATSBY_TEZOS_RPC_URL_BACKUP`
+- `GATSBY_TEZOS_REALTIME_CONTRACT`, `GATSBY_RUIDOPERLANFT_CONTRACT`
+- `GATSBY_RPNNFT_CREATOR`
+- `GATSBY_NETWORK_TYPE`, `GATSBY_API_VERSION`
+- `GATSBY_TZKT_API_URL`, `GATSBY_OBJKT_COLLECTION_URL`, `GATSBY_OBJKT_TOKEN_URL`, `GATSBY_OBJKT_GRAPHQL_URL`
+
+Secret (encrypted, server-only, **no `GATSBY_` prefix** — only available to Pages Functions):
+- `LIGHTHOUSE_API_KEY`
+
+**Migration note**: The old `GATSBY_LIGHTHOUSE_API_KEY` was inlined into the client bundle and must be considered compromised. Rotate the Lighthouse key after the first successful Cloudflare deploy, then store only the new value as `LIGHTHOUSE_API_KEY`.
 
 ## Architecture Overview
 
@@ -45,7 +71,7 @@ The project auto-deploys to Netlify on commits to `master` branch. Manual deploy
 - **Framework**: Gatsby 5.14+ (React-based static site generator)
 - **3D Graphics**: Three.js with WebGL rendering for Perlin noise visualization
 - **Blockchain**: Tezos using Taquito and Beacon Wallet
-- **Storage**: IPFS via Lighthouse SDK
+- **Storage**: IPFS via Lighthouse, fronted by Cloudflare Pages Functions (`functions/api/ipfs/*`) — the API key never reaches the browser
 - **Styling**: Bootstrap + Styled Components
 - **Animation**: Framer Motion
 
@@ -100,12 +126,19 @@ The minting process follows this sequence:
 1. User adjusts Perlin noise parameters and captures screenshot via `html2canvas`
 2. Image captured from canvas → Base64 data URL
 3. Preview modal shows metadata with placeholder image URL
-4. On confirmation: Upload image to IPFS → Get CID
+4. On confirmation: `POST /api/ipfs/upload` (multipart) → Pages Function forwards to Lighthouse → Get CID
 5. Generate final metadata with actual image CID
-6. Upload metadata to IPFS → Get metadata CID
+6. `POST /api/ipfs/upload-json` (JSON body) → Pages Function forwards to Lighthouse → Get metadata CID
 7. Call smart contract with metadata CID and payment
 
 **Important**: The minting flow uses tier-based pricing that changes as supply increases (src/components/MintNFTProcess.js:92-108).
+
+**5. IPFS Proxy via Cloudflare Pages Functions**
+The Lighthouse API key is server-only. Client code never holds it. Uploads go through:
+- `functions/api/ipfs/upload.js` — accepts `multipart/form-data` with a `file` field, validates size (≤15 MB) and MIME (`image/png`, `image/jpeg`), forwards to `https://node.lighthouse.storage/api/v0/add` with `Authorization: Bearer env.LIGHTHOUSE_API_KEY`.
+- `functions/api/ipfs/upload-json.js` — accepts `application/json` (≤100 KB), wraps it as a file upload, same forwarding path.
+
+Both return `{ cid, name, size }`. The client (`MintNFTProcess.js:uploadViaProxy`) retries up to 3 times on network/5xx failures. **No wallet-signature gating or per-wallet rate limiting is implemented yet** — relies on Cloudflare WAF rate limits configured in the dashboard.
 
 ### Component Architecture
 
@@ -140,25 +173,44 @@ The homepage is composed of modular sections that can be independently edited:
 
 ## Environment Configuration
 
-All environment variables must be prefixed with `GATSBY_` to be accessible in browser code.
+**Client-side vars** must be prefixed with `GATSBY_` — they are inlined into the static bundle and therefore public. Only use this prefix for values that are already public (contract addresses, RPC URLs, marketplace URLs).
+
+**Server-only secrets** have no prefix and are read by Cloudflare Pages Functions via `env.VAR_NAME`. They never appear in the client bundle. The Lighthouse API key is the only current secret.
 
 ### Required Variables
 ```bash
-# IPFS Storage
-GATSBY_LIGHTHOUSE_API_KEY=your_lighthouse_api_key
+# IPFS Storage (server-only, Pages Function env — NOT prefixed with GATSBY_)
+LIGHTHOUSE_API_KEY=your_lighthouse_api_key
 
 # Tezos Configuration
 GATSBY_NETWORK_TYPE=ghostnet # or mainnet
 GATSBY_TEZOS_RPC_URL=https://rpc.tzkt.io/ghostnet
+GATSBY_TEZOS_RPC_URL_BACKUP=https://ghostnet.tezos.marigold.dev
 GATSBY_TEZOS_REALTIME_CONTRACT=KT1...  # Real-time minting contract
 GATSBY_RUIDOPERLANFT_CONTRACT=KT1...   # Pre-minted collection contract
 GATSBY_RPNNFT_CREATOR=tz1...           # Creator/admin wallet address
+GATSBY_API_VERSION=v1
 
 # API Endpoints
 GATSBY_TZKT_API_URL=https://api.ghostnet.tzkt.io/
 GATSBY_OBJKT_COLLECTION_URL=https://ghostnet.objkt.com/collections
+GATSBY_OBJKT_TOKEN_URL=https://ghostnet.objkt.com/tokens
 GATSBY_OBJKT_GRAPHQL_URL=https://data.ghostnet.objkt.com/v3/graphql
 ```
+
+### Local development with Pages Functions
+For the standard Gatsby dev server (no proxy — uploads will 404):
+```bash
+gatsby develop
+```
+
+To test the Pages Functions locally:
+```bash
+echo "LIGHTHOUSE_API_KEY=<dev-key>" > .dev.vars   # gitignored
+gatsby build
+npx wrangler pages dev public --compatibility-flag=nodejs_compat
+```
+Wrangler serves `public/` and mounts the functions at `/api/*`.
 
 ### Smart Contract Integration
 
@@ -190,6 +242,13 @@ The minting process is stateful with multiple async steps. Pay attention to:
 - Error handling at each stage (upload failures, contract errors)
 - Supply checks before allowing minting
 - Wallet connection verification
+
+### Modifying the IPFS Proxy
+When changing upload behavior:
+- Frontend call sites live in `src/components/MintNFTProcess.js` — both `uploadImageToIPFS` (multipart) and `uploadMetadataToIPFS` (JSON) go through `uploadViaProxy` / `fetch`.
+- Server handlers live in `functions/api/ipfs/upload.js` and `functions/api/ipfs/upload-json.js`.
+- To add per-wallet gating: verify a Tezos signature (header e.g. `X-Wallet-Signature`) in the Pages Function before forwarding. Use `@taquito/utils` `verifySignature` — import dynamically to avoid bundling cost.
+- Adjust `MAX_FILE_SIZE` / `MAX_JSON_SIZE` / `ALLOWED_MIME_TYPES` constants at the top of the handler files.
 
 ### Debugging SSR Issues
 If you encounter "window is not defined" or similar errors during `gatsby build`:

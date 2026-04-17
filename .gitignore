@@ -58,6 +58,10 @@ typings/
 .cache/
 public
 
+# Cloudflare Wrangler
+.dev.vars
+.wrangler/
+
 # Mac files
 .DS_Store
 

@@ -1,8 +1,6 @@
-import React, { useRef, useState, useEffect } from "react"
-import * as lighthouse from "@lighthouse-web3/sdk"
+import React, { useState, useEffect } from "react"
 import { Button, Container, Row, Col, Modal, Spinner } from "react-bootstrap"
 import { useWallet } from "./WalletContext"
-// import ipfsOnlyHash from "ipfs-only-hash"
 
 // Check if we're in a browser environment
 const isBrowser = typeof window !== "undefined"
@@ -77,7 +75,6 @@ const MintNFTProcess = ({
     console.log("textFragment changed:", textFragment)
   }, [textFragment])
 
-  const LIGHTHOUSE_API_KEY = process.env.GATSBY_LIGHTHOUSE_API_KEY
   const realtimeRPNFTContract = process.env.GATSBY_TEZOS_REALTIME_CONTRACT
   const FIRST_CREATOR = process.env.GATSBY_RPNNFT_CREATOR
   // const PreMintedRPNCollection = process.env.GATSBY_RUIDOPERLANFT_CONTRACT
@@ -122,12 +119,21 @@ const MintNFTProcess = ({
     }
   }
 
-  const uploadWithRetry = async (file, retries = 3) => {
+  const uploadViaProxy = async (endpoint, formData, retries = 3) => {
     for (let attempt = 1; attempt <= retries; attempt++) {
       try {
-        const fileResponse = await lighthouse.upload([file], LIGHTHOUSE_API_KEY)
-        if (fileResponse.data && fileResponse.data.Hash) {
-          return fileResponse
+        const res = await fetch(endpoint, {
+          method: "POST",
+          body: formData,
+        })
+        if (res.ok) {
+          const data = await res.json()
+          if (data && data.cid) return data
+        }
+        const errText = await res.text().catch(() => res.statusText)
+        console.error(`Attempt ${attempt} failed (${res.status}):`, errText)
+        if (attempt === retries) {
+          throw new Error(`Upload failed: ${res.status} ${errText}`)
         }
       } catch (error) {
         console.error(`Attempt ${attempt} failed:`, error)
@@ -153,14 +159,14 @@ const MintNFTProcess = ({
 
       console.log("Image size:", file.size, "Image type:", file.type)
 
-      const fileResponse = await uploadWithRetry(file)
-      const imageCid = fileResponse.data.Hash
-      const ipfsImageUrl = `ipfs://${imageCid}`
+      const formData = new FormData()
+      formData.append("file", file)
+
+      const { cid } = await uploadViaProxy("/api/ipfs/upload", formData)
+      const ipfsImageUrl = `ipfs://${cid}`
       setIpfsUrl(ipfsImageUrl)
       console.log(
-        `✅ Image Uploaded: https://gateway.lighthouse.storage/ipfs/${
-          ipfsImageUrl.split("ipfs://")[1]
-        }`
+        `✅ Image Uploaded: https://gateway.lighthouse.storage/ipfs/${cid}`
       )
 
       return ipfsImageUrl
@@ -242,27 +248,16 @@ const MintNFTProcess = ({
 
     try {
       const tokenId = Math.floor(Math.random() * 100000)
-      const formattedTokenId = String(tokenId).padStart(3, "0")
-      const currentDate = new Date().toISOString()
 
-      const metadataBlob = new Blob([JSON.stringify(metadataJson)], {
-        type: "application/json",
+      const metadataResponse = await fetch("/api/ipfs/upload-json", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(metadataJson),
       })
-      const metadataFile = new File(
-        [metadataBlob],
-        `RuidoPerla${formattedTokenId}.json`,
-        {
-          type: "application/json",
-        }
-      )
 
-      const metadataResponse = await lighthouse.upload(
-        [metadataFile],
-        LIGHTHOUSE_API_KEY
-      )
-
-      if (metadataResponse.data && metadataResponse.data.Hash) {
-        const metadataCid = metadataResponse.data.Hash
+      if (metadataResponse.ok) {
+        const data = await metadataResponse.json()
+        const metadataCid = data.cid
         const IPFS_CID = `ipfs://${metadataCid}`
 
         console.log("✅ Metadata Uploaded:", IPFS_CID)

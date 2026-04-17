@@ -1,99 +1,131 @@
-<!-- AUTO-GENERATED-CONTENT:START (STARTER) -->
-<p align="center">
-  <a href="https://www.gatsbyjs.com">
-    <img alt="Gatsby" src="https://www.gatsbyjs.com/Gatsby-Monogram.svg" width="60" />
-  </a>
-</p>
-<h1 align="center">
-  Gatsby's default starter
-</h1>
+# Ruido Perla NFT
 
-Kick off your project with this default boilerplate. This starter ships with the main Gatsby configuration files you might need to get up and running blazing fast with the blazing fast app generator for React.
+> Pearl in Noise — finding beauty within chaos.
 
-_Have another more specific idea? You may want to check out our vibrant collection of [official and community-created starters](https://www.gatsbyjs.com/docs/gatsby-starters/)._
+An interactive generative art experience built on Gatsby + Three.js, paired with a real-time minting flow on Tezos. Users shape a 3D Perlin-noise landscape overlaid with multilingual poetry, capture a moment of it, and mint that moment as an NFT. The project originated from a physical audiovisual installation in Berlin.
 
-## 🚀 Quick start
+## Stack
 
-1.  **Create a Gatsby site.**
+- **Frontend** — Gatsby 5, React 18, Three.js, Framer Motion, Bootstrap + Styled Components
+- **Blockchain** — Tezos via Taquito and Beacon Wallet
+- **Storage** — IPFS via Lighthouse, fronted by a Cloudflare Pages Function so the API key never reaches the browser
+- **Hosting** — Cloudflare Pages (Functions + static Gatsby output)
 
-    Use the Gatsby CLI ([install instructions](https://www.gatsbyjs.com/docs/tutorial/getting-started/part-0/#gatsby-cli)) to create a new site, specifying the default starter.
+## Quick start
 
-    ```shell
-    # create a new Gatsby site using the default starter
-    gatsby new my-default-starter https://github.com/gatsbyjs/gatsby-starter-default
-    ```
+```bash
+npm install
+gatsby develop
+```
 
-1.  **Start developing.**
+Open http://localhost:8000. The IPFS upload endpoints are **not** served by `gatsby develop` — use the Wrangler workflow below to exercise the minting flow end-to-end.
 
-    Navigate into your new site’s directory and start it up.
+### Running with Pages Functions locally
 
-    ```shell
-    cd my-default-starter/
-    gatsby develop
-    ```
+```bash
+echo "LIGHTHOUSE_API_KEY=<your-dev-key>" > .dev.vars
+gatsby build
+npx wrangler pages dev public --compatibility-flag=nodejs_compat
+```
 
-1.  **Open the source code and start editing!**
+Wrangler serves `public/` and mounts the functions at `/api/ipfs/upload` and `/api/ipfs/upload-json`.
 
-    Your site is now running at `http://localhost:8000`!
+### Scripts
 
-    Note: You'll also see a second link: `http://localhost:8000/___graphql`. This is a tool you can use to experiment with querying your data. Learn more about using this tool in the [Gatsby Tutorial](https://www.gatsbyjs.com/docs/tutorial/getting-started/part-4/#use-graphiql-to-explore-the-data-layer-and-write-graphql-queries).
+| Command | Purpose |
+| --- | --- |
+| `gatsby develop` | Dev server (no Functions) |
+| `gatsby build` | Production build → `public/` |
+| `gatsby serve` | Preview built output |
+| `gatsby clean` | Wipe `.cache/` and `public/` |
+| `npm run format` | Prettier across JS/JSX/TS/TSX/JSON/MD/CSS |
 
-    Open the `my-default-starter` directory in your code editor of choice and edit `src/pages/index.js`. Save your changes and the browser will update in real time!
+## Project layout
 
-## 🚀 Quick start (Netlify)
+```
+.
+├── functions/api/ipfs/       Cloudflare Pages Functions (IPFS proxy)
+│   ├── upload.js             POST multipart → Lighthouse, returns { cid }
+│   └── upload-json.js        POST JSON → Lighthouse, returns { cid }
+├── src/
+│   ├── components/
+│   │   ├── PerlinNoise.js    Three.js scene + capture
+│   │   ├── MintNFTProcess.js Upload + mint orchestration
+│   │   ├── WalletContext.js  Beacon wallet state
+│   │   └── sections/         Homepage section components
+│   ├── data/                 Markdown text fragments (GraphQL)
+│   └── pages/                Gatsby routes
+├── gatsby-node.js            SSR webpack aliasing for browser-only deps
+├── wrangler.toml             Cloudflare Pages config
+└── .nvmrc                    Node 20
+```
 
-Deploy this starter with one click on [Netlify](https://app.netlify.com/signup):
+## Environment variables
 
-[<img src="https://www.netlify.com/img/deploy/button.svg" alt="Deploy to Netlify" />](https://app.netlify.com/start/deploy?repository=https://github.com/gatsbyjs/gatsby-starter-default)
+### Public — inlined into the client bundle
 
-## 🧐 What's inside?
+These are already public on-chain or are public URLs; the `GATSBY_` prefix is correct:
 
-A quick look at the top-level files and directories you'll see in a typical Gatsby project.
+```
+GATSBY_NETWORK_TYPE
+GATSBY_TEZOS_RPC_URL
+GATSBY_TEZOS_RPC_URL_BACKUP
+GATSBY_TEZOS_REALTIME_CONTRACT
+GATSBY_RUIDOPERLANFT_CONTRACT
+GATSBY_RPNNFT_CREATOR
+GATSBY_API_VERSION
+GATSBY_TZKT_API_URL
+GATSBY_OBJKT_COLLECTION_URL
+GATSBY_OBJKT_TOKEN_URL
+GATSBY_OBJKT_GRAPHQL_URL
+```
 
-    .
-    ├── node_modules
-    ├── src
-    ├── .gitignore
-    ├── gatsby-browser.js
-    ├── gatsby-config.js
-    ├── gatsby-node.js
-    ├── gatsby-ssr.js
-    ├── LICENSE
-    ├── package.json
-    └── README.md
+### Secret — server-only
 
-1.  **`/node_modules`**: This directory contains all of the modules of code that your project depends on (npm packages) are automatically installed.
+Only available inside Pages Functions as `env.LIGHTHOUSE_API_KEY`. No `GATSBY_` prefix, otherwise Gatsby would inline it.
 
-1.  **`/src`**: This directory will contain all of the code related to what you will see on the front-end of your site (what you see in the browser) such as your site header or a page template. `src` is a convention for “source code”.
+```
+LIGHTHOUSE_API_KEY
+```
 
-1.  **`.gitignore`**: This file tells git which files it should not track / not maintain a version history for.
+## Deployment (Cloudflare Pages)
 
-1.  **`gatsby-browser.js`**: This file is where Gatsby expects to find any usage of the [Gatsby browser APIs](https://www.gatsbyjs.com/docs/reference/config-files/gatsby-browser/) (if any). These allow customization/extension of default Gatsby settings affecting the browser.
+1. Create a Pages project, connect the repo, branch `master`.
+2. Build settings:
+   - Build command: `gatsby build`
+   - Build output directory: `public`
+   - Node version: `20`
+3. Environment variables (dashboard → *Settings → Environment variables*):
+   - Add every public `GATSBY_*` for both Production and Preview (plain text).
+   - Add `LIGHTHOUSE_API_KEY` as an **encrypted** secret.
+4. Deploy. Verify the proxy with:
+   ```bash
+   curl -i https://<project>.pages.dev/api/ipfs/upload -X OPTIONS
+   ```
 
-1.  **`gatsby-config.js`**: This is the main configuration file for a Gatsby site. This is where you can specify information about your site (metadata) like the site title and description, which Gatsby plugins you’d like to include, etc. (Check out the [config docs](https://www.gatsbyjs.com/docs/reference/config-files/gatsby-config/) for more detail).
+### Security note
 
-1.  **`gatsby-node.js`**: This file is where Gatsby expects to find any usage of the [Gatsby Node APIs](https://www.gatsbyjs.com/docs/reference/config-files/gatsby-node/) (if any). These allow customization/extension of default Gatsby settings affecting pieces of the site build process.
+Before the migration to Cloudflare, the Lighthouse API key was inlined into the client bundle as `GATSBY_LIGHTHOUSE_API_KEY`. Treat that key as compromised and rotate it after your first successful Cloudflare deploy. Only the new key, stored as `LIGHTHOUSE_API_KEY`, should exist going forward.
 
-1.  **`gatsby-ssr.js`**: This file is where Gatsby expects to find any usage of the [Gatsby server-side rendering APIs](https://www.gatsbyjs.com/docs/reference/config-files/gatsby-ssr/) (if any). These allow customization of default Gatsby settings affecting server-side rendering.
+### Roadmap for the proxy
 
-1.  **`LICENSE`**: This Gatsby starter is licensed under the 0BSD license. This means that you can see this file as a placeholder and replace it with your own license.
+- Wallet-signature gating (verify a Tezos signature header before forwarding)
+- Per-wallet/IP rate limiting via Cloudflare rules
+- Contract supply check server-side (block uploads once `max_supply` reached)
 
-1.  **`package.json`**: A manifest file for Node.js projects, which includes things like metadata (the project’s name, author, etc). This manifest is how npm knows which packages to install for your project.
+## Minting flow
 
-1.  **`README.md`**: A text file containing useful reference information about your project.
+1. User tweaks Perlin parameters in the UI.
+2. `html2canvas` captures the Three.js scene as a PNG data URL.
+3. Metadata preview modal opens (token name, attributes, tier price).
+4. On confirm:
+   - `POST /api/ipfs/upload` (multipart PNG) → `{ cid }`
+   - Final metadata JSON is generated with the image CID.
+   - `POST /api/ipfs/upload-json` → `{ cid }`
+   - Smart contract `mint` (or `admin_mint` for the creator wallet) called with the metadata CID and tier price.
 
-## 🎓 Learning Gatsby
+Tier pricing is dynamic based on current supply — see `src/components/MintNFTProcess.js:92-108`.
 
-Looking for more guidance? Full documentation for Gatsby lives [on the website](https://www.gatsbyjs.com/). Here are some places to start:
+## License
 
-- **For most developers, we recommend starting with our [in-depth tutorial for creating a site with Gatsby](https://www.gatsbyjs.com/docs/tutorial/getting-started/).** It starts with zero assumptions about your level of ability and walks through every step of the process.
-
-- **To dive straight into code samples, head [to our documentation](https://www.gatsbyjs.com/docs/).** In particular, check out the _Guides_, _API Reference_, and _Advanced Tutorials_ sections in the sidebar.
-
-## 💫 Deploy
-
-[Build, Deploy, and Host On Netlify](https://netlify.com)
-
-The fastest way to combine your favorite tools and APIs to build the fastest sites, stores, and apps for the web. And also the best place to build, deploy, and host your Gatsby sites.
-
-<!-- AUTO-GENERATED-CONTENT:END -->
+0BSD. See `LICENSE`.
